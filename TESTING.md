@@ -1,5 +1,13 @@
 # 0.3.1 checks — 29 September 2026
 
+Published [v0.3.1-preview](https://github.com/prutprut2003-creator/tar-client/releases/tag/v0.3.1-preview) from commit `d961ba473eeae4849136703b8f641ec65265eb3f`.
+[Windows CI run 36562964397](https://github.com/prutprut2003-creator/tar-client/actions/runs/36562964397) passed in 2m30s, including 19 tests with zero failures/skips. The exact CI ZIP was downloaded, checksum-verified and published (61,938,571 bytes).
+
+SHA-256: `27d656d0ce173da55ad7c7c50eb332de8056d28ee590abb9038f88eb9d71961a`.
+
+The fresh isolated game smoke run verified 84 libraries and 4,591 assets, then Fabric failed at `LoaderUtil.normalizeExistingPath` / `WindowsPath.toRealPath` with AccessDeniedException for lz4-java, before Tar initialization. No in-world rendering result is claimed.
+
+
 - Java 21 launcher and client compilation passed.
 - All 19 launcher/config tests passed, including new custom-profile duplicate protection, persistence of armor/motion-blur settings, old Spotify configuration removal, four armor directions and 0.3.0 core upgrade backup.
 - All 18 remapped mixins passed target verification (26 injections and 12 shadow fields) against Minecraft 1.21.11.
