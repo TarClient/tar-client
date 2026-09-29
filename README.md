@@ -1,4 +1,4 @@
-# Tar Client 0.3.0 — Windows preview
+# Tar Client 0.3.1 — Windows preview
 
 A standalone Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**,
 plus its bundled Tar Client cosmetic and HUD mod. This is a real desktop app,
@@ -9,7 +9,7 @@ a project name, not a claim of incorporation or a verified Windows publisher.
 Minecraft itself remains a separate product and requires its own entitlement
 for full-game play.
 
-[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.3.0; check the download version before installing. Windows signing remains subject to the limitation below.
+[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.3.1; check the download version before installing. Windows signing remains subject to the limitation below.
 
 ## Code signing policy
 
@@ -23,7 +23,7 @@ Do not disable Windows protection or use the CMD launcher to evade that block.
 
 ## Start
 
-1. Extract the entire `TarClient-0.3.0-Windows.zip` archive.
+1. Extract the entire `TarClient-0.3.1-Windows.zip` archive.
 2. Open `Tar Client/Tar Client.exe`. Keep `app` and `runtime` beside the EXE.
    For ordinary startup errors (not a Windows security block), `Start Tar Client.cmd`
    starts the same launcher using the bundled Java runtime and shows startup errors.
@@ -39,13 +39,14 @@ Do not disable Windows protection or use the CMD launcher to evade that block.
 Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 4 GB game memory; change it under **Settings**.
 
-## What's new in 0.3.0
+## What's new in 0.3.1
 
-- 33 module cards, with a compact armor HUD and individual background controls for every Tar HUD panel.
-- Added shulker previews, Spotify song/artwork overlay, zoom, freelook, clock, inventory, saturation, hit color, coordinates, reach measurement and server information.
-- Added module profiles with Bedwars/SMP presets, permission-respecting time changes, disconnect confirmation and an unfocused FPS cap.
-- Integrated compatible TierTagger, Smooth Motion Blur, 3D Skin Layers and Resource Tree downloads. Their toggles apply when restarting Minecraft; each exposes its upstream settings.
-- Read [MODULES.md](MODULES.md) for controls, settings and verification limits.
+- Removed the Spotify overlay and its Windows media helper.
+- Create your own named profiles in the launcher or directly from Right Shift > Profiles. Create never overwrites an existing profile; Update asks before replacing it.
+- Motion blur has its own strength and pause-in-menus settings in Tar. After its first installation and restart, adjustments and toggles apply live. These settings are saved in profiles.
+- Right Shift > Keybinds opens the binding editor for Tar controls, Minecraft controls and installed mods. Optional module toggle keys, Open profiles and Apply time start unbound. Menu, zoom, freelook, F11 and installed motion-blur shortcuts can be rebound. For a bindable hitbox shortcut, enable Always show in Hitbox outlines and assign its Tar toggle; Minecraft's own F3+B remains fixed.
+- Armor supports horizontal/vertical layout, reversed direction (up/left), icon size, slot spacing, optional durability text and bars, bar width and durability colors.
+- Read [MODULES.md](MODULES.md) for controls and verification limits.
 
 ## Earlier improvements in 0.2.1
 

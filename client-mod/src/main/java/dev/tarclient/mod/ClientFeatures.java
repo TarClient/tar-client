@@ -47,7 +47,8 @@ public final class ClientFeatures {
                 server.execute(()->{var player=server.getPlayerManager().getPlayer(uuid);if(player!=null)saturation=player.getHungerManager().getSaturationLevel();});
             }else saturation=client.player.getHungerManager().getSaturationLevel();
         }
-        SpotifyMedia.tick(CONFIG.on("spotify"));
+        TarKeybinds.tick(client);
+        MotionBlurBridge.tick();
     }
     public static void mouse(double dx,double dy){yaw+=(float)(dx*0.15*CONFIG.number("freelook","sensitivity"));pitch=(float)Math.clamp(pitch+dy*0.15*CONFIG.number("freelook","sensitivity"),-90,90);}
     public static float fov(float base){

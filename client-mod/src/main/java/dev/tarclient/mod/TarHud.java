@@ -47,7 +47,6 @@ public final class TarHud {
         if(CONFIG.on("saturation"))textPanel(c,"saturation",List.of(String.format(Locale.ROOT,"Saturation%s  %.1f",mc.isInSingleplayer()?"":" (estimate)",ClientFeatures.saturation)));
         if(CONFIG.on("reach")&&(editing||System.currentTimeMillis()-ClientFeatures.lastAttack<CONFIG.number("reach","seconds")*1000))textPanel(c,"reach",List.of(String.format(Locale.ROOT,"Last attack  %.2f blocks",ClientFeatures.reach)));
         if(CONFIG.on("server"))server(c);
-        if(CONFIG.on("spotify"))spotify(c,editing);
         if(editing)for(var e:BOXES.entrySet()){var b=e.getValue();c.drawStrokedRectangle(b.x-1,b.y-1,b.w+2,b.h+2,0xFFA5F078);}
     }
     private static void begin(DrawContext c,String id,int w,int h) {
@@ -55,7 +54,7 @@ public final class TarHud {
         int x=Math.round((c.getScaledWindowWidth()-width)*CONFIG.f(id,"x")/100),y=Math.round((c.getScaledWindowHeight()-height)*CONFIG.f(id,"y")/100);
         x=Math.max(0,x);y=Math.max(0,y);BOXES.put(id,new Box(x,y,width,height));
         c.getMatrices().pushMatrix();c.getMatrices().translate(x,y);c.getMatrices().scale(scale,scale);
-        if(CONFIG.bool(id,"showBackground")){int radius=CONFIG.i(id,"radius");if(id.equals("spotify"))radius=switch(CONFIG.i(id,"shape")){case 0->0;case 2->h/2;default->10;};rounded(c,0,0,w,h,radius,CONFIG.color(id,"background"));}
+        if(CONFIG.bool(id,"showBackground")){int radius=CONFIG.i(id,"radius");rounded(c,0,0,w,h,radius,CONFIG.color(id,"background"));}
     }
     private static void end(DrawContext c){c.getMatrices().popMatrix();}
     private static void textPanel(DrawContext c,String id,List<String> lines) {
@@ -63,17 +62,33 @@ public final class TarHud {
         begin(c,id,w,lines.size()*13+8);int y=5;for(String s:lines){c.drawTextWithShadow(font,s,6,y,CONFIG.color(id,"color"));y+=13;}end(c);
     }
     private static void armor(DrawContext c) {
-        var mc=MinecraftClient.getInstance();boolean horizontal=CONFIG.bool("armor","horizontal");begin(c,"armor",horizontal?172:100,horizontal?40:92);int index=0;
-        for(var slot:TarClient.ARMOR) {
-            var stack=mc.player.getEquippedStack(slot);int x=horizontal?index*42+5:5,y=horizontal?3:index*22+3;
+        var mc=MinecraftClient.getInstance();boolean horizontal=CONFIG.bool("armor","horizontal"),text=CONFIG.bool("armor","text"),bar=CONFIG.bool("armor","bar");
+        var stacks=Arrays.stream(TarClient.ARMOR).map(mc.player::getEquippedStack).filter(stack->!stack.isEmpty()||CONFIG.bool("armor","empty")).toList();
+        if(stacks.isEmpty())stacks=List.of(net.minecraft.item.ItemStack.EMPTY);
+        int icon=CONFIG.i("armor","iconSize"),barWidth=CONFIG.i("armor","barWidth"),textWidth=0;
+        if(text)for(var stack:stacks)textWidth=Math.max(textWidth,mc.textRenderer.getWidth(durabilityText(stack)));
+        int infoWidth=Math.max(textWidth,bar?barWidth:0),infoHeight=(text?10:0)+(bar?5:0);
+        int cellWidth=horizontal?Math.max(icon,infoWidth):icon+(infoWidth>0?6+infoWidth:0);
+        int cellHeight=horizontal?icon+(infoHeight>0?3+infoHeight:0):Math.max(icon,infoHeight);
+        var layout=new dev.tarclient.config.ArmorLayout(stacks.size(),horizontal,CONFIG.bool("armor","reverse"),cellWidth,cellHeight,CONFIG.i("armor","spacing"));
+        begin(c,"armor",layout.width(),layout.height());
+        for(int i=0;i<stacks.size();i++){
+            var stack=stacks.get(i);int x=layout.x(i),y=layout.y(i);
             if(!stack.isEmpty()){
-                c.drawItem(stack,x,y);String s="—";int color=CONFIG.color("armor","color");double pct=100;
-                if(stack.isDamageable()){int remaining=Math.max(0,stack.getMaxDamage()-stack.getDamage());pct=remaining*100.0/stack.getMaxDamage();s=CONFIG.bool("armor","percent")?Math.round(pct)+"%":Integer.toString(remaining);color=pct<=CONFIG.number("armor","threshold")?0xFFFF7878:pct<40?0xFFFFCD70:0xFFA5F078;}
-                c.drawTextWithShadow(mc.textRenderer,s,horizontal?x:x+23,horizontal?y+20:y+2,color);
-                if(CONFIG.bool("armor","bar")){int bx=horizontal?x:x+23,by=horizontal?y+32:y+14,bw=horizontal?30:65;c.fill(bx,by,bx+bw,by+2,0x60414D60);c.fill(bx,by,bx+(int)(bw*pct/100),by+2,color);}
-            }else if(CONFIG.bool("armor","empty"))c.drawTextWithShadow(mc.textRenderer,"—",x+5,y+5,0xFF778397);
-            index++;
+                c.getMatrices().pushMatrix();c.getMatrices().translate(x,y);c.getMatrices().scale(icon/16f,icon/16f);c.drawItem(stack,0,0);c.getMatrices().popMatrix();
+                double pct=stack.isDamageable()?Math.max(0,stack.getMaxDamage()-stack.getDamage())*100.0/stack.getMaxDamage():100;
+                int color=CONFIG.color("armor","color");
+                if(CONFIG.bool("armor","durabilityColors")&&stack.isDamageable())color=pct<=CONFIG.number("armor","threshold")?0xFFFF7878:pct<40?0xFFFFCD70:0xFFA5F078;
+                int tx=horizontal?x:x+icon+6,ty=horizontal?y+icon+3:y;
+                if(text)c.drawTextWithShadow(mc.textRenderer,durabilityText(stack),tx,ty,color);
+                if(bar&&stack.isDamageable()){int by=ty+(text?12:2);c.fill(tx,by,tx+barWidth,by+2,0x60414D60);c.fill(tx,by,tx+(int)(barWidth*pct/100),by+2,color);}
+            }else if(CONFIG.bool("armor","empty"))c.drawTextWithShadow(mc.textRenderer,"—",x+icon/2-3,y+icon/2-4,0xFF778397);
         }end(c);
+    }
+    private static String durabilityText(net.minecraft.item.ItemStack stack){
+        if(!stack.isDamageable())return "—";
+        int remaining=Math.max(0,stack.getMaxDamage()-stack.getDamage());
+        return CONFIG.bool("armor","percent")?Math.round(remaining*100.0/stack.getMaxDamage())+"%":Integer.toString(remaining);
     }
     private static void inventory(DrawContext c){
         var mc=MinecraftClient.getInstance();boolean hotbar=CONFIG.bool("inventory","hotbar");begin(c,"inventory",168,hotbar?78:58);
@@ -88,15 +103,6 @@ public final class TarHud {
         begin(c,"server",w,36);if(icon)picture(c,"server",info.getFavicon(),4,4,28,3);
         if(CONFIG.bool("server","name")){c.drawTextWithShadow(mc.textRenderer,info.name,offset,5,CONFIG.color("server","color"));c.drawTextWithShadow(mc.textRenderer,info.address,offset,20,CONFIG.color("server","color"));}
         else c.drawTextWithShadow(mc.textRenderer,info.address,offset,13,CONFIG.color("server","color"));end(c);
-    }
-    private static void spotify(DrawContext c,boolean editing){
-        var track=SpotifyMedia.current;if(!track.available()&&CONFIG.bool("spotify","hideIdle")&&!editing)return;
-        int w=CONFIG.i("spotify","width"),shape=CONFIG.i("spotify","shape"),offset=CONFIG.bool("spotify","artwork")?54:12;begin(c,"spotify",w,50);
-        if(CONFIG.bool("spotify","artwork"))picture(c,"spotify",track.artwork(),9,8,34,shape==0?0:shape==2?17:7);
-        var font=MinecraftClient.getInstance().textRenderer;String title=track.available()?track.title():"Spotify",artist=track.available()?track.artist():track.status();
-        c.drawTextWithShadow(font,font.trimToWidth(title,Math.max(1,w-offset-12)),offset,11,CONFIG.color("spotify","color"));
-        c.drawTextWithShadow(font,font.trimToWidth(artist,Math.max(1,w-offset-12)),offset,25,0xFFACB6C5);
-        if(track.available()&&!track.playing())c.fill(offset,39,w-12,41,0xFF728095);else c.fill(offset,39,offset+20,41,0xFFA5F078);end(c);
     }
     static void rounded(DrawContext c,int x,int y,int w,int h,int r,int color){
         r=Math.clamp(r,0,Math.min(w,h)/2);for(int row=0;row<h;row++){int d=row<r?r-row:row>=h-r?row-(h-r-1):0;int inset=d==0?0:(int)Math.ceil(r-Math.sqrt(Math.max(0,r*r-d*d)));c.fill(x+inset,y+row,x+w-inset,y+row+1,color);}

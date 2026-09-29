@@ -17,6 +17,13 @@ public final class ProfileStore {
         try(var files=Files.list(folder)){return files.filter(p->p.getFileName().toString().endsWith(".json")).map(p->p.getFileName().toString().replaceFirst("\\.json$","")).sorted(String.CASE_INSENSITIVE_ORDER).toList();}
     }
     public void save(String name,ClientConfig config)throws IOException{config.save(path(name));}
+    public void create(String name,ClientConfig config)throws IOException{
+        Path target=path(name);
+        if(list().stream().anyMatch(n->n.equalsIgnoreCase(name)))throw new IOException("That profile already exists. Choose another name or use Update.");
+        Files.createDirectories(folder);
+        Path pending=Files.createTempFile(folder,"new-profile-",".tmp");
+        try{config.save(pending);Files.move(pending,target);}finally{Files.deleteIfExists(pending);}
+    }
     public ClientConfig load(String name)throws IOException{Path p=path(name);if(!Files.isRegularFile(p))throw new IOException("Profile not found: "+name);return ClientConfig.read(p);}
     public void presets()throws IOException {
         for(String name:List.of("Bedwars","SMP")) {

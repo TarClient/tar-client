@@ -10,6 +10,42 @@ import java.util.zip.*;
 
 public class CoreTest {
     @TempDir Path temp;
+    @Test void customProfilesCreateWithoutOverwritingAndKeepNewSettings() throws Exception {
+        var store=new dev.tarclient.config.ProfileStore(temp);var c=new ClientConfig();
+        c.set("armor","horizontal",false);c.set("armor","reverse",true);c.set("armor","iconSize",24);c.set("armor","text",false);
+        c.set("motionblur","enabled",true);c.set("motionblur","strength",63);c.set("motionblur","pauseInGuis",false);
+        store.create("My Survival",c);c.set("motionblur","strength",18);
+        assertThrows(java.io.IOException.class,()->store.create("my survival",c));
+        assertThrows(java.io.IOException.class,()->store.create("My Survival",c));
+        var loaded=store.load("My Survival");assertEquals(63,loaded.number("motionblur","strength"));assertFalse(loaded.bool("motionblur","pauseInGuis"));
+        assertFalse(loaded.bool("armor","horizontal"));assertTrue(loaded.bool("armor","reverse"));assertEquals(24,loaded.i("armor","iconSize"));assertFalse(loaded.bool("armor","text"));
+        store.save("My Survival",c);assertEquals(18,store.load("My Survival").i("motionblur","strength"));
+        assertEquals(List.of("My Survival"),store.list());
+    }
+    @Test void upgradeRemovesSpotifyButPreservesOtherSettings() throws Exception {
+        Path p=temp.resolve("old.json");Files.writeString(p,"{\"spotify\":{\"enabled\":true},\"armor\":{\"horizontal\":false},\"motionblur\":{\"enabled\":true}}");
+        var c=ClientConfig.read(p);assertFalse(c.bool("armor","horizontal"));assertTrue(c.on("motionblur"));assertEquals(20,c.i("motionblur","strength"));
+        c.set("motionblur","strength",999);assertEquals(100,c.i("motionblur","strength"));
+        c.save(p);assertFalse(JsonParser.parseString(Files.readString(p)).getAsJsonObject().has("spotify"));
+        assertTrue(ClientConfig.MODULES.stream().noneMatch(m->m.id().equals("spotify")));
+    }
+    @Test void armorDirectionsKeepEverySlotInsideHudBounds() {
+        for(boolean horizontal:List.of(false,true))for(boolean reverse:List.of(false,true))for(int count=1;count<=4;count++){
+            var layout=new dev.tarclient.config.ArmorLayout(count,horizontal,reverse,37,29,8);
+            for(int i=0;i<count;i++){
+                assertTrue(layout.x(i)>=4&&layout.x(i)+37<=layout.width()-4);
+                assertTrue(layout.y(i)>=4&&layout.y(i)+29<=layout.height()-4);
+                if(i>0){int difference=horizontal?layout.x(i)-layout.x(i-1):layout.y(i)-layout.y(i-1);assertEquals((reverse?-1:1)*((horizontal?37:29)+8),difference);}
+            }
+        }
+    }
+    @Test void version031BacksUpVersion030() throws Exception {
+        Path mods=temp.resolve("mods");Files.createDirectories(mods);Path old=mods.resolve("tar-client-0.3.0.jar");
+        Files.copy(jar("old.jar","{\"id\":\"tarclient\",\"version\":\"0.3.0\"}","fabric.mod.json"),old);
+        byte[] update=Files.readAllBytes(jar("update.jar","{\"id\":\"tarclient\",\"version\":\"0.3.1\"}","fabric.mod.json"));
+        CoreInstaller.install(temp,new java.io.ByteArrayInputStream(update),"0.3.1");assertFalse(Files.exists(old));assertArrayEquals(update,Files.readAllBytes(mods.resolve("tar-client-0.3.1.jar")));
+        try(var backups=Files.list(temp.resolve("removed-mods"))){assertEquals(1,backups.count());}
+    }
     @Test void profilesKeepModuleSettingsAndRejectEscapingNames() throws Exception {
         var store=new dev.tarclient.config.ProfileStore(temp);store.presets();
         var bedwars=store.load("Bedwars");assertTrue(bedwars.on("keys"));assertFalse(bedwars.on("fullbright"));

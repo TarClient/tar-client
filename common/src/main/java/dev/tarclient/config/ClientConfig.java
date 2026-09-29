@@ -24,7 +24,7 @@ public final class ClientConfig {
     static {
         add("fps","FPS","HUD","Live frames per second.",true,hud(2,2));
         add("ping","Ping","HUD","Your server latency; singleplayer is shown separately.",true,hud(2,7));
-        add("armor","Armor status","HUD","Durability for every armor slot, with a repeating low-durability alert.",true,hud(2,72,n("threshold","Alert below (%)",15,1,50,1),b("sound","Play warning sound",true),n("volume","Warning volume",0.7,0,1,0.1),n("cooldown","Warning interval (seconds)",10,2,120,1),b("percent","Show percent",true),b("horizontal","Horizontal layout",true),b("bar","Durability bars",true),b("empty","Show empty slots",false)));
+        add("armor","Armor status","HUD","Durability for every armor slot, with a repeating low-durability alert.",true,hud(2,72,n("threshold","Alert below (%)",15,1,50,1),b("sound","Play warning sound",true),n("volume","Warning volume",0.7,0,1,0.1),n("cooldown","Warning interval (seconds)",10,2,120,1),b("percent","Show percent",true),b("horizontal","Horizontal layout",true),b("bar","Durability bars",true),b("empty","Show empty slots",false),b("reverse","Reverse direction (up / left)",false),b("text","Show durability text",true),n("iconSize","Armor icon size",16,12,32,1),n("spacing","Space between slots",6,0,24,1),n("barWidth","Durability bar width",30,12,80,1),b("durabilityColors","Color by durability",true)));
         add("potions","Potion status","HUD","Active effect names, amplifiers and remaining time.",true,hud(80,20,b("beneficial","Show beneficial effects",true),b("harmful","Show harmful effects",true)));
         add("keys","Keystrokes + mouse","HUD","Movement keys, jump, mouse buttons and left/right CPS.",true,hud(2,18,b("mouse","Show mouse buttons",true),b("cps","Show clicks per second",true),s("pressed","Pressed color (hex)","A5F078")));
         add("crosshair","Custom crosshair","Visual","Choose size, gap, thickness, color, dot and outline.",true,n("size","Arm length",5,1,30,1),n("gap","Center gap",3,0,20,1),n("thickness","Thickness",1,1,8,1),s("color","Color (hex)","A5F078"),b("dot","Center dot",false),b("outline","Black outline",true),b("thirdPerson","Show in third person",false));
@@ -42,7 +42,6 @@ public final class ClientConfig {
         add("saturation","Saturation","HUD","Exact in singleplayer. Multiplayer only exposes the client's estimate unless the server syncs it.",false,hud(45,90));
         add("reach","Reach display","HUD","Distance to the target's hitbox at your last attack; a local measurement, not server-confirmed damage.",false,hud(45,5,n("seconds","Display duration (seconds)",4,1,30,1),b("playersOnly","Only measure players",true)));
         add("server","Server address","HUD","Current server address with its server-list icon.",false,hud(65,92,b("icon","Show server icon",true),b("name","Show server name",true)));
-        add("spotify","Spotify overlay","HUD","Song and artwork from Windows Spotify. No Spotify login needed in Tar.",false,hud(72,70,n("shape","Shape: 0 square / 1 rounded / 2 pill",1,0,2,1),n("width","Panel width",210,140,360,10),b("artwork","Show album artwork",true),b("hideIdle","Hide when no Spotify session",true)));
         add("zoom","Zoom","Visual","Hold C to zoom; rebind in Minecraft Controls.",false,n("factor","Zoom multiplier",4,1.5,15,0.5),b("smooth","Smooth transition",true));
         add("freelook","Freelook","Visual","Hold Left Alt to look around in third person without turning your player. Rebind in Controls.",false,n("sensitivity","Camera sensitivity",1,0.1,3,0.1));
         add("shulker","Shulker box tooltips","Visual","Preview the contents of shulker boxes in a 9-column item grid.",true,b("shift","Require Shift",false),b("showBackground","Show background",true),s("background","Background (ARGB hex)","ED151C29"));
@@ -52,7 +51,7 @@ public final class ClientConfig {
         add("disconnect","Smart disconnect","Utility","Confirm before leaving through the pause menu.",true);
         add("unfocused","Limit unfocused FPS","Window","Cap FPS while Minecraft is not the focused window.",true,n("fps","Unfocused FPS limit",30,5,120,5));
         add("tiertagger","TierTagger","Integrations","Official MCTiers TierTagger. Downloaded from Modrinth; restart Minecraft after changing enabled state. Settings available in game.",false);
-        add("motionblur","Motion blur","Integrations","Smooth Motion Blur. Restart after enabling; adjust strength in its settings or /motionblur.",false);
+        add("motionblur","Motion blur","Integrations","Smooth Motion Blur. First installation needs a relaunch; strength, menu pause and toggles then apply live.",false,n("strength","Blur strength (1-100)",20,1,100,1),b("pauseInGuis","Pause blur in menus",true));
         add("skins3d","3D skins","Integrations","3D Skin Layers adds depth to the outer skin layer. Restart after changing enabled state; configure in game.",false);
         add("packorganizer","Pack organizer","Integrations","Resource Tree adds folders, creation and navigation in the Resource Packs screen. Restart after changing enabled state.",false);
     }
@@ -94,6 +93,7 @@ public final class ClientConfig {
         return number("items",context);
     }
     private synchronized void validate() {
+        values.remove("spotify"); // Removed module; also clean old profile snapshots.
         for(Module module:MODULES) {
             if(!values.has(module.id())||!values.get(module.id()).isJsonObject()) values.add(module.id(),new JsonObject());
             JsonObject obj=values.getAsJsonObject(module.id());

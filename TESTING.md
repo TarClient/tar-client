@@ -1,3 +1,16 @@
+# 0.3.1 checks — 29 September 2026
+
+- Java 21 launcher and client compilation passed.
+- All 19 launcher/config tests passed, including new custom-profile duplicate protection, persistence of armor/motion-blur settings, old Spotify configuration removal, four armor directions and 0.3.0 core upgrade backup.
+- All 18 remapped mixins passed target verification (26 injections and 12 shadow fields) against Minecraft 1.21.11.
+- Smooth Motion Blur 1.0.0's actual JAR API was inspected: public config enabled/strength/pauseInGuis, save(), renderer reset(). Upstream strength is clamped to 0.05-5.0, corresponding to display values 1-100.
+- Six motion-blur bridge state-transition checks passed using an upstream-API fixture: initial apply, idle without repeated writes, upstream shortcut changes, disabling/resetting history, upstream re-enable and profile switching. This checks synchronization logic, not the GPU renderer.
+- The actual Swing Profiles page was rendered and visually inspected. Packaged EXE/runtime/JAR contents and complete removal of Spotify classes/resources were verified.
+- Full in-world rendering and live GPU blur remain unverified. Earlier sandbox Fabric startup limitations are recorded below.
+- Microsoft login approval status has not been rechecked during this update.
+
+Earlier release records follow; Spotify checks below apply only to 0.3.0. The Spotify module and helper have been removed in 0.3.1.
+
 # Verification record — updated 20 September 2026
 
 ## 0.3.0 local verification (20 September)

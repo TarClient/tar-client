@@ -10,6 +10,11 @@ import dev.tarclient.mod.TarClient;
 public class MouseMixin {
     @Redirect(method="updateMouse",at=@At(value="INVOKE",target="Lnet/minecraft/client/network/ClientPlayerEntity;changeLookDirection(DD)V"))
     private void tar$look(net.minecraft.client.network.ClientPlayerEntity player,double x,double y){if(dev.tarclient.mod.ClientFeatures.freelooking)dev.tarclient.mod.ClientFeatures.mouse(x,y);else player.changeLookDirection(x,y);}
-    @Inject(method="onMouseButton",at=@At("HEAD"))
-    private void tar$click(long window,MouseInput input,int action,CallbackInfo ci){if(action==1&&MinecraftClient.getInstance().currentScreen==null)TarClient.click(input.button());}
+    @Inject(method="onMouseButton",at=@At("HEAD"),cancellable=true)
+    private void tar$click(long window,MouseInput input,int action,CallbackInfo ci){var client=MinecraftClient.getInstance();if(window!=client.getWindow().getHandle())return;
+        if(TarClient.MENU_KEY!=null&&TarClient.MENU_KEY.matchesMouse(new net.minecraft.client.gui.Click(0,0,input))
+            &&(client.currentScreen==null||client.currentScreen instanceof dev.tarclient.mod.TarSettingsScreen||client.currentScreen instanceof dev.tarclient.mod.HudEditorScreen)){
+            if(action==1)TarClient.toggleMenu(client);TarClient.MENU_KEY.setPressed(false);ci.cancel();return;
+        }
+        if(action==1&&client.currentScreen==null)TarClient.click(input.button());}
 }

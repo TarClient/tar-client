@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static final Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,GREEN=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="0.3.0";
+    public static final String VERSION="0.3.1";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -46,7 +46,7 @@ public final class TarLauncher extends JFrame {
         SwingUtilities.invokeLater(()->{try {
             var frame=new TarLauncher();
             if(args.length>=2&&args[0].equals("--render-preview")){
-                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "accounts"->frame.accounts();default->frame.home();}}
+                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();default->frame.home();}}
                 frame.worker.submit(()->SwingUtilities.invokeLater(()->{
                     try{frame.addNotify();frame.validate();var surface=frame.getContentPane();surface.setSize(frame.getWidth(),frame.getHeight());layoutTree(surface);
                         var picture=new java.awt.image.BufferedImage(surface.getWidth(),surface.getHeight(),java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -195,10 +195,14 @@ public final class TarLauncher extends JFrame {
     private boolean canEdit(){if(running()||busy){JOptionPane.showMessageDialog(this,"Use the in-game settings while Minecraft runs, or wait for the current operation.");return false;}return true;}
     private void profiles(){
         JPanel list=column();var store=new dev.tarclient.config.ProfileStore(settingsPath.getParent());
-        JPanel save=card();save.add(label("Save your current setup",22,Color.WHITE));save.add(Box.createVerticalStrut(12));
-        JTextField name=new JTextField();name.putClientProperty("JTextField.placeholderText","Profile name, e.g. Bedwars");name.setMaximumSize(new Dimension(10000,38));save.add(name);save.add(Box.createVerticalStrut(12));
-        save.add(primary("Save profile",()->{if(!canEdit())return;try{String value=name.getText().trim();if(store.list().contains(value)&&JOptionPane.showConfirmDialog(this,"Replace profile "+value+"?","Profiles",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)return;store.save(value,config);profiles();status("Saved profile "+value);}catch(Exception e){status(e.getMessage());}}));list.add(save);
-        try{store.presets();for(String profile:store.list()){list.add(Box.createVerticalStrut(12));JPanel card=card();card.add(label(profile,19,Color.WHITE));card.add(Box.createVerticalStrut(8));card.add(button("Load profile",()->{if(!canEdit())return;try{config=store.load(profile);saveConfig();status("Loaded profile "+profile+". Integration changes apply at next launch.");}catch(Exception e){status(e.getMessage());}}));list.add(card);}}catch(Exception e){status(e.getMessage());}
+        JPanel save=card();save.add(label("Create your own profile",22,Color.WHITE));save.add(Box.createVerticalStrut(12));
+        JTextField name=new JTextField();name.putClientProperty("JTextField.placeholderText","New profile name, e.g. My Survival");name.setMaximumSize(new Dimension(10000,38));save.add(name);save.add(Box.createVerticalStrut(12));
+        save.add(primary("Create profile",()->{if(!canEdit())return;try{String value=name.getText().trim();store.create(value,config);profiles();status("Created profile "+value+" from your current setup.");}catch(Exception e){JOptionPane.showMessageDialog(this,e.getMessage(),"Create profile",JOptionPane.INFORMATION_MESSAGE);}}));list.add(save);
+        try{store.presets();for(String profile:store.list()){
+            list.add(Box.createVerticalStrut(12));JPanel card=card();card.add(label(profile,19,Color.WHITE));card.add(Box.createVerticalStrut(8));JPanel actions=row();
+            actions.add(button("Load profile",()->{if(!canEdit())return;try{config=store.load(profile);saveConfig();status("Loaded profile "+profile+". Integration changes apply at next launch.");}catch(Exception e){status(e.getMessage());}}));
+            actions.add(button("Update with current setup",()->{if(!canEdit())return;if(JOptionPane.showConfirmDialog(this,"Replace settings in "+profile+" with your current setup?","Update profile",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)return;try{store.save(profile,config);status("Updated profile "+profile);}catch(Exception e){status(e.getMessage());}}));card.add(actions);list.add(card);
+        }}catch(Exception e){status(e.getMessage());}
         page("Profiles","Separate module setups for Bedwars, SMP, and everything else.",scroll(list));
     }
     private void saveConfig(){try{config.save(settingsPath);}catch(Exception e){status("Could not save settings: "+e.getMessage());}}

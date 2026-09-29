@@ -24,11 +24,16 @@ public final class TarSettingsScreen extends Screen {
         int side=panelWidth<480?88:110;
         mainX=left+side+14;mainWidth=panelWidth-side-28;contentY=top+78;
         addDrawableChild(new TarButton(left+panelWidth-36,top+12,24,22,"X",b->close()));
-        int navY=top+49,navStep=Math.clamp((panelHeight-120)/6,14,26);
-        for(String cat:List.of("All","HUD","Visual","Window","Utility","Integrations")){
+        var categories=List.of("All","HUD","Visual","Window","Utility","Integrations");
+        int navY=top+49,navStep=Math.min(26,(panelHeight-164)/categories.size());
+        if(panelHeight<300){
+            addDrawableChild(new TarButton(left+10,navY,side-18,22,category+" >",b->{selected=null;category=categories.get((categories.indexOf(category)+1)%categories.size());page=0;clearAndInit();}));
+        }else for(String cat:categories){
             addDrawableChild(new TarButton(left+10,navY,side-18,navStep-1,cat.equals("All")?"All modules":cat,b->{selected=null;category=cat;page=0;clearAndInit();},()->selected==null&&category.equals(cat)));
             navY+=navStep;
         }
+        addDrawableChild(new TarButton(left+10,top+panelHeight-109,side-18,20,"Profiles",b->client.setScreen(new ProfilesScreen(this))));
+        addDrawableChild(new TarButton(left+10,top+panelHeight-87,side-18,20,"Keybinds",b->client.setScreen(new net.minecraft.client.gui.screen.option.KeybindsScreen(this,client.options))));
         TarButton edit=new TarButton(left+10,top+panelHeight-65,side-18,25,"Edit HUD",b->client.setScreen(new HudEditorScreen(this)));
         edit.active=client.player!=null;addDrawableChild(edit);
         if(selected!=null){detail();return;}
@@ -55,9 +60,10 @@ public final class TarSettingsScreen extends Screen {
         addDrawableChild(new TarButton(mainX,top+44,90,22,"< Modules",b->{selected=null;page=0;clearAndInit();}));
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
-        if(integration!=null){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}
+        if(integration!=null&&!selected.equals("motionblur")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}
         if(selected.equals("timechanger")){var apply=new TarButton(mainX+96,top+44,mainWidth-96,22,"Apply time",b->ClientFeatures.applyTime());apply.active=client.player!=null;addDrawableChild(apply);}
-        int perPage=Math.max(1,(panelHeight-110)/42);
+        if(selected.equals("motionblur")){captions.add(new Caption(MotionBlurBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
+        int perPage=Math.max(1,(top+panelHeight-contentY-32)/42);
         page=Math.clamp(page,0,Math.max(0,(module.settings().size()-1)/perPage));
         for(int i=page*perPage;i<Math.min(module.settings().size(),(page+1)*perPage);i++){
             var s=module.settings().get(i);int y=contentY+(i-page*perPage)*42;
@@ -99,7 +105,7 @@ public final class TarSettingsScreen extends Screen {
         }
         for(var caption:captions)c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(caption.text(),caption.width()),caption.x(),caption.y(),0xFF9DADBF);
         c.drawCenteredTextWithShadow(textRenderer,"Saved automatically  /  "+(page+1),mainX+mainWidth/2,top+panelHeight-21,0xFF8190A2);
-        c.drawTextWithShadow(textRenderer,"RSHIFT / ESC",left+11,top+panelHeight-21,0xFF8190A2);
+        c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(TarClient.MENU_KEY.getBoundKeyLocalizedText().getString()+" / ESC",mainX-left-20),left+11,top+panelHeight-21,0xFF8190A2);
         super.render(c,mx,my,delta);
     }
     @Override public void close(){TarClient.save();client.setScreen(parent);}
