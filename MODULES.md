@@ -1,4 +1,4 @@
-# Tar Client 0.3.1 module guide
+# Tar Client 0.4.0 module guide
 
 Open **Client modules** in the launcher or press **Right Shift** in Minecraft.
 Search by name, toggle a module and open its settings. **Edit HUD** lets you drag
@@ -11,7 +11,7 @@ do not draw a HUD have no panel background to configure.
 
 | Module | Use and customization |
 | --- | --- |
-| Armor status | Horizontal or vertical strip. Reverse direction puts the first armor slot at the bottom/right. Set icon size, spacing, durability text visibility, bar visibility/width, optional durability colors, percentage/points and empty slots. Existing background, scale, position and warning-sound controls remain. |
+| Armor status | Use the Direction button for Right, Down, Left or Up. Horizontal or vertical strip. Reverse direction puts the first armor slot at the bottom/right. Set icon size, spacing, durability text visibility, bar visibility/width, optional durability colors, percentage/points and empty slots. Existing background, scale, position and warning-sound controls remain. |
 | Shulker box tooltips | 9-column contents grid on hover, optional Shift requirement and grid background. Minecraft still draws its outer tooltip frame. Only item contents supplied by the game are shown. |
 | Zoom | Enable, then hold **C**. Configure multiplier and smooth transition; rebind in Minecraft Controls. |
 | Freelook | Enable, then hold **Left Alt**. The camera enters third person and rotates independently while the player's aim stays unchanged. Releasing restores your prior perspective. Configure sensitivity and rebind in Controls. |
@@ -20,6 +20,7 @@ do not draw a HUD have no panel background to configure.
 | Inventory HUD | Main inventory grid, optional hotbar row and item count/durability overlays. |
 | Saturation | Exact singleplayer saturation. Multiplayer is labeled as an estimate because vanilla does not continuously synchronize the actual value. |
 | Hit color | Change the damage tint on player models. |
+| Streamer mode | Random fake coordinates shared by Tar Coordinates, vanilla F3 and BetterF3. Use Randomize again or a bound key to choose a fresh fake position. Does not affect actual movement or hide coordinates in chat, maps or unrelated mods. |
 | Coordinates | Block X/Y/Z and optional dimension label. Enable Show background for a coordinate box. |
 | Reach display | Distance from your eyes to the target hitbox at the last local attack, with display timeout and player-only filter. Does not change reach or confirm that the server accepted damage. |
 | Server address | Connected server address, optional server name and server-list image. A placeholder is used if Minecraft has no icon. |
@@ -66,3 +67,7 @@ See [TESTING.md](TESTING.md) for compilation, tests, package and mixin checks.
 The local environment has previously blocked Fabric startup during filesystem
 path resolution before Tar initializes, so in-world rendering is not yet verified.
 Minecraft account login still depends on Mojang's application review.
+
+## Accounts and desktop installation
+
+Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Toggle Streamer mode and Randomize streamer coordinates have optional bindings in Keybinds. All start unbound. Switching confirms leaving the current world but keeps Minecraft open. In the launcher, Play > Install to desktop creates a desktop shortcut to a complete installed app copy. See README and SIGN-IN-SETUP for details.

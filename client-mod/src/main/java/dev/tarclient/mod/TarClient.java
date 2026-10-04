@@ -40,6 +40,7 @@ public final class TarClient implements ClientModInitializer {
         ScreenEvents.AFTER_INIT.register((client,screen,w,h)->{if(screen instanceof TitleScreen||screen instanceof GameMenuScreen)Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("Tar settings"),b->client.setScreen(new TarSettingsScreen(screen))).dimensions(w-114,8,106,20).build());});
         ClientTickEvents.END_CLIENT_TICK.register(client->{
             long now=System.currentTimeMillis();prune(LEFT_CLICKS,now);prune(RIGHT_CLICKS,now);
+            StreamerMode.active();
             updateGlint(client);
             ClientFeatures.tick(client);
             if(client.player==null){lastAlert=0;return;}

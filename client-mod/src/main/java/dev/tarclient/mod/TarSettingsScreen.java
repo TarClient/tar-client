@@ -25,13 +25,14 @@ public final class TarSettingsScreen extends Screen {
         mainX=left+side+14;mainWidth=panelWidth-side-28;contentY=top+78;
         addDrawableChild(new TarButton(left+panelWidth-36,top+12,24,22,"X",b->close()));
         var categories=List.of("All","HUD","Visual","Window","Utility","Integrations");
-        int navY=top+49,navStep=Math.min(26,(panelHeight-164)/categories.size());
+        int navY=top+49,navStep=Math.min(26,(panelHeight-186)/categories.size());
         if(panelHeight<300){
             addDrawableChild(new TarButton(left+10,navY,side-18,22,category+" >",b->{selected=null;category=categories.get((categories.indexOf(category)+1)%categories.size());page=0;clearAndInit();}));
         }else for(String cat:categories){
             addDrawableChild(new TarButton(left+10,navY,side-18,navStep-1,cat.equals("All")?"All modules":cat,b->{selected=null;category=cat;page=0;clearAndInit();},()->selected==null&&category.equals(cat)));
             navY+=navStep;
         }
+        addDrawableChild(new TarButton(left+10,top+panelHeight-131,side-18,20,"Accounts",b->client.setScreen(new AccountsScreen(this))));
         addDrawableChild(new TarButton(left+10,top+panelHeight-109,side-18,20,"Profiles",b->client.setScreen(new ProfilesScreen(this))));
         addDrawableChild(new TarButton(left+10,top+panelHeight-87,side-18,20,"Keybinds",b->client.setScreen(new net.minecraft.client.gui.screen.option.KeybindsScreen(this,client.options))));
         TarButton edit=new TarButton(left+10,top+panelHeight-65,side-18,25,"Edit HUD",b->client.setScreen(new HudEditorScreen(this)));
@@ -61,6 +62,11 @@ public final class TarSettingsScreen extends Screen {
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
         if(integration!=null&&!selected.equals("motionblur")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}
+        if(selected.equals("armor"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Direction: "+armorDirection(),b->{
+            int index=java.util.List.of("Right","Down","Left","Up").indexOf(armorDirection());int next=(index+1)%4;
+            CONFIG.set("armor","horizontal",next%2==0);CONFIG.set("armor","reverse",next>=2);TarClient.save();clearAndInit();
+        }));
+        if(selected.equals("streamer"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Randomize again",b->StreamerMode.reroll()));
         if(selected.equals("timechanger")){var apply=new TarButton(mainX+96,top+44,mainWidth-96,22,"Apply time",b->ClientFeatures.applyTime());apply.active=client.player!=null;addDrawableChild(apply);}
         if(selected.equals("motionblur")){captions.add(new Caption(MotionBlurBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
         int perPage=Math.max(1,(top+panelHeight-contentY-32)/42);
@@ -83,6 +89,7 @@ public final class TarSettingsScreen extends Screen {
         }
         pages((module.settings().size()+perPage-1)/perPage);
     }
+    private String armorDirection(){return CONFIG.bool("armor","horizontal")?(CONFIG.bool("armor","reverse")?"Left":"Right"):(CONFIG.bool("armor","reverse")?"Up":"Down");}
     private void pages(int total){
         if(total>1){
             TarButton back=new TarButton(mainX,top+panelHeight-27,30,20,"<",b->{page--;clearAndInit();});back.active=page>0;addDrawableChild(back);

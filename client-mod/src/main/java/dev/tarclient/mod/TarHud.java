@@ -40,7 +40,7 @@ public final class TarHud {
         if(CONFIG.on("keys")) keys(c);
         if(CONFIG.on("clock"))textPanel(c,"clock",List.of(LocalTime.now().format(DateTimeFormatter.ofPattern(CONFIG.bool("clock","seconds")?"h:mm:ss a":"h:mm a",Locale.US))));
         if(CONFIG.on("coordinates")){
-            var pos=mc.player.getBlockPos();var lines=new ArrayList<String>();lines.add("XYZ  "+pos.getX()+"  "+pos.getY()+"  "+pos.getZ());
+            var pos=mc.player.getBlockPos();var lines=new ArrayList<String>();lines.add(StreamerMode.active()?"XYZ  "+StreamerMode.position().block()+" [Streamer]":"XYZ  "+pos.getX()+"  "+pos.getY()+"  "+pos.getZ());
             if(CONFIG.bool("coordinates","dimension"))lines.add(mc.world.getRegistryKey().getValue().getPath());textPanel(c,"coordinates",lines);
         }
         if(CONFIG.on("inventory"))inventory(c);

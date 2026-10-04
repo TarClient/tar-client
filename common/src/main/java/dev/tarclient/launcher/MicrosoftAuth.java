@@ -53,6 +53,13 @@ public final class MicrosoftAuth {
         var profile=Net.send(Net.request("https://api.minecraftservices.com/minecraft/profile").header("Authorization","Bearer "+access).GET().build()).getAsJsonObject();
         return new Session(profile.get("name").getAsString(),profile.get("id").getAsString(),access,System.currentTimeMillis()+mc.get("expires_in").getAsLong()*1000L,false);
     }
+    public static void validate(Session session) throws Exception {
+        if(session.demo()||session.accessToken().isBlank()||session.expiresAt()<=System.currentTimeMillis())throw new IOException("Please sign in again; this account session has expired.");
+        var entitlement=Net.send(Net.request("https://api.minecraftservices.com/entitlements/mcstore").header("Authorization","Bearer "+session.accessToken()).GET().build()).getAsJsonObject();
+        if(!entitlement.has("items")||entitlement.getAsJsonArray("items").isEmpty())throw new IOException("This account has no active Minecraft Java entitlement.");
+        var profile=Net.send(Net.request("https://api.minecraftservices.com/minecraft/profile").header("Authorization","Bearer "+session.accessToken()).GET().build()).getAsJsonObject();
+        if(!profile.get("id").getAsString().replace("-", "").equalsIgnoreCase(session.uuid().replace("-", "")))throw new IOException("Minecraft profile does not match this account. Please sign in again.");
+    }
     private void check(JsonObject result) throws IOException {
         if(result.has("error")) throw new IOException("Microsoft sign-in: "+result.get("error").getAsString()+". Check the application ID, public-client setting, and Xbox/Minecraft API access.");
     }

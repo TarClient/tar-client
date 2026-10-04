@@ -9,10 +9,7 @@ your password, borrow another launcher's identity, or provide cracked accounts.
 This is a public identifier, not a password. Users do not need an Azure account,
 an app registration, or any manual application ID setup.
 
-**Minecraft API approval is still pending.** The publisher submitted the review
-request on 20 September 2026 and the form confirmed receipt. Submission does not
-mean approval. Full account sign-in has not been verified. Entra
-registration and public-client configuration alone do not grant Minecraft access.
+**Minecraft API review was approved on 21 September 2026.** The publisher received the official AppID review completion email confirming allowlist approval. Approval is separate from an end-to-end account test; full sign-in and an authenticated server connection have not yet been verified during development.
 
 1. Open **Accounts** and click **Sign in with Microsoft**.
 2. Complete the official Microsoft device-code flow in your own browser.
@@ -39,6 +36,12 @@ each launcher restart. Signing out clears the launcher's in-memory session. The
 game necessarily receives a token when launched; its temporary Java argument file
 is deleted after startup or process exit. If the launcher is forcibly killed during
 startup, a `.launch-*.args` file could remain in the game folder; do not share it.
+
+## Switch accounts without closing Minecraft
+
+Open **Right Shift > Accounts > Add Microsoft / Minecraft account**. Open Microsoft's page and enter the displayed device code there. Tar verifies ownership, UUID, profile and account permissions before offering the switch. Adding an account does not automatically leave a world: the **Leave and switch** confirmation controls that step. Reconnect from the title screen after switching. Minecraft's multiplayer, chat and ban restrictions are preserved.
+
+Added accounts stay in the game process's memory, separately from the launcher's selected session. **Forget** clears an inactive saved session. Closing Minecraft clears this list. Signing in again is necessary when an access token expires. No Tar account database or refresh tokens are saved. Minecraft still manages its own profile-key cache.
 
 Microsoft references:
 - https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code

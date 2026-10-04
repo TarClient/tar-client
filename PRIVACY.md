@@ -50,3 +50,9 @@ instance folders or launch argument files. Review logs before posting them publi
 Custom data paths are supported. See [Uninstall](README.md#uninstall) to remove
 local data after backing up your worlds. No data is uploaded to Tar maintainers
 unless you choose to share it yourself.
+
+## In-game accounts and Streamer Mode
+
+In-game sign-in uses the same Microsoft/Xbox/Minecraft services as the launcher. Switching verifies the entitlement and UUID again, fetches profile restrictions and user permissions, and refreshes Minecraft's account services including its chat-signing keys, telemetry context and Realms client. Tar keeps these account tokens only in the game process; Minecraft's own profile-key cache and networking remain vanilla behavior. Closing Minecraft clears Tar's account list. The list is separate from the launcher's in-memory account.
+
+Streamer Mode changes only the coordinate text in Tar's HUD, vanilla F3 and supported BetterF3 displays. It does not hide information in chat, maps or unrelated mods. Desktop installation copies application files to `%LOCALAPPDATA%\Programs\Tar Client` and creates `Tar Client.lnk` on the desktop; it does not copy or move the game data folder.

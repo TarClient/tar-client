@@ -47,6 +47,7 @@ public final class ClientConfig {
         add("shulker","Shulker box tooltips","Visual","Preview the contents of shulker boxes in a 9-column item grid.",true,b("shift","Require Shift",false),b("showBackground","Show background",true),s("background","Background (ARGB hex)","ED151C29"));
         add("hitcolor","Hit color","Visual","Tint players when they take damage.",false,s("color","Damage color (hex)","FF6868"));
         add("timechanger","Time changer","Utility","Applies /time set only when you choose Apply. Requires server permission or singleplayer cheats.",false,n("time","Time of day (ticks)",1000,0,23999,100));
+        add("streamer","Streamer mode","Utility","Random display coordinates in Tar HUD, vanilla F3 and BetterF3. Does not hide coordinates in chat, maps or other mods.",false);
         add("profiles","Profiles","Utility","Save and load complete module settings. Includes Bedwars and SMP starting profiles.",true);
         add("disconnect","Smart disconnect","Utility","Confirm before leaving through the pause menu.",true);
         add("unfocused","Limit unfocused FPS","Window","Cap FPS while Minecraft is not the focused window.",true,n("fps","Unfocused FPS limit",30,5,120,5));

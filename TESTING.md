@@ -1,3 +1,13 @@
+# 0.4.0 checks — 4 October 2026
+
+- Java 21 launcher and Fabric client compilation passed locally.
+- Structural bytecode verification passed for 24 mixins/accessors, 29 injection targets and 23 shadow fields against Minecraft 1.21.11 and the actual BetterF3 17.0.0 JAR. Realms/splash setters and the Realms constructor invoker were also checked.
+- Local JUnit run: 24/25 tests passed. The desktop-copy test was blocked by the sandbox's WindowsPath.toRealPath AccessDeniedException in its temporary source folder. This is retained as a required test for the unrestricted Windows CI runner; it was not disabled or bypassed.
+- Tests cover randomized coordinate formatting and removal of chunk/region positions, preserving unrelated F3 text, streamer profile persistence, rejecting expired/demo sessions, full desktop-copy layout, repeated installations, incomplete-package rejection, safe quoting of paths and 0.3.1 upgrade backup.
+- Microsoft allowlist approval was confirmed from the publisher's 21 September review-completion email. No live login, authenticated server reconnection, Realms switch, chat-signing or in-world visual test is claimed.
+
+Earlier release records follow.
+
 # 0.3.1 checks — 29 September 2026
 
 Published [v0.3.1-preview](https://github.com/prutprut2003-creator/tar-client/releases/tag/v0.3.1-preview) from commit `d961ba473eeae4849136703b8f641ec65265eb3f`.

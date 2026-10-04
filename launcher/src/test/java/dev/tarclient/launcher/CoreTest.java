@@ -10,6 +10,51 @@ import java.util.zip.*;
 
 public class CoreTest {
     @TempDir Path temp;
+    @Test void streamerCoordinatesReplaceAllPositionLinesButPreserveOtherDebugInfo() {
+        var p=new dev.tarclient.config.StreamerCoordinates.Position(-17,81,34);
+        for(String line:List.of("XYZ: 123456.789 / 77.12345 / 98765.432","Block: 123456 77 98765","Chunk: 7716 4 6172 [4 28 in r.241.192.mca]","Section-relative: 00 13 09","Targeted Block: 123456, 77, 98765","Targeted Fluid: 123456, 77, 98765")){
+            String masked=dev.tarclient.config.StreamerCoordinates.vanilla(line,p);
+            assertTrue(masked.endsWith("[Streamer]"));assertFalse(masked.contains("123456"));assertFalse(masked.contains("r.241.192"));
+        }
+        assertEquals("Chunk: -2 5 2 [Streamer]",dev.tarclient.config.StreamerCoordinates.vanilla("Chunk: 123456",p));
+        assertEquals("Section-relative: 15 1 2 [Streamer]",dev.tarclient.config.StreamerCoordinates.vanilla("Section-relative: 123456",p));
+        for(String other:List.of("144 fps T: 120","Facing: north","minecraft:overworld","Biome: minecraft:plains","Java: 21.0.10"))assertEquals(other,dev.tarclient.config.StreamerCoordinates.vanilla(other,p));
+        for(String id:List.of("player_coords","block_coords","chunk_relative_coords","chunk_coords","targeted_block","targeted_fluid","targeted_entity"))assertNotNull(dev.tarclient.config.StreamerCoordinates.betterF3(id,p));
+        assertNull(dev.tarclient.config.StreamerCoordinates.betterF3("fps",p));
+    }
+    @Test void streamerPreferenceSurvivesCustomProfiles() throws Exception {
+        var c=new ClientConfig();assertFalse(c.on("streamer"));c.set("streamer","enabled",true);
+        var store=new dev.tarclient.config.ProfileStore(temp);store.create("Streaming",c);assertTrue(store.load("Streaming").on("streamer"));
+    }
+    @Test void expiredAndDemoAccountsCannotBeUsedForSwitching() {
+        assertThrows(java.io.IOException.class,()->MicrosoftAuth.validate(MicrosoftAuth.Session.demoSession()));
+        assertThrows(java.io.IOException.class,()->MicrosoftAuth.validate(new MicrosoftAuth.Session("Test","id","expired",0,false)));
+        assertFalse(new MicrosoftAuth.Session("Test","id","private-token",Long.MAX_VALUE,false).toString().contains("private-token"));
+    }
+    @Test void desktopInstallationCopiesWholeAppWithoutOverwritingOldVersion() throws Exception {
+        Path source=temp.resolve("extracted");
+        for(String name:List.of("Tar Client.exe","app/tar-launcher.jar","app/Tar Client.cfg","runtime/bin/java.exe","runtime/lib/modules","licenses/LICENSE.txt")){
+            Path p=source.resolve(name);Files.createDirectories(p.getParent());Files.writeString(p,"content of "+name);
+        }
+        Path installed=DesktopInstaller.copyApplication(source,temp.resolve("Programs/Tar Client"));
+        assertEquals("content of runtime/lib/modules",Files.readString(installed.getParent().resolve("runtime/lib/modules")));
+        assertEquals("content of app/tar-launcher.jar",Files.readString(installed.getParent().resolve("app/tar-launcher.jar")));
+        Path second=DesktopInstaller.copyApplication(source,temp.resolve("Programs/Tar Client"));
+        assertNotEquals(installed,second);assertTrue(Files.exists(installed));assertTrue(Files.exists(source.resolve("Tar Client.exe")));
+        assertThrows(java.io.IOException.class,()->DesktopInstaller.copyApplication(source,source.resolve("nested")));
+        assertEquals("'C:\\Users\\O''Brien\\Tar Client.exe'",DesktopInstaller.quote("C:\\Users\\O'Brien\\Tar Client.exe"));
+    }
+    @Test void incompleteDownloadsCannotCreateAnInstalledApp() throws Exception {
+        Path source=temp.resolve("partial");Files.createDirectories(source);Files.writeString(source.resolve("Tar Client.exe"),"exe");
+        assertThrows(java.io.IOException.class,()->DesktopInstaller.copyApplication(source,temp.resolve("Programs")));
+        assertFalse(Files.exists(temp.resolve("Programs")));
+    }
+    @Test void version040BacksUpVersion031() throws Exception {
+        Path mods=temp.resolve("mods");Files.createDirectories(mods);Path old=mods.resolve("tar-client-0.3.1.jar");
+        Files.copy(jar("old040.jar","{\"id\":\"tarclient\",\"version\":\"0.3.1\"}","fabric.mod.json"),old);
+        byte[] update=Files.readAllBytes(jar("update040.jar","{\"id\":\"tarclient\",\"version\":\"0.4.0\"}","fabric.mod.json"));
+        CoreInstaller.install(temp,new java.io.ByteArrayInputStream(update),"0.4.0");assertFalse(Files.exists(old));assertArrayEquals(update,Files.readAllBytes(mods.resolve("tar-client-0.4.0.jar")));
+    }
     @Test void customProfilesCreateWithoutOverwritingAndKeepNewSettings() throws Exception {
         var store=new dev.tarclient.config.ProfileStore(temp);var c=new ClientConfig();
         c.set("armor","horizontal",false);c.set("armor","reverse",true);c.set("armor","iconSize",24);c.set("armor","text",false);

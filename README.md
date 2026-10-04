@@ -1,4 +1,4 @@
-# Tar Client 0.3.1 — Windows preview
+# Tar Client 0.4.0 — Windows preview
 
 A standalone Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**,
 plus its bundled Tar Client cosmetic and HUD mod. This is a real desktop app,
@@ -9,7 +9,7 @@ a project name, not a claim of incorporation or a verified Windows publisher.
 Minecraft itself remains a separate product and requires its own entitlement
 for full-game play.
 
-[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.3.1; check the download version before installing. Windows signing remains subject to the limitation below.
+[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.4.0; check the download version before installing. Windows signing remains subject to the limitation below.
 
 ## Code signing policy
 
@@ -23,23 +23,32 @@ Do not disable Windows protection or use the CMD launcher to evade that block.
 
 ## Start
 
-1. Extract the entire `TarClient-0.3.1-Windows.zip` archive.
+1. Extract the entire `TarClient-0.4.0-Windows.zip` archive.
 2. Open `Tar Client/Tar Client.exe`. Keep `app` and `runtime` beside the EXE.
    For ordinary startup errors (not a Windows security block), `Start Tar Client.cmd`
    starts the same launcher using the bundled Java runtime and shows startup errors.
+   For a desktop app, click **Install to desktop** on the Play page. This copies the complete app and Java runtime into `%LOCALAPPDATA%\Programs\Tar Client` and creates **Tar Client** on your Windows desktop. Open that shortcut afterwards; you can then move or remove the extracted download. Each installation keeps previous installed versions for rollback. No administrator access is required.
 3. Click **Install / verify files**. The first download includes Minecraft,
    Fabric, assets, Fabric API, Mod Menu, BetterF3 and their required dependencies.
 4. To try it without an account, choose **Try Minecraft demo**. This launches
    Minecraft's own restricted demo, not an offline full-game account.
 5. Open **Accounts** and choose **Sign in with Microsoft**. Tar Client's public
    application ID is built in; you do not need to register or paste an ID.
-   **Minecraft API approval is pending, so full sign-in is not yet verified.**
+   Minecraft API review was approved on 21 September 2026. A successful live account login is still a separate check.
    See [SIGN-IN-SETUP.md](SIGN-IN-SETUP.md).
 
 Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 4 GB game memory; change it under **Settings**.
 
-## What's new in 0.3.1
+## What's new in 0.4.0
+
+- **Streamer mode** randomizes coordinates shown by Tar's Coordinates HUD, vanilla F3 and BetterF3. The fake position is consistent between those displays until you randomize it again or re-enable the module. Real positions, packets and world data are untouched. Chat, screenshots taken earlier, maps and other mods are outside its scope.
+- **Right Shift > Accounts** lets you add Microsoft accounts, switch between verified sessions, and forget inactive accounts. A switch from a world asks before leaving; Minecraft stays open. Entitlement, profile, account permissions, chat-signing keys and Realms state are refreshed. Accounts are stored only in Minecraft's memory and must be added again after it closes. Changes here do not change the separate launcher's selected account for its next launch.
+- **Install to desktop** installs a complete copy per Windows user and creates a normal desktop shortcut. Java remains bundled.
+- Armor Settings now has a quick **Direction: Right / Down / Left / Up** button.
+- New account and streamer controls can be rebound through **Right Shift > Keybinds**. All 0.3.1 profile, motion-blur, keybind and armor options remain available.
+
+## Improvements in 0.3.1
 
 - Removed the Spotify overlay and its Windows media helper.
 - Create your own named profiles in the launcher or directly from Right Shift > Profiles. Create never overwrites an existing profile; Update asks before replacing it.
@@ -63,7 +72,7 @@ Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 - Start Microsoft sign-in or account creation from Accounts. The official browser completes the account flow; the registered Tar application ID is now included.
 - Existing worlds and settings are reused. The previous bundled core is backed up during upgrade.
 
-**Verification status:** see [TESTING.md](TESTING.md) for the current launcher checks and earlier verification. Eighteen remapped mixins were checked against Minecraft 1.21.11 bytecode. A real GLFW window passed three fullscreen/windowed cycles with geometry callbacks at 3840x2160. The Swing launcher and live Modrinth catalog were rendered and inspected. Full gameplay, multi-monitor transitions and Microsoft account login remain unverified. See [TESTING.md](TESTING.md).
+**Verification status:** see [TESTING.md](TESTING.md) for the current launcher checks and earlier verification. Twenty-four remapped mixins/accessors were checked against Minecraft 1.21.11 and BetterF3 17.0.0 bytecode. A real GLFW window passed three fullscreen/windowed cycles with geometry callbacks at 3840x2160. The Swing launcher and live Modrinth catalog were rendered and inspected. Full gameplay, multi-monitor transitions and Microsoft account login remain unverified. See [TESTING.md](TESTING.md).
 
 ## Included features
 
@@ -157,7 +166,7 @@ It does not purchase services, sign executables, or publish releases automatical
 
 ## Uninstall
 
-Close Minecraft and Tar Client, then delete the extracted launcher folder.
+Close Minecraft and Tar Client, then delete the extracted launcher folder. If you used Install to desktop, remove the Tar Client desktop shortcut and `%LOCALAPPDATA%\Programs\Tar Client` as well. These application copies do not contain your saved worlds.
 To also remove downloaded files and settings, first back up worlds under
 `%LOCALAPPDATA%\TarClient\instance-1.21.11\saves`, then delete
 `%LOCALAPPDATA%\TarClient`. This second step deletes saved worlds, screenshots,

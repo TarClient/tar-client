@@ -20,7 +20,13 @@
     "FpsLimitMixin",
     "DisconnectMixin",
     "HitColorMixin",
-    "ShulkerMixin"
+    "ShulkerMixin",
+    "StreamerDebugMixin",
+    "StreamerBetterF3Mixin",
+    "AccountSessionMixin",
+    "RealmsClientAccess",
+    "RealmsAvailabilityAccess",
+    "SplashSessionAccess"
   ],
   "injectors": {
     "defaultRequire": 1

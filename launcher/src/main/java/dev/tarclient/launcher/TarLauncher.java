@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static final Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,GREEN=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="0.3.1";
+    public static final String VERSION="0.4.0";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -36,6 +36,12 @@ public final class TarLauncher extends JFrame {
     private java.nio.channels.FileChannel lockChannel;
     private java.nio.channels.FileLock processLock;
     public static void main(String[] args) throws Exception {
+        if(Arrays.asList(args).contains("--install-desktop")) {
+            try {var installed=DesktopInstaller.install();System.out.println("Desktop shortcut: "+installed.shortcut());
+                if(!Arrays.asList(args).contains("--quiet"))JOptionPane.showMessageDialog(null,"Tar Client is installed. Open Tar Client on your desktop.","Tar Client",JOptionPane.INFORMATION_MESSAGE);
+            }catch(Exception e){if(Arrays.asList(args).contains("--quiet"))throw e;JOptionPane.showMessageDialog(null,e.getMessage(),"Tar Client installation",JOptionPane.ERROR_MESSAGE);}
+            return;
+        }
         if(Arrays.asList(args).contains("--smoke")) { Smoke.main(args);return; }
         FlatDarkLaf.setup();
         UIManager.put("defaultFont",new Font("Segoe UI",Font.PLAIN,14));
@@ -113,7 +119,7 @@ public final class TarLauncher extends JFrame {
         JPanel shortcuts=new JPanel(new GridLayout(1,2,14,0));shortcuts.setOpaque(false);shortcuts.setAlignmentX(0);
         JPanel personalize=card();personalize.add(label("Make it yours",19,Color.WHITE));personalize.add(Box.createVerticalStrut(8));personalize.add(wrap("Tune your crosshair, HUD and visuals. Open the in-game menu with Right Shift.",2));personalize.add(Box.createVerticalStrut(16));personalize.add(button("Customize client  >",this::modules));shortcuts.add(personalize);
         JPanel extend=card();extend.add(label("Find your next mod",19,Color.WHITE));extend.add(Box.createVerticalStrut(8));extend.add(wrap("Browse compatible Fabric mods and add your favorites from Modrinth.",2));extend.add(Box.createVerticalStrut(16));extend.add(button("Explore mods  >",this::discover));shortcuts.add(extend);
-        content.add(shortcuts);content.add(Box.createVerticalStrut(18));JPanel tools=row();tools.setAlignmentX(0);tools.add(button("Install / verify files",()->operation(()->prepare(),()->status("Installation verified"))));tools.add(button("Open game folder",()->open(game)));content.add(tools);
+        content.add(shortcuts);content.add(Box.createVerticalStrut(18));JPanel tools=row();tools.setAlignmentX(0);tools.add(button("Install / verify files",()->operation(()->prepare(),()->status("Installation verified"))));tools.add(button("Open game folder",()->open(game)));tools.add(button("Install to desktop",this::installDesktop));content.add(tools);
         content.add(Box.createVerticalStrut(14));content.add(label("Not an official Minecraft product. Not affiliated with Mojang or Microsoft.",10,MUTED));
         page("Play","Welcome back. Let's build something.",scroll(content));
     }
@@ -134,7 +140,7 @@ public final class TarLauncher extends JFrame {
         main.add(actions);main.add(Box.createVerticalStrut(16));main.add(label("No separate Tar account is needed. Never enter your Microsoft password into Tar.",12,MUTED));list.add(main);
         list.add(Box.createVerticalStrut(16));JPanel info=card();info.add(label("New to Minecraft?",19,Color.WHITE));info.add(Box.createVerticalStrut(8));info.add(wrap("Creating a Microsoft account is free. Playing the full game needs a Minecraft Java entitlement. You can try Minecraft's demo while setting up your account.",3));info.add(Box.createVerticalStrut(12));info.add(button("Try Minecraft demo",()->launch(true)));list.add(info);
         if(MicrosoftAuth.DEFAULT_CLIENT_ID.equals(MicrosoftAuth.clientId(pref("clientId","")))){
-            list.add(Box.createVerticalStrut(16));JPanel setup=card();setup.add(label("Minecraft approval pending",17,GREEN));setup.add(Box.createVerticalStrut(8));setup.add(wrap("Tar Client's Microsoft connection is already configured. Minecraft API approval is still pending, so full account sign-in may not complete yet. No application ID setup is needed.",3));list.add(setup);
+            list.add(Box.createVerticalStrut(16));JPanel setup=card();setup.add(label("Microsoft connection ready",17,GREEN));setup.add(Box.createVerticalStrut(8));setup.add(wrap("Tar Client's application ID is included and its Minecraft API review was approved on September 21, 2026. Sign in with your own Minecraft Java account. In game, use Right Shift > Accounts to switch without restarting Minecraft.",3));list.add(setup);
         }
         page("Accounts","Your Minecraft identity, connected securely.",scroll(list));
     }
@@ -242,6 +248,9 @@ public final class TarLauncher extends JFrame {
         JPanel connection=card();connection.add(label("Microsoft connection",22,Color.WHITE));connection.add(Box.createVerticalStrut(10));connection.add(wrap("Tar Client's Microsoft application ID is included automatically. Advanced: override it below, or clear the field to restore Tar Client's default.",2));connection.add(Box.createVerticalStrut(12));JTextField clientId=new JTextField(MicrosoftAuth.clientId(pref("clientId","")));clientId.putClientProperty("JTextField.placeholderText","Application (client) ID");clientId.setMaximumSize(new Dimension(10000,38));connection.add(clientId);connection.add(Box.createVerticalStrut(12));connection.add(label("Sessions stay in memory. Sign in again after restarting the launcher.",12,MUTED));list.add(connection);list.add(Box.createVerticalStrut(18));
         list.add(primary("Save preferences",()->{if(!canEdit())return;prefs.addProperty("clientId",MicrosoftAuth.clientId(clientId.getText()));prefs.addProperty("ram",ram.getValue().toString());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Launcher preferences saved");}catch(Exception e){status(e.getMessage());}}));
         page("Settings","Make yourself at home. Java 21 is already included.",scroll(list));
+    }
+    private void installDesktop(){
+        operation(()->{var result=DesktopInstaller.install();status("Desktop shortcut created: "+result.shortcut());},()->JOptionPane.showMessageDialog(this,"Tar Client is installed. Use the Tar Client shortcut on your desktop. Your worlds and settings stay in the same game folder.","Ready to play",JOptionPane.INFORMATION_MESSAGE));
     }
     private void activity(){JScrollPane pane=new JScrollPane(logs);pane.setBorder(null);page("Activity","Download progress and errors. Full game output is saved as game-output.log.",pane);}
     private void open(Path p){try{Files.createDirectories(p);Desktop.getDesktop().open(p.toFile());}catch(Exception e){status(e.getMessage());}}

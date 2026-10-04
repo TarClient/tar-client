@@ -20,7 +20,7 @@ final class CoreInstaller {
                 Files.move(pending,target,StandardCopyOption.REPLACE_EXISTING);
             } finally { Files.deleteIfExists(pending); }
         }
-        for (String previous : new String[]{"0.1.0", "0.2.0", "0.2.1", "0.3.0"}) {
+        for (String previous : new String[]{"0.1.0", "0.2.0", "0.2.1", "0.3.0", "0.3.1"}) {
             Path old = game.resolve("mods/tar-client-"+previous+".jar");
             if (!old.equals(target) && Files.isRegularFile(old)) {
                 var metadata = new ModManager(game,s->{}).metadata(old);
