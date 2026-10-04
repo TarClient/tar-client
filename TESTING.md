@@ -1,5 +1,18 @@
 # 0.4.0 checks — 4 October 2026
 
+Published [v0.4.0-preview](https://github.com/prutprut2003-creator/tar-client/releases/tag/v0.4.0-preview) from commit `0d855ebe923c8c4840d581c1e74053d418aafa3f`.
+[Windows CI run 37214352351](https://github.com/prutprut2003-creator/tar-client/actions/runs/37214352351) passed in 2m24s. All **25 tests passed with zero failures and zero skips**. The actual packaged native EXE created a desktop shortcut and copied the application/runtime; the workflow verified its target and installed file hashes. The exact CI ZIP was downloaded, checksum-verified and published (61,980,685 bytes).
+
+SHA-256: `0eb34f021a489551c8ea32a52a9773c985efdfa06d60334f71bcaad5a5018c22`.
+
+The first Windows test found a containment bug involving directory aliases; resolving both source and destination ancestors fixed it. A subsequent native-installer timeout was addressed by isolating PowerShell progress output and explicitly exiting unattended mode. The final workflow passed both checks; neither test was disabled.
+
+The isolated Minecraft smoke run verified 84 libraries and 4,591 assets, then failed before Tar initialization at Fabric LoaderUtil.normalizeExistingPath / WindowsPath.toRealPath with AccessDeniedException. Full gameplay and authenticated account switching remain unverified. The Home and Accounts launcher pages were rendered and inspected.
+
+Windows App Control blocked the new unsigned EXE on the publisher's local machine. The full CI app was copied to a per-user application directory and a desktop shortcut created, with 424 file hashes matching, but the shortcut does not resolve that Windows trust block. No protection was disabled or bypassed.
+
+Local checks performed before the release build:
+
 - Java 21 launcher and Fabric client compilation passed locally.
 - Structural bytecode verification passed for 24 mixins/accessors, 29 injection targets and 23 shadow fields against Minecraft 1.21.11 and the actual BetterF3 17.0.0 JAR. Realms/splash setters and the Realms constructor invoker were also checked.
 - Local JUnit run: 24/25 tests passed. The desktop-copy test was blocked by the sandbox's WindowsPath.toRealPath AccessDeniedException in its temporary source folder. This is retained as a required test for the unrestricted Windows CI runner; it was not disabled or bypassed.
