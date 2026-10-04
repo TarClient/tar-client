@@ -53,6 +53,9 @@ public final class TarClient implements ClientModInitializer {
         org.slf4j.LoggerFactory.getLogger("TarClient").info("Tar Client initialized: {} modules for Minecraft 1.21.11",ClientConfig.MODULES.size());
     }
     public static void toggleMenu(MinecraftClient client){
+        // Keep connection/loading and mandatory confirmation screens in control.
+        // Opening another screen here could leave a background login using the old identity.
+        if(client.currentScreen!=null&&!client.currentScreen.shouldCloseOnEsc())return;
         if(client.currentScreen instanceof TarSettingsScreen menu)menu.close();
         else if(client.currentScreen instanceof HudEditorScreen editor)editor.close();
         else client.setScreen(new TarSettingsScreen(client.currentScreen));

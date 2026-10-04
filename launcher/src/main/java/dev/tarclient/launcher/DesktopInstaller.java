@@ -30,7 +30,7 @@ public final class DesktopInstaller {
     }
     static String quote(String value){return "'"+value.replace("'","''")+"'";}
     static Path copyApplication(Path source,Path installRoot) throws IOException {
-        source=source.toRealPath();installRoot=installRoot.toAbsolutePath().normalize();
+        source=source.toRealPath();installRoot=resolveDestination(installRoot);
         if(installRoot.startsWith(source))throw new IOException("The installation folder cannot be inside the source application.");
         for(String required:List.of("Tar Client.exe","app/tar-launcher.jar","app/Tar Client.cfg","runtime/bin/java.exe"))
             if(!Files.isRegularFile(source.resolve(required),LinkOption.NOFOLLOW_LINKS))throw new IOException("Extract the entire download first. Missing "+required);
@@ -48,6 +48,13 @@ public final class DesktopInstaller {
             }
         }
         return target.resolve("Tar Client.exe");
+    }
+    private static Path resolveDestination(Path destination) throws IOException {
+        Path absolute=destination.toAbsolutePath().normalize(),existing=absolute;
+        while(existing!=null&&!Files.exists(existing,LinkOption.NOFOLLOW_LINKS))existing=existing.getParent();
+        if(existing==null)throw new IOException("The installation drive does not exist.");
+        // Resolve existing junctions/aliases on both sides before checking containment.
+        return existing.toRealPath().resolve(existing.relativize(absolute)).normalize();
     }
     private static String powershell(String script) throws Exception {
         Path shell=Path.of(System.getenv("SystemRoot"),"System32","WindowsPowerShell","v1.0","powershell.exe");
