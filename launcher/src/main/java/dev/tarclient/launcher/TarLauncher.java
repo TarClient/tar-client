@@ -37,9 +37,12 @@ public final class TarLauncher extends JFrame {
     private java.nio.channels.FileLock processLock;
     public static void main(String[] args) throws Exception {
         if(Arrays.asList(args).contains("--install-desktop")) {
+            boolean quiet=Arrays.asList(args).contains("--quiet");
+            System.out.println("Installing Tar Client desktop shortcut...");
             try {var installed=DesktopInstaller.install();System.out.println("Desktop shortcut: "+installed.shortcut());
-                if(!Arrays.asList(args).contains("--quiet"))JOptionPane.showMessageDialog(null,"Tar Client is installed. Open Tar Client on your desktop.","Tar Client",JOptionPane.INFORMATION_MESSAGE);
-            }catch(Exception e){if(Arrays.asList(args).contains("--quiet"))throw e;JOptionPane.showMessageDialog(null,e.getMessage(),"Tar Client installation",JOptionPane.ERROR_MESSAGE);}
+                if(!quiet)JOptionPane.showMessageDialog(null,"Tar Client is installed. Open Tar Client on your desktop.","Tar Client",JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0);
+            }catch(Exception e){System.err.println("Desktop installation failed: "+e.getMessage());if(!quiet)JOptionPane.showMessageDialog(null,e.getMessage(),"Tar Client installation",JOptionPane.ERROR_MESSAGE);System.exit(1);}
             return;
         }
         if(Arrays.asList(args).contains("--smoke")) { Smoke.main(args);return; }

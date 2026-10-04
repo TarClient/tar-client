@@ -41,8 +41,10 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($tarDesktop)) { throw 'Runner desktop unavailable.' }
           New-Item -ItemType Directory -Force -Path $tarDesktop | Out-Null
           $tarExe = (Resolve-Path -LiteralPath './dist/Tar Client/Tar Client.exe').Path
-          $tarProcess = Start-Process -FilePath $tarExe -ArgumentList '--install-desktop','--quiet' -WindowStyle Hidden -PassThru
-          if (-not $tarProcess.WaitForExit(120000)) { $tarProcess.Kill(); throw 'Desktop installer timed out.' }
+          $tarProcess = Start-Process -FilePath $tarExe -ArgumentList '--install-desktop','--quiet' -WindowStyle Hidden -PassThru -RedirectStandardOutput './dist/desktop-install.stdout' -RedirectStandardError './dist/desktop-install.stderr'
+          $tarFinished = $tarProcess.WaitForExit(120000)
+          Get-Content -LiteralPath './dist/desktop-install.stdout','./dist/desktop-install.stderr'
+          if (-not $tarFinished) { $tarProcess.Kill(); throw 'Desktop installer timed out.' }
           if ($tarProcess.ExitCode -ne 0) { throw "Desktop installer exited with $($tarProcess.ExitCode)." }
           $tarShortcutPath = Join-Path $tarDesktop 'Tar Client.lnk'
           if (-not (Test-Path -LiteralPath $tarShortcutPath)) { throw 'Desktop shortcut was not created.' }

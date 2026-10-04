@@ -17,7 +17,7 @@ public final class DesktopInstaller {
         if(local==null||local.isBlank())throw new IOException("Windows Local AppData was not found.");
         Path source=Path.of(executable).toAbsolutePath().getParent();
         Path installed=copyApplication(source,Path.of(local,"Programs","Tar Client"));
-        String script="$ErrorActionPreference='Stop'; $desktop=[Environment]::GetFolderPath('DesktopDirectory'); "
+        String script="$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; $desktop=[Environment]::GetFolderPath('DesktopDirectory'); "
             +"if ([string]::IsNullOrWhiteSpace($desktop)) { throw 'Desktop folder was not found' }; "
             +"$shortcutPath=Join-Path $desktop 'Tar Client.lnk'; "
             +"$link=(New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath); "
@@ -59,7 +59,7 @@ public final class DesktopInstaller {
     private static String powershell(String script) throws Exception {
         Path shell=Path.of(System.getenv("SystemRoot"),"System32","WindowsPowerShell","v1.0","powershell.exe");
         String encoded=Base64.getEncoder().encodeToString(script.getBytes(StandardCharsets.UTF_16LE));
-        var process=new ProcessBuilder(shell.toString(),"-NoLogo","-NoProfile","-NonInteractive","-EncodedCommand",encoded).redirectErrorStream(true).start();
+        var process=new ProcessBuilder(shell.toString(),"-NoLogo","-NoProfile","-NonInteractive","-EncodedCommand",encoded).redirectError(ProcessBuilder.Redirect.DISCARD).start();
         if(!process.waitFor(Duration.ofSeconds(30).toMillis(),TimeUnit.MILLISECONDS)){process.destroyForcibly();throw new IOException("Windows timed out creating the shortcut.");}
         String result=new String(process.getInputStream().readAllBytes(),StandardCharsets.UTF_8);
         if(process.exitValue()!=0)throw new IOException("Windows could not create the desktop shortcut. The copied app is still available in Local AppData/Programs/Tar Client.");
