@@ -104,7 +104,7 @@ public class CoreTest {
     @Test void oldSettingsAcquireEveryHudBackgroundSwitch() throws Exception {
         Path file=temp.resolve("old.json");Files.writeString(file,"{\"fps\":{\"enabled\":true,\"background\":\"80000000\"}}");
         var c=ClientConfig.read(file);assertTrue(c.on("fps"));assertEquals("80000000",c.text("fps","background"));
-        for(var module:ClientConfig.MODULES)if(module.category().equals("HUD")){assertFalse(c.bool(module.id(),"showBackground"));c.set(module.id(),"showBackground",true);assertTrue(c.bool(module.id(),"showBackground"));}
+        for(var module:ClientConfig.MODULES)if(module.category().equals("HUD")){assertEquals(module.id().equals("potions"),c.bool(module.id(),"showBackground"));c.set(module.id(),"showBackground",true);assertTrue(c.bool(module.id(),"showBackground"));}
         assertTrue(c.bool("armor","horizontal"));assertEquals(4,c.number("zoom","factor"));
     }
     @Test void latestUpgradeBacksUpPreviousPatch() throws Exception {
@@ -148,7 +148,7 @@ public class CoreTest {
     @Test void microsoftIdWorksForFreshAndLegacyPreferences() {
         assertEquals("c8d8f6e2-12dc-4499-911c-1c7294e91f44",MicrosoftAuth.clientId(null));
         for(String empty:List.of("", "  ", "\t\n"))assertEquals(MicrosoftAuth.DEFAULT_CLIENT_ID,MicrosoftAuth.clientId(empty));
-        assertEquals("custom-application-id",MicrosoftAuth.clientId(" custom-application-id "));
+        assertEquals(MicrosoftAuth.DEFAULT_CLIENT_ID,MicrosoftAuth.clientId(" custom-application-id "));
     }
     @Test void patchUpgradeRemovesBothPreviousCoresWithoutTouchingOtherMods() throws Exception {
         Path mods=temp.resolve("mods");Files.createDirectories(mods);

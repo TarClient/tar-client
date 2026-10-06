@@ -1,11 +1,19 @@
-# Tar Client 0.4.0 module guide
+# Tar Client 0.4.1 module guide
 
 Open **Client modules** in the launcher or press **Right Shift** in Minecraft.
 Search by name, toggle a module and open its settings. **Edit HUD** lets you drag
-visible HUDs. All Tar HUD panels have a **Show background** switch, background
+visible HUD panels. Potion status is anchored to the top-right corner icons and has its own scale, padding, color and background controls. Other Tar HUD panels have a **Show background** switch, background
 color/opacity, roundness, text color, position and scale. Backgrounds are off by
-default, including when upgrading old settings. Visual and utility modules that
+default, including when upgrading old settings. Potion icons keep the vanilla background by default. Visual and utility modules that
 do not draw a HUD have no panel background to configure.
+
+## Crosshair and potion icons
+
+**Custom crosshair:** Use original Minecraft crosshair is enabled by default, including upgrades. Turn it off to use the arm-size settings or a grid design. Open Draw crosshair in either launcher or in-game settings, paint/erase the 15x15 grid, and Save. Saving selects grid mode automatically. Clear makes a blank design; + Preset gives a simple white-style plus. Escape/Cancel discards editor changes. Color, outline and pixel scale apply to the saved drawing. Profiles keep the drawing.
+
+**Potion status:** Countdown timers sit below the effect icons in the top-right corner; higher levels appear on the icons. Beneficial and harmful effects have separate rows, wrapping when necessary. Configure timer visibility, effect level, beneficial/harmful filters, scale, padding, normal/expiring text colors and vanilla icon background. The standalone names panel has been removed. Turn the module off to restore vanilla rendering. Inventory screens that show their own effects retain Minecraft's normal behavior.
+
+**3D skins** has been removed; old configuration entries are discarded and installed Skin Layers JARs are backed up at the next launcher preparation.
 
 ## New built-in modules
 
@@ -30,7 +38,7 @@ do not draw a HUD have no panel background to configure.
 
 ## Integrated mods
 
-These four module cards use compatible upstream mods. Enable the card before
+These three module cards use compatible upstream mods. Enable the card before
 launching; Tar downloads it and its required dependencies from Modrinth. If you
 change enabled state in game, **close and relaunch Minecraft through Tar** to
 apply it. Motion blur can toggle live once installed. Profiles store enabled states and the Tar motion-blur settings; other detailed upstream settings remain global.
@@ -39,11 +47,10 @@ apply it. Motion blur can toggle live once installed. Profiles store enabled sta
 | --- | --- |
 | TierTagger | [Official TierTagger](https://modrinth.com/mod/tiertagger), with ukulib. Displays published PvP tiers; use Mod settings / Mods for tier-list and display settings. |
 | Motion blur | [Smooth Motion Blur](https://modrinth.com/mod/smooth-motion-blur). Tar Settings provides strength 1-100 and Pause blur in menus. Disable the module for zero blur. Strength uses the upstream display scale (20 = default). Upstream command/shortcut changes are synchronized back into Tar profiles. Its Increase/Decrease keys appear in Keybinds when installed. |
-| 3D skins | [3D Skin Layers](https://modrinth.com/mod/3dskinlayers). Use Mod settings for the outer skin layer rendering options. |
 | Pack organizer | [Resource Tree](https://modrinth.com/mod/resource-tree-mod). The Resource Packs screen gains subfolder navigation and folder-management controls. Use the Resource Packs button in its integration screen. |
 
-The four integrations start disabled and are not copied into the Tar ZIP.
-Installed-mod toggles for these four are reconciled with their Tar module setting
+The three integrations start disabled and are not copied into the Tar ZIP.
+Installed-mod toggles for these three are reconciled with their Tar module setting
 at the next launch. Disable them through **Client modules** when using Tar.
 
 ## Keybinds

@@ -31,6 +31,8 @@ public final class AccountsScreen extends Screen {
         if(code!=null&&busy){
             addDrawableChild(new TarButton(x,105,w/2-3,22,"Open Microsoft",b->Util.getOperatingSystem().open(URI.create(code.url()))));
             addDrawableChild(new TarButton(x+w/2+3,105,w/2-3,22,"Copy code",b->client.keyboard.setClipboard(code.code())));
+            addDrawableChild(new TarButton(x,131,w/2-3,20,"Use another account",b->{if(!dev.tarclient.launcher.MicrosoftBrowser.openPrivate(code.url())){client.keyboard.setClipboard(code.url());status="Microsoft URL copied. Paste it in a private browser window, then enter the code above.";}}));
+            addDrawableChild(new TarButton(x+w/2+3,131,w/2-3,20,"Copy Microsoft URL",b->client.keyboard.setClipboard(code.url())));
         }else{
             var list=new ArrayList<>(accounts.values());int count=Math.max(1,(height-176)/28);page=Math.clamp(page,0,Math.max(0,(list.size()-1)/count));
             for(int i=page*count;i<Math.min(list.size(),(page+1)*count);i++){
@@ -46,15 +48,18 @@ public final class AccountsScreen extends Screen {
     }
     private void start(MicrosoftAuth.Session saved){
         if(busy)return;busy=true;code=null;status="Verifying Microsoft and Minecraft access...";int request=++generation;clearAndInit();
-        MinecraftClient mc=client;
+        MinecraftClient mc=client;var known=Set.copyOf(accounts.keySet());
         task=new FutureTask<>(()->{
             try{
-                var auth=saved!=null?saved:new MicrosoftAuth().login(MicrosoftAuth.DEFAULT_CLIENT_ID,device->mc.execute(()->{
-                    if(generation!=request)return;code=device;status="Enter the code on Microsoft's page. Passwords stay with Microsoft.";clearAndInit();
-                }));
+                var auth=saved!=null?saved:new MicrosoftAuth().login(device->mc.execute(()->{
+                    if(generation!=request)return;code=device;status="Choose Use another account on Microsoft's page. If needed, open the URL in a private browser window.";clearAndInit();
+                }),message->mc.execute(()->{if(generation==request){status=message;clearAndInit();}}));
+                if(saved==null&&known.contains(auth.uuid().replace("-",""))){
+                    mc.execute(()->{if(generation!=request)return;busy=false;code=null;task=null;accounts.put(auth.uuid().replace("-",""),auth);status="Microsoft returned "+auth.name()+", already added. Its session was refreshed. Choose it below, or add a different account using a private browser window.";clearAndInit();});return null;
+                }
                 var prepared=PreparedAccount.prepare(auth,mc);
                 mc.execute(()->{if(generation!=request)return;busy=false;code=null;task=null;accounts.put(auth.uuid().replace("-",""),auth);confirmSwitch(prepared);});
-            }catch(Exception failure){mc.execute(()->{if(generation!=request)return;busy=false;code=null;task=null;status="Sign-in failed. Check Minecraft ownership, connection and account permissions, then try again.";clearAndInit();});}
+            }catch(Exception failure){mc.execute(()->{if(generation!=request)return;busy=false;code=null;task=null;status=MicrosoftAuth.failureMessage(failure);clearAndInit();});}
             return null;
         });
         Thread.ofVirtual().name("Tar Microsoft sign-in").start(task);
@@ -82,7 +87,7 @@ public final class AccountsScreen extends Screen {
         c.fill(0,0,width,height,0xF0101720);c.drawCenteredTextWithShadow(textRenderer,"YOUR ACCOUNTS",width/2,16,0xFFB9F47A);
         c.drawCenteredTextWithShadow(textRenderer,"Playing as "+client.getSession().getUsername(),width/2,32,0xFFE8EDF5);
         if(code!=null&&busy)c.drawCenteredTextWithShadow(textRenderer,code.code(),width/2,86,0xFFB9F47A);
-        int y=height-61;for(var line:textRenderer.wrapLines(Text.literal(status),width-28)){c.drawTextWithShadow(textRenderer,line,14,y,0xFF9DADBF);y+=10;}
+        int y=Math.max(code!=null&&busy?157:height-101,height-101);for(var line:textRenderer.wrapLines(Text.literal(status),width-28)){c.drawTextWithShadow(textRenderer,line,14,y,0xFF9DADBF);y+=10;}
         super.render(c,mx,my,delta);
     }
 }

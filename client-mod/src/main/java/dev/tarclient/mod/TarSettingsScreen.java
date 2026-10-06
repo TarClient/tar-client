@@ -62,6 +62,7 @@ public final class TarSettingsScreen extends Screen {
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
         if(integration!=null&&!selected.equals("motionblur")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}
+        if(selected.equals("crosshair"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Draw crosshair",b->client.setScreen(new CrosshairEditorScreen(this))));
         if(selected.equals("armor"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Direction: "+armorDirection(),b->{
             int index=java.util.List.of("Right","Down","Left","Up").indexOf(armorDirection());int next=(index+1)%4;
             CONFIG.set("armor","horizontal",next%2==0);CONFIG.set("armor","reverse",next>=2);TarClient.save();clearAndInit();
@@ -69,10 +70,11 @@ public final class TarSettingsScreen extends Screen {
         if(selected.equals("streamer"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Randomize again",b->StreamerMode.reroll()));
         if(selected.equals("timechanger")){var apply=new TarButton(mainX+96,top+44,mainWidth-96,22,"Apply time",b->ClientFeatures.applyTime());apply.active=client.player!=null;addDrawableChild(apply);}
         if(selected.equals("motionblur")){captions.add(new Caption(MotionBlurBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
+        var settings=module.settings().stream().filter(s->!s.key().equals("pattern")).toList();
         int perPage=Math.max(1,(top+panelHeight-contentY-32)/42);
-        page=Math.clamp(page,0,Math.max(0,(module.settings().size()-1)/perPage));
-        for(int i=page*perPage;i<Math.min(module.settings().size(),(page+1)*perPage);i++){
-            var s=module.settings().get(i);int y=contentY+(i-page*perPage)*42;
+        page=Math.clamp(page,0,Math.max(0,(settings.size()-1)/perPage));
+        for(int i=page*perPage;i<Math.min(settings.size(),(page+1)*perPage);i++){
+            var s=settings.get(i);int y=contentY+(i-page*perPage)*42;
             captions.add(new Caption(s.label(),mainX,y,mainWidth));
             if(s.initial() instanceof Boolean){
                 addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.bool(selected,s.key())?"Enabled":"Disabled",b->{CONFIG.set(selected,s.key(),!CONFIG.bool(selected,s.key()));TarClient.save();b.setMessage(Text.literal(CONFIG.bool(selected,s.key())?"Enabled":"Disabled"));},()->CONFIG.bool(selected,s.key())));
@@ -87,7 +89,7 @@ public final class TarSettingsScreen extends Screen {
                 field.setMaxLength(2048);field.setText(CONFIG.text(selected,s.key()));field.setChangedListener(v->{CONFIG.set(selected,s.key(),v);TarClient.save();});addDrawableChild(field);
             }
         }
-        pages((module.settings().size()+perPage-1)/perPage);
+        pages((settings.size()+perPage-1)/perPage);
     }
     private String armorDirection(){return CONFIG.bool("armor","horizontal")?(CONFIG.bool("armor","reverse")?"Left":"Right"):(CONFIG.bool("armor","reverse")?"Up":"Down");}
     private void pages(int total){

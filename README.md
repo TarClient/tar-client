@@ -1,4 +1,4 @@
-# Tar Client 0.4.0 — Windows preview
+# Tar Client 0.4.0 â€” Windows preview
 
 A standalone Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**,
 plus its bundled Tar Client cosmetic and HUD mod. This is a real desktop app,
@@ -9,7 +9,7 @@ a project name, not a claim of incorporation or a verified Windows publisher.
 Minecraft itself remains a separate product and requires its own entitlement
 for full-game play.
 
-[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.4.0; check the download version before installing. Windows signing remains subject to the limitation below.
+[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.4.1; check the download version before installing. Windows signing remains subject to the limitation below.
 
 ## Code signing policy
 
@@ -23,7 +23,7 @@ Do not disable Windows protection or use the CMD launcher to evade that block.
 
 ## Start
 
-1. Extract the entire `TarClient-0.4.0-Windows.zip` archive.
+1. Extract the entire `TarClient-0.4.1-Windows.zip` archive.
 2. Open `Tar Client/Tar Client.exe`. Keep `app` and `runtime` beside the EXE.
    For ordinary startup errors (not a Windows security block), `Start Tar Client.cmd`
    starts the same launcher using the bundled Java runtime and shows startup errors.
@@ -39,6 +39,16 @@ Do not disable Windows protection or use the CMD launcher to evade that block.
 
 Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 4 GB game memory; change it under **Settings**.
+
+## What's new in 0.4.1
+
+- Microsoft application ID is always built in. Old overrides are ignored and the editable setup field is removed.
+- Launcher Accounts offers Add another account and a list of verified accounts for this session. Sign-in shows progress and errors identify the failing step. Choose Use another account on Microsoft's page; a private browser window avoids reusing an existing browser account.
+- Custom crosshair defaults to Minecraft's original rendering. Draw a 15x15 design from the launcher settings or Right Shift > Custom crosshair > Draw crosshair. Left-click/drag paints, right-click erases, and Save activates the design. Grid designs are included in profiles.
+- Potion status uses the original corner effect icons with countdowns and levels, rather than a separate text panel. Turning it off restores vanilla icons.
+- 3D skins removed. At the next launcher preparation, an existing 3D Skin Layers JAR is moved to the recoverable removed-mods folder.
+
+Live sign-in with multiple real accounts and in-world rendering still require real-machine verification. A friend's unspecified sign-in problem has not been reproduced; this release does not claim to resolve every Microsoft account restriction.
 
 ## What's new in 0.4.0
 
@@ -59,7 +69,7 @@ Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 
 ## Earlier improvements in 0.2.1
 
-- Built in Tar Client's registered Microsoft application ID for every download, including upgrades with empty settings. Explicit custom IDs remain supported.
+- Built in Tar Client's registered Microsoft application ID for every download, including upgrades with empty settings. Version 0.4.1 also ignores obsolete custom IDs.
 - Back up either previous bundled core (0.1.0 or 0.2.0) when upgrading, keeping worlds and other mods.
 - Minecraft API approval is still pending; registration alone does not confirm full login works.
 
@@ -88,7 +98,7 @@ Java 21 is bundled. The download targets Windows x64. The launcher defaults to
 | Borderless fullscreen | F11 uses the current monitor's borderless desktop-sized window |
 | Keystrokes | Actual bound movement/jump keys, mouse buttons, left/right CPS, pressed color |
 | BetterF3 | Actual BetterF3 mod, installed from Modrinth for 1.21.11 |
-| Potion status | Effect name, amplifier and duration; beneficial/harmful filters |
+| Potion status | Timers and levels on the top-right effect icons; filters, scale, padding, timer colors and optional vanilla backgrounds |
 | Hitbox outlines | F3+B color, eye-height box and direction; optional always-on display |
 | Low / side shield | Downward and outward offsets |
 | Low fire | Fire-overlay vertical offset |
@@ -119,7 +129,7 @@ schemas differ, so they are not copied into Tar's built-in settings form.
 
 - **Discover mods:** search Modrinth, filtered to Fabric and 1.21.11. Installation
   resolves required dependencies and checks SHA-512 hashes before committing files.
-- **Installed mods → Import Fabric JARs:** select one or more local `.jar` files.
+- **Installed mods â†’ Import Fabric JARs:** select one or more local `.jar` files.
   Forge-only, server-only and declared incompatible versions are rejected.
 - Use **Check dependencies** after importing local JARs. Missing requirements and
   declared conflicts block launching and are reported by name.
@@ -144,7 +154,7 @@ Windows profiles). It is separate from the official `.minecraft` folder.
 - `saves/`, `screenshots/`, `resourcepacks/`: normal Minecraft content.
 - `logs/latest.log`: Minecraft/Fabric log.
 - `%LOCALAPPDATA%\TarClient\game-output.log`: last game's console output.
-- `%LOCALAPPDATA%\TarClient\launcher.json`: memory and public application ID.
+- `%LOCALAPPDATA%\TarClient\launcher.json`: memory preferences (Microsoft app ID is built into the program).
 
 The first launch needs Internet access and several gigabytes of free disk space.
 Minecraft files and third-party mods are downloaded from their providers; they

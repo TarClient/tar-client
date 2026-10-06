@@ -4,7 +4,7 @@ Tar Client implements Microsoft's device-code flow, Xbox Live authentication,
 XSTS, Minecraft token exchange and a Minecraft profile check. It does not collect
 your password, borrow another launcher's identity, or provide cracked accounts.
 
-**Tar Client 0.2.1 includes its registered Microsoft application ID automatically:**
+**Tar Client 0.4.1 includes its registered Microsoft application ID automatically:**
 `c8d8f6e2-12dc-4499-911c-1c7294e91f44`.
 This is a public identifier, not a password. Users do not need an Azure account,
 an app registration, or any manual application ID setup.
@@ -16,10 +16,13 @@ an app registration, or any manual application ID setup.
 3. A successful Minecraft profile lookup will show your player name. Full-game
    launch requires that successful lookup and a valid entitlement.
 
-Missing, empty or whitespace-only application ID settings use the built-in ID,
-including when upgrading an older preview. An explicit custom ID remains in use.
-The advanced override is under **Settings > Microsoft connection**; clearing it
-and saving restores the built-in ID.
+Every download uses the built-in ID. Version 0.4.1 ignores old overrides and removes the setup field; there is nothing to paste.
+
+To add a second account, choose **Accounts > Add another account**. Tar's sign-in dialog also has **Use another account (private window)**, which opens a private Edge or Chrome window without clearing your normal browser session. Enter the displayed device code there. If neither browser is available, Tar copies the Microsoft URL so you can paste it into your browser's private window. Alternatively, select **Use another account** on Microsoft's page. Complete the confirmation and return to Tar. Each Microsoft account must independently have Minecraft Java access.
+
+The launcher keeps verified accounts in memory and offers Switch/Forget. Closing it clears these sessions. Minecraft's Right Shift > Accounts list is separate and also lasts only for that running game. Switching in game leaves the current world/server with confirmation.
+
+Sign-in progress identifies Microsoft, Xbox, Minecraft exchange, ownership and profile steps. If it fails, share the displayed step and error, never a password or token. This does not bypass family restrictions, missing Xbox profiles, service outages or ownership requirements.
 
 For source forks that use their own identity: register an application supporting
 personal Microsoft accounts and enable public-client flows for device-code sign-in.

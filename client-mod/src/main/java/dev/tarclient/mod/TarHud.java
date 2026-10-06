@@ -28,15 +28,6 @@ public final class TarHud {
             textPanel(c,"ping",List.of(text));
         }
         if(CONFIG.on("armor")) armor(c);
-        if(CONFIG.on("potions")) {
-            List<String> effects=new ArrayList<>();
-            for(var effect:mc.player.getStatusEffects()) {
-                boolean good=effect.getEffectType().value().isBeneficial();if(good&&!CONFIG.bool("potions","beneficial")||!good&&!CONFIG.bool("potions","harmful"))continue;
-                int secs=Math.max(0,effect.getDuration()/20);String time=effect.isInfinite()?"∞":String.format(Locale.ROOT,"%d:%02d",secs/60,secs%60);
-                effects.add(effect.getEffectType().value().getName().getString()+" "+(effect.getAmplifier()+1)+"  "+time);
-            }
-            if(!effects.isEmpty()||editing)textPanel(c,"potions",effects.isEmpty()?List.of("No active effects"):effects);
-        }
         if(CONFIG.on("keys")) keys(c);
         if(CONFIG.on("clock"))textPanel(c,"clock",List.of(LocalTime.now().format(DateTimeFormatter.ofPattern(CONFIG.bool("clock","seconds")?"h:mm:ss a":"h:mm a",Locale.US))));
         if(CONFIG.on("coordinates")){
@@ -82,11 +73,11 @@ public final class TarHud {
                 int tx=horizontal?x:x+icon+6,ty=horizontal?y+icon+3:y;
                 if(text)c.drawTextWithShadow(mc.textRenderer,durabilityText(stack),tx,ty,color);
                 if(bar&&stack.isDamageable()){int by=ty+(text?12:2);c.fill(tx,by,tx+barWidth,by+2,0x60414D60);c.fill(tx,by,tx+(int)(barWidth*pct/100),by+2,color);}
-            }else if(CONFIG.bool("armor","empty"))c.drawTextWithShadow(mc.textRenderer,"—",x+icon/2-3,y+icon/2-4,0xFF778397);
+            }else if(CONFIG.bool("armor","empty"))c.drawTextWithShadow(mc.textRenderer,"â€”",x+icon/2-3,y+icon/2-4,0xFF778397);
         }end(c);
     }
     private static String durabilityText(net.minecraft.item.ItemStack stack){
-        if(!stack.isDamageable())return "—";
+        if(!stack.isDamageable())return "â€”";
         int remaining=Math.max(0,stack.getMaxDamage()-stack.getDamage());
         return CONFIG.bool("armor","percent")?Math.round(remaining*100.0/stack.getMaxDamage())+"%":Integer.toString(remaining);
     }
@@ -131,6 +122,12 @@ public final class TarHud {
     private static void cell(DrawContext c,int x,int y,int w,int h,String s,boolean pressed){if(CONFIG.bool("keys","showBackground"))rounded(c,x,y,w,h,3,pressed?CONFIG.color("keys","pressed"):0xBB2B3342);var font=MinecraftClient.getInstance().textRenderer;c.drawTextWithShadow(font,s,x+(w-font.getWidth(s))/2,y+4,pressed?(CONFIG.bool("keys","showBackground")?0xFF111820:CONFIG.color("keys","pressed")):CONFIG.color("keys","color"));}
     public static void crosshair(DrawContext c) {
         var mc=MinecraftClient.getInstance();if(mc.player==null||mc.player.isSpectator()||!mc.options.getPerspective().isFirstPerson()&&!CONFIG.bool("crosshair","thirdPerson"))return;
+        if(CONFIG.bool("crosshair","grid")){
+            String pattern=dev.tarclient.config.CrosshairPattern.normalize(CONFIG.text("crosshair","pattern"));int scale=CONFIG.i("crosshair","pixelScale"),cx=c.getScaledWindowWidth()/2-7*scale,cy=c.getScaledWindowHeight()/2-7*scale;
+            if(CONFIG.bool("crosshair","outline"))for(int py=0;py<15;py++)for(int px=0;px<15;px++)if(dev.tarclient.config.CrosshairPattern.pixel(pattern,px,py))c.fill(cx+px*scale-1,cy+py*scale-1,cx+(px+1)*scale+1,cy+(py+1)*scale+1,0xFF000000);
+            for(int py=0;py<15;py++)for(int px=0;px<15;px++)if(dev.tarclient.config.CrosshairPattern.pixel(pattern,px,py))c.fill(cx+px*scale,cy+py*scale,cx+(px+1)*scale,cy+(py+1)*scale,CONFIG.color("crosshair","color"));
+            return;
+        }
         int x=c.getScaledWindowWidth()/2,y=c.getScaledWindowHeight()/2,s=CONFIG.i("crosshair","size"),g=CONFIG.i("crosshair","gap"),t=CONFIG.i("crosshair","thickness"),o=t/2,color=CONFIG.color("crosshair","color");
         int[][] rects={{x-g-s,y-o,x-g,y-o+t},{x+g+1,y-o,x+g+s+1,y-o+t},{x-o,y-g-s,x-o+t,y-g},{x-o,y+g+1,x-o+t,y+g+s+1}};
         if(CONFIG.bool("crosshair","outline"))for(var r:rects)c.fill(r[0]-1,r[1]-1,r[2]+1,r[3]+1,0xFF000000);

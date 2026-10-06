@@ -1,4 +1,14 @@
-# 0.4.0 checks — 4 October 2026
+# 0.4.1 validation
+
+Added regression coverage for saved grid drawings, configuration migration, recoverable Skin Layers removal, 0.4.0 core upgrades, device-code polling/backoff, a different account profile, ownership rejection, cancellation and error-stage reporting. Authentication tests use synthetic responses, not real accounts. The native crosshair is kept intact when selected. Potion rendering targets the 1.21.11 renderStatusEffectOverlay method and uses Minecraft effect textures.
+
+Local direct compilation succeeds. The remapped mixin checker validates 24 classes, 30 injection targets and 23 shadow fields against Minecraft 1.21.11 and BetterF3 17.0.0. Local DesktopInstaller testing remains subject to the Windows sandbox canonical-path restriction; use the Windows CI result for that check. No test is skipped to hide this restriction.
+
+Required real-machine checks: use two entitled Microsoft accounts, including choosing another account in the browser; verify grid painting and saving in both editors; render beneficial, harmful and infinite potion effects at several GUI scales; confirm vanilla rendering returns when modules are disabled. Full game rendering and live accounts have not been verified in this environment.
+
+The previous version's validation notes below are historical, not claims about the new build.
+
+# 0.4.0 checks â€” 4 October 2026
 
 Published [v0.4.0-preview](https://github.com/prutprut2003-creator/tar-client/releases/tag/v0.4.0-preview) from commit `0d855ebe923c8c4840d581c1e74053d418aafa3f`.
 [Windows CI run 37214352351](https://github.com/prutprut2003-creator/tar-client/actions/runs/37214352351) passed in 2m24s. All **25 tests passed with zero failures and zero skips**. The actual packaged native EXE created a desktop shortcut and copied the application/runtime; the workflow verified its target and installed file hashes. The exact CI ZIP was downloaded, checksum-verified and published (61,980,685 bytes).
@@ -21,7 +31,7 @@ Local checks performed before the release build:
 
 Earlier release records follow.
 
-# 0.3.1 checks — 29 September 2026
+# 0.3.1 checks â€” 29 September 2026
 
 Published [v0.3.1-preview](https://github.com/prutprut2003-creator/tar-client/releases/tag/v0.3.1-preview) from commit `d961ba473eeae4849136703b8f641ec65265eb3f`.
 [Windows CI run 36562964397](https://github.com/prutprut2003-creator/tar-client/actions/runs/36562964397) passed in 2m30s, including 19 tests with zero failures/skips. The exact CI ZIP was downloaded, checksum-verified and published (61,938,571 bytes).
@@ -42,7 +52,7 @@ The fresh isolated game smoke run verified 84 libraries and 4,591 assets, then F
 
 Earlier release records follow; Spotify checks below apply only to 0.3.0. The Spotify module and helper have been removed in 0.3.1.
 
-# Verification record — updated 20 September 2026
+# Verification record â€” updated 20 September 2026
 
 ## 0.3.0 local verification (20 September)
 

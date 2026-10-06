@@ -9,8 +9,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import dev.tarclient.mod.*;
 @Mixin(InGameHud.class)
 public class HudMixin {
+    @Inject(method="renderStatusEffectOverlay",at=@At("HEAD"),cancellable=true)
+    private void tar$potions(DrawContext context,RenderTickCounter ticks,CallbackInfo ci){
+        if(TarClient.CONFIG.on("potions")){PotionHud.render(context);ci.cancel();}
+    }
     @Inject(method="renderCrosshair",at=@At("HEAD"),cancellable=true)
     private void tar$crosshair(DrawContext context,RenderTickCounter ticks,CallbackInfo ci){
-        if(TarClient.CONFIG.on("crosshair")&&!MinecraftClient.getInstance().getDebugHud().shouldShowDebugHud()){TarHud.crosshair(context);ci.cancel();}
+        if(TarClient.CONFIG.on("crosshair")&&!TarClient.CONFIG.bool("crosshair","vanilla")&&!MinecraftClient.getInstance().getDebugHud().shouldShowDebugHud()){TarHud.crosshair(context);ci.cancel();}
     }
 }

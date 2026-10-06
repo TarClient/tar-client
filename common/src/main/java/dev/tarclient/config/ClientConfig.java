@@ -25,9 +25,9 @@ public final class ClientConfig {
         add("fps","FPS","HUD","Live frames per second.",true,hud(2,2));
         add("ping","Ping","HUD","Your server latency; singleplayer is shown separately.",true,hud(2,7));
         add("armor","Armor status","HUD","Durability for every armor slot, with a repeating low-durability alert.",true,hud(2,72,n("threshold","Alert below (%)",15,1,50,1),b("sound","Play warning sound",true),n("volume","Warning volume",0.7,0,1,0.1),n("cooldown","Warning interval (seconds)",10,2,120,1),b("percent","Show percent",true),b("horizontal","Horizontal layout",true),b("bar","Durability bars",true),b("empty","Show empty slots",false),b("reverse","Reverse direction (up / left)",false),b("text","Show durability text",true),n("iconSize","Armor icon size",16,12,32,1),n("spacing","Space between slots",6,0,24,1),n("barWidth","Durability bar width",30,12,80,1),b("durabilityColors","Color by durability",true)));
-        add("potions","Potion status","HUD","Active effect names, amplifiers and remaining time.",true,hud(80,20,b("beneficial","Show beneficial effects",true),b("harmful","Show harmful effects",true)));
+        add("potions","Potion status","HUD","Timers and levels on Minecraft effect icons in the top-right corner.",true,b("beneficial","Show beneficial effects",true),b("harmful","Show harmful effects",true),b("duration","Show remaining time",true),b("amplifier","Show effect level",true),b("showBackground","Show vanilla icon background",true),n("scale","Icon scale",1,0.5,2,0.1),n("margin","Corner padding",2,0,40,1),s("color","Timer color (hex)","FFFFFF"),s("expiringColor","Expiring timer color (hex)","FF7878"));
         add("keys","Keystrokes + mouse","HUD","Movement keys, jump, mouse buttons and left/right CPS.",true,hud(2,18,b("mouse","Show mouse buttons",true),b("cps","Show clicks per second",true),s("pressed","Pressed color (hex)","A5F078")));
-        add("crosshair","Custom crosshair","Visual","Choose size, gap, thickness, color, dot and outline.",true,n("size","Arm length",5,1,30,1),n("gap","Center gap",3,0,20,1),n("thickness","Thickness",1,1,8,1),s("color","Color (hex)","A5F078"),b("dot","Center dot",false),b("outline","Black outline",true),b("thirdPerson","Show in third person",false));
+        add("crosshair","Custom crosshair","Visual","Keep the vanilla crosshair, tune a simple cross, or draw your own pixel design.",true,b("vanilla","Use original Minecraft crosshair",true),b("grid","Use grid design (turn vanilla off)",false),s("pattern","Pixel design",CrosshairPattern.vanilla()),n("pixelScale","Grid pixel scale",1,1,4,1),n("size","Arm length",5,1,30,1),n("gap","Center gap",0,0,20,1),n("thickness","Thickness",1,1,8,1),s("color","Color (hex)","FFFFFF"),b("dot","Center dot",true),b("outline","Black outline",false),b("thirdPerson","Show in third person",false));
         add("fullbright","Fullbright","Visual","Adjust the lightmap brightness without applying potion effects.",false,n("strength","Brightness",1,0,1,0.05));
         add("nofog","No fog","Visual","Remove terrain fog; fluid fog can be changed separately.",false,b("fluids","Also remove water/lava fog",false));
         add("items","Item size","Visual","Scale all rendered items by context. Per-item overrides use namespace:item=scale.",false,n("hand","First-person scale",0.8,0.1,2.5,0.05),n("gui","Inventory scale",1,0.1,2,0.05),n("ground","Dropped item scale",1,0.1,3,0.05),n("thirdPerson","Third-person scale",1,0.1,3,0.05),n("fixed","Item frame / display scale",1,0.1,3,0.05),s("overrides","Per-item overrides (semicolon separated)",""));
@@ -53,7 +53,6 @@ public final class ClientConfig {
         add("unfocused","Limit unfocused FPS","Window","Cap FPS while Minecraft is not the focused window.",true,n("fps","Unfocused FPS limit",30,5,120,5));
         add("tiertagger","TierTagger","Integrations","Official MCTiers TierTagger. Downloaded from Modrinth; restart Minecraft after changing enabled state. Settings available in game.",false);
         add("motionblur","Motion blur","Integrations","Smooth Motion Blur. First installation needs a relaunch; strength, menu pause and toggles then apply live.",false,n("strength","Blur strength (1-100)",20,1,100,1),b("pauseInGuis","Pause blur in menus",true));
-        add("skins3d","3D skins","Integrations","3D Skin Layers adds depth to the outer skin layer. Restart after changing enabled state; configure in game.",false);
         add("packorganizer","Pack organizer","Integrations","Resource Tree adds folders, creation and navigation in the Resource Packs screen. Restart after changing enabled state.",false);
     }
     private final JsonObject values;
@@ -84,6 +83,7 @@ public final class ClientConfig {
         catch(Exception e) { return 0xFFE8EDF5; }
     }
     public synchronized void set(String m,String k,Object value) {
+        if(m.equals("crosshair")&&k.equals("pattern"))value=CrosshairPattern.normalize(String.valueOf(value));
         values.getAsJsonObject(m).add(k,new Gson().toJsonTree(value)); validate();
     }
     public double itemScale(String id,String context) {
@@ -94,6 +94,7 @@ public final class ClientConfig {
         return number("items",context);
     }
     private synchronized void validate() {
+        values.remove("skins3d");
         values.remove("spotify"); // Removed module; also clean old profile snapshots.
         for(Module module:MODULES) {
             if(!values.has(module.id())||!values.get(module.id()).isJsonObject()) values.add(module.id(),new JsonObject());

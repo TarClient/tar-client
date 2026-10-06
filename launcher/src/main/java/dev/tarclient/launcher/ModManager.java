@@ -154,6 +154,10 @@ public final class ModManager {
         }
     }
     private void cleanStaging(Path dir) throws IOException {try(var paths=Files.walk(dir)){for(Path p:paths.sorted(Comparator.reverseOrder()).toList())Files.deleteIfExists(p);}}
+    public void removeRetiredIntegrations() throws Exception {
+        // Keep the previous JAR recoverable in removed-mods on upgrade.
+        for(Path file:list())if(metadata(file).get("id").getAsString().equals("skinlayers3d"))remove(file);
+    }
     public void installDefaults() throws Exception {
         var managed=readLock();
         for(String project:List.of("fabric-api","modmenu","betterf3")) {
@@ -162,6 +166,7 @@ public final class ModManager {
         }
     }
     public void syncIntegrations(dev.tarclient.config.ClientConfig config)throws Exception {
+        removeRetiredIntegrations();
         for(var entry:dev.tarclient.config.Integrations.ALL){
             Path found=null;for(Path p:list())if(metadata(p).get("id").getAsString().equals(entry.modId())){found=p;break;}
             if(config.on(entry.module())){
