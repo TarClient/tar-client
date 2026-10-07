@@ -22,7 +22,9 @@ $tarPayloadHash = Join-Path $tarDist 'payload.sha256'
 Set-Content -LiteralPath $tarPayloadHash -Value $tarHash.Hash.ToLowerInvariant() -Encoding ascii
 $tarBootstrap = Join-Path $tarDist 'TarClient-1.0.0.exe'
 $tarCompiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-& $tarCompiler /nologo /target:winexe "/out:$tarBootstrap" /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll /reference:System.Windows.Forms.dll "/win32icon:$PSScriptRoot/branding/tar-client.ico" "/resource:$tarZip,TarPayload.zip" "/resource:$tarPayloadHash,TarPayload.sha256" "$PSScriptRoot/bootstrap/Program.cs"
+$tarBootstrapSource = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'bootstrap/Program.cs')).Path
+$tarBootstrapIcon = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'branding/tar-client.ico')).Path
+& $tarCompiler /nologo /target:winexe "/out:$tarBootstrap" /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll /reference:System.Windows.Forms.dll "/win32icon:$tarBootstrapIcon" "/resource:$tarZip,TarPayload.zip" "/resource:$tarPayloadHash,TarPayload.sha256" $tarBootstrapSource
 if ($LASTEXITCODE -ne 0) { throw 'Standalone launcher packaging failed.' }
 $tarExeHash = Get-FileHash -Algorithm SHA256 -LiteralPath $tarBootstrap
 Set-Content -LiteralPath (Join-Path $tarDist 'SHA256SUMS.txt') -Value @(($tarHash.Hash.ToLowerInvariant() + '  TarClient-1.0.0-Windows.zip'), ($tarExeHash.Hash.ToLowerInvariant() + '  TarClient-1.0.0.exe')) -Encoding ascii
