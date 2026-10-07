@@ -1,6 +1,16 @@
 # 1.0.1 validation — 7 October 2026
 
-Pending Windows CI and release packaging. Added regression coverage for complete player lists beyond 100 entries, no partial snapshot after a failed batch, totem settings in profiles, and two new normal users seeing each other without assigned ranks. In-game totem rendering and two real authenticated Minecraft clients remain manual checks. Historical 1.0 results below are not a test result for 1.0.1.
+[Windows CI 37649136718](https://github.com/prutprut2003-creator/tar-client/actions/runs/37649136718) passed for commit `bf371997be8e02f7394a9eedde97cb7fdb7fca0c`: all **44 Java tests**, zero failures/skips, **six community-service tests**, both package builds, desktop installation, and two starts of the movable desktop EXE with payload hashes checked.
+
+The exact CI artifact digest and both release checksums were verified. Its embedded mod reports 1.0.1 and includes TotemPopMixin, the public Microsoft application ID, community endpoint, and correct logo/font assets. Structural verification against Minecraft 1.21.11 and BetterF3 passed for **29 mixins, 37 injection targets and 24 shadow fields**, including the totem scale invocation. No backend deployment was needed: new ordinary verified accounts already default to Normal; the changes are in client registration and lookup.
+
+New regression coverage checks complete player lists beyond 100 entries, no partial snapshot after a failed batch, totem settings in profiles, and two new normal users seeing each other without assigned ranks (synthetic Mojang identities in the service tests). The live badge service health endpoint returned HTTP 200.
+
+- EXE SHA-256: `b9c02457b621346a7c5eb4b2b3a6bdf84c6c85814a225a9b6312a8bc48318788`.
+- ZIP SHA-256: `2d433aefae49d209ce403d59557f714887bee56b3c085242aba2aeb66bc28398`.
+
+Manual checks remain: visually compare 10%, 100% and 300% totem animations in a real world; test badges between two real authenticated clients, with local badge display both on and off, assigned ranks, account switching and disconnect. No full live gameplay result is claimed. Windows signing is unchanged; Smart App Control can still block this unsigned build.
+
 
 # Published 1.0 validation — 7 October 2026
 
