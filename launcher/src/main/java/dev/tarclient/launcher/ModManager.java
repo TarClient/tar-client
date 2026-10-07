@@ -188,6 +188,7 @@ public final class ModManager {
         }
     }
     public void syncIntegrations(dev.tarclient.config.ClientConfig config)throws Exception {
+        ensureSaturationRenderer();
         removeRetiredIntegrations();
         for(var entry:dev.tarclient.config.Integrations.ALL){
             Path found=null;for(Path p:list())if(metadata(p).get("id").getAsString().equals(entry.modId())){found=p;break;}
@@ -196,5 +197,15 @@ public final class ModManager {
                 else if(found.toString().endsWith(".disabled"))toggle(found);
             }else if(found!=null&&found.toString().endsWith(".jar"))toggle(found);
         }
+    }
+    public void ensureSaturationRenderer()throws Exception {
+        // Keep the renderer loaded so the Saturation module can toggle live.
+        // Respect an existing compatible AppleSkin JAR instead of adding a duplicate.
+        for(Path file:list())if(metadata(file).get("id").getAsString().equals("appleskin")){
+            validateJar(file);
+            if(file.toString().endsWith(".disabled"))toggle(file);
+            return;
+        }
+        install("appleskin");
     }
 }

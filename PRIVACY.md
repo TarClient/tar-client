@@ -1,4 +1,4 @@
-# Privacy — Tar Client 1.0.1
+# Privacy — Tar Client 1.0.2
 
 Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and a shared player-badge service.
 
@@ -21,6 +21,8 @@ Active presence and assigned badge colors are visible to other Tar users request
 ## Downloads and other network activity
 
 Installation and launching contact Mojang/Microsoft and FabricMC for game metadata, libraries and assets. Mod discovery sends query text and compatibility filters to Modrinth and fetches icons from its CDN. Required-dependency resolution queries Modrinth using local JAR SHA-512 hashes, not the contents of local JARs. Downloads use upstream URLs and hash verification.
+
+AppleSkin is automatically downloaded from Modrinth as the hunger-bar renderer. It can exchange hunger/saturation synchronization packets with compatible Minecraft servers; Tar adds no separate food-statistics service. Its display settings are controlled in memory from Tar profiles.
 
 Optional integrations contact their own services; TierTagger uses its tier-list providers. Multiplayer servers and other mods have independent behavior. Provider policies: [Microsoft](https://privacy.microsoft.com/privacystatement), [Modrinth](https://modrinth.com/legal/privacy), and [FabricMC](https://fabricmc.net/) (metadata/download provider).
 

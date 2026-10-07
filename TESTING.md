@@ -1,3 +1,7 @@
+# 1.0.2 validation — 7 October 2026
+
+Local checks passed the new regression tests and the updated HUD-background test (4 tests), the actual AppleSkin 3.0.8 configuration API (enable/configure/disable), and automatic download of AppleSkin plus Fabric API in an isolated folder, including repeat-install reuse and dependency preflight. Windows CI is pending. Added regression coverage for live display toggles, preserved food-overlay preferences, legacy saturation profiles, and reuse of an existing disabled AppleSkin JAR. The official AppleSkin Fabric 1.21.11 build is used for rendering; the old text panel is removed. Live visual testing in a running world remains outstanding. Historical results below are not validation of this build.
+
 # 1.0.1 validation — 7 October 2026
 
 [Windows CI 37649136718](https://github.com/prutprut2003-creator/tar-client/actions/runs/37649136718) passed for commit `bf371997be8e02f7394a9eedde97cb7fdb7fca0c`: all **44 Java tests**, zero failures/skips, **six community-service tests**, both package builds, desktop installation, and two starts of the movable desktop EXE with payload hashes checked.

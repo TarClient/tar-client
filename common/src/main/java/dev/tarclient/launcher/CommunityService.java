@@ -14,7 +14,7 @@ public final class CommunityService {
     public static boolean owner(String uuid){return uuid!=null&&OWNER_UUID.equals(uuid.replace("-","").toLowerCase(Locale.ROOT));}
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.1");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.2");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
         if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"Only Tarrecool may manage ranks.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}

@@ -35,7 +35,6 @@ public final class TarHud {
             if(CONFIG.bool("coordinates","dimension"))lines.add(mc.world.getRegistryKey().getValue().getPath());textPanel(c,"coordinates",lines);
         }
         if(CONFIG.on("inventory"))inventory(c);
-        if(CONFIG.on("saturation"))textPanel(c,"saturation",List.of(String.format(Locale.ROOT,"Saturation%s  %.1f",mc.isInSingleplayer()?"":" (estimate)",ClientFeatures.saturation)));
         if(CONFIG.on("reach")&&(editing||System.currentTimeMillis()-ClientFeatures.lastAttack<CONFIG.number("reach","seconds")*1000))textPanel(c,"reach",List.of(String.format(Locale.ROOT,"Last attack  %.2f blocks",ClientFeatures.reach)));
         if(CONFIG.on("server"))server(c);
         ExtraHud.render(c,editing);

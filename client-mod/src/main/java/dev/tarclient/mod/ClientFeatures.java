@@ -21,8 +21,6 @@ public final class ClientFeatures {
     private static long lastFrame;
     public static double reach;
     public static long lastAttack;
-    public static volatile float saturation;
-    private static int ticks;
     public static void initialize(){
         var category=KeyBinding.Category.create(Identifier.of("tarclient","features"));
         zoomKey=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.tarclient.zoom",InputUtil.Type.KEYSYM,GLFW.GLFW_KEY_C,category));
@@ -41,13 +39,8 @@ public final class ClientFeatures {
         if(active&&!freelooking){previous=client.options.getPerspective();yaw=client.player.getYaw();pitch=client.player.getPitch();client.options.setPerspective(Perspective.THIRD_PERSON_BACK);}
         if(!active&&freelooking&&previous!=null)client.options.setPerspective(previous);
         freelooking=active;
-        if(client.player==null){lastAttack=0;saturation=0;}
-        else if(++ticks%10==0){
-            if(client.isInSingleplayer()&&client.getServer()!=null){
-                var server=client.getServer();var uuid=client.player.getUuid();
-                server.execute(()->{var player=server.getPlayerManager().getPlayer(uuid);if(player!=null)saturation=player.getHungerManager().getSaturationLevel();});
-            }else saturation=client.player.getHungerManager().getSaturationLevel();
-        }
+        if(client.player==null)lastAttack=0;
+        AppleSkinBridge.tick();
         ExtraHud.tick();
         CommunityBadges.tick();
         updateZoom();

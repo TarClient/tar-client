@@ -104,7 +104,7 @@ public class CoreTest {
     @Test void oldSettingsAcquireEveryHudBackgroundSwitch() throws Exception {
         Path file=temp.resolve("old.json");Files.writeString(file,"{\"fps\":{\"enabled\":true,\"background\":\"80000000\"}}");
         var c=ClientConfig.read(file);assertTrue(c.on("fps"));assertEquals("80000000",c.text("fps","background"));
-        for(var module:ClientConfig.MODULES)if(module.category().equals("HUD")){assertEquals(module.id().equals("potions"),c.bool(module.id(),"showBackground"));c.set(module.id(),"showBackground",true);assertTrue(c.bool(module.id(),"showBackground"));}
+        for(var module:ClientConfig.MODULES)if(module.category().equals("HUD")&&module.settings().stream().anyMatch(setting->setting.key().equals("showBackground"))){assertEquals(module.id().equals("potions"),c.bool(module.id(),"showBackground"));c.set(module.id(),"showBackground",true);assertTrue(c.bool(module.id(),"showBackground"));}
         assertTrue(c.bool("armor","horizontal"));assertEquals(4,c.number("zoom","factor"));
     }
     @Test void latestUpgradeBacksUpPreviousPatch() throws Exception {

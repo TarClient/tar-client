@@ -37,3 +37,12 @@ Required dependencies retain their upstream licenses.
 ## Tar branding and bootstrap
 
 The Tar logo was supplied by the project owner and traced into vector shapes with their permission. The generated raster/icon files derive from `branding/tar-logo.svg`. The Windows bootstrap uses built-in .NET Framework libraries; no third-party installer engine is bundled. The community service uses Cloudflare Workers and its SQLite Durable Object storage. Wrangler is a development tool and is not bundled in the launcher.
+
+## Hunger-bar renderer (1.0.2)
+
+AppleSkin by squeek502 is automatically downloaded from Modrinth as the Saturation module renderer, not bundled in Tar's own JAR. It is licensed under the Unlicense. The verified Fabric build is **3.0.8+mc1.21.11**, Modrinth version `59ti1rvg`; Fabric API is its required dependency. Tar does not claim authorship of AppleSkin.
+
+- Project/download: https://modrinth.com/mod/appleskin
+- Source/license: https://github.com/squeek502/AppleSkin
+
+Tar uses AppleSkin's public configuration fields for live display controls. The launcher resolves a compatible release and verifies its Modrinth SHA-512 checksum.

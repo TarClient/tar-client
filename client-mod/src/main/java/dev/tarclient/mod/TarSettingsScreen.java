@@ -70,6 +70,7 @@ public final class TarSettingsScreen extends Screen {
         }));
         if(selected.equals("streamer"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Randomize again",b->StreamerMode.reroll()));
         if(selected.equals("timechanger")){var apply=new TarButton(mainX+96,top+44,mainWidth-96,22,"Apply time",b->ClientFeatures.applyTime());apply.active=client.player!=null;addDrawableChild(apply);}
+        if(selected.equals("saturation")){captions.add(new Caption(AppleSkinBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
         if(selected.equals("motionblur")){captions.add(new Caption(MotionBlurBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
         if(selected.equals("badges")){
             captions.add(new Caption("Your badge is shared automatically.",mainX,contentY,mainWidth));

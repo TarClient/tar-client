@@ -1,12 +1,12 @@
-# Tar Client 1.0.1
+# Tar Client 1.0.2
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
 ## Download and open
 
-Download **TarClient-1.0.1.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.1). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
+Download **TarClient-1.0.2.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.2). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
 
-The optional **TarClient-1.0.1-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
+The optional **TarClient-1.0.2-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
 
 **Windows signing is still unfinished.** These downloads are unsigned. Smart App Control may block them, and a Microsoft review of an older file does not automatically approve a new build. See [WINDOWS-SIGNING.md](WINDOWS-SIGNING.md). Renaming files, moving them or using a shortcut does not establish publisher trust.
 
@@ -69,3 +69,9 @@ Source is MIT licensed; dependencies retain their own licenses. See [THIRD-PARTY
 **Right Shift > Visual > Totem Pop Size > Settings** controls your totem activation animation from 10% to 300%, in 5% steps. Enable the module to apply it; 100% is vanilla. Translation, spin and duration remain vanilla. Held totems and pop particles are unchanged. The separate Item Size module can still multiply the rendered item scale when enabled. Settings are saved in profiles.
 
 Badge sharing now works independently of the local display toggle. Normal badges need no action from the owner, and players beyond the first 100 entries are included.
+
+## 1.0.2 changes
+
+**Saturation** now uses the official [AppleSkin](https://modrinth.com/mod/appleskin) renderer on the vanilla hunger bar instead of a separate text panel. Tar automatically downloads AppleSkin and its required dependencies at launch; it stays loaded so toggles and profile changes work live. Open **Right Shift > HUD > Saturation > Settings** and enable it. Controls include current saturation, held-food hunger/saturation preview, offhand preview, exhaustion, health recovery, food tooltips, vanilla animations and preview opacity. Existing Saturation enabled states are preserved.
+
+The overlay follows Minecraft GUI scale and hunger-bar visibility rather than the draggable HUD editor. Exact multiplayer saturation/exhaustion needs AppleSkin or compatible synchronization on the server; vanilla-only servers may expose incomplete values. Food previews are informational, not a change to hunger or healing mechanics. Tar controls the display settings in memory while retaining the original AppleSkin config file.

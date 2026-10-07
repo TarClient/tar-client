@@ -26,7 +26,7 @@ do not draw a HUD have no panel background to configure.
 | Time changer | Enable, set the tick value, then press **Apply time** in the in-game module settings. Sends the normal `/time set` command. Requires server OP/command permission or singleplayer cheats; never changes time automatically. |
 | Clock | Local computer time in AM/PM format, with optional seconds. |
 | Inventory HUD | Main inventory grid, optional hotbar row and item count/durability overlays. |
-| Saturation | Exact singleplayer saturation. Multiplayer is labeled as an estimate because vanilla does not continuously synchronize the actual value. |
+| Saturation | AppleSkin overlay on the vanilla hunger bar, with held-food preview, optional exhaustion/health/tooltips, offhand, animation and opacity controls. Automatically downloaded. Toggle and profile changes apply live. Exact multiplayer saturation needs server synchronization. |
 | Hit color | Change the damage tint on player models. |
 | Streamer mode | Random fake coordinates shared by Tar Coordinates, vanilla F3 and BetterF3. Use Randomize again or a bound key to choose a fresh fake position. Does not affect actual movement or hide coordinates in chat, maps or unrelated mods. |
 | Coordinates | Block X/Y/Z and optional dimension label. Enable Show background for a coordinate box. |
@@ -96,7 +96,7 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 
 New information/visual modules start disabled, except Dark mode and Tar player badges. The crosshair's custom color now defaults to white with no outline; the original green default migrates once, while later custom color choices are preserved.
 
-The movable download is **TarClient-1.0.1.exe**, which contains all app/runtime files. The small inner EXE from the optional ZIP still needs its sibling folders.
+The movable download is **TarClient-1.0.2.exe**, which contains all app/runtime files. The small inner EXE from the optional ZIP still needs its sibling folders.
 
 ## 1.0.1
 

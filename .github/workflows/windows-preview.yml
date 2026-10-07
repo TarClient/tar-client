@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: '21.0.10'
+          java-version: '21.0.20'
       - uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
         with:
           gradle-version: '9.3.0'
@@ -69,8 +69,8 @@ jobs:
         shell: pwsh
         run: |
           $tarDesktop = [Environment]::GetFolderPath('DesktopDirectory')
-          $tarStandalone = Join-Path $tarDesktop 'TarClient-1.0.1.exe'
-          Copy-Item -LiteralPath './dist/TarClient-1.0.1.exe' -Destination $tarStandalone
+          $tarStandalone = Join-Path $tarDesktop 'TarClient-1.0.2.exe'
+          Copy-Item -LiteralPath './dist/TarClient-1.0.2.exe' -Destination $tarStandalone
           $tarProcess = Start-Process -FilePath $tarStandalone -ArgumentList '--install-only' -WindowStyle Hidden -PassThru
           if (-not $tarProcess.WaitForExit(120000)) { $tarProcess.Kill(); throw 'Standalone installation timed out.' }
           if ($tarProcess.ExitCode -ne 0) { throw "Standalone installation failed: $($tarProcess.ExitCode)" }
@@ -95,8 +95,8 @@ jobs:
         with:
           name: TarClient-Windows-UNSIGNED-${{ github.sha }}
           path: |
-            dist/TarClient-1.0.1-Windows.zip
-            dist/TarClient-1.0.1.exe
+            dist/TarClient-1.0.2-Windows.zip
+            dist/TarClient-1.0.2.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7
