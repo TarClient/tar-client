@@ -1,12 +1,12 @@
-# Tar Client 1.0
+# Tar Client 1.0.1
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
 ## Download and open
 
-Download **TarClient-1.0.0.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.0). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
+Download **TarClient-1.0.1.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.1). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
 
-The optional **TarClient-1.0.0-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
+The optional **TarClient-1.0.1-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
 
 **Windows signing is still unfinished.** These downloads are unsigned. Smart App Control may block them, and a Microsoft review of an older file does not automatically approve a new build. See [WINDOWS-SIGNING.md](WINDOWS-SIGNING.md). Renaming files, moving them or using a shortcut does not establish publisher trust.
 
@@ -40,7 +40,7 @@ Sign in to Minecraft as **Tarrecool**. Open **Right Shift > Tar player badges > 
 
 The service verifies Minecraft identity through Mojang. Only owner UUID `ccb2c06282bc4afb86a71058b176dbef` can manage ranks; an Admin badge does not grant this permission. Ranks follow UUIDs, not changeable names. The service is deployed on the owner's free Cloudflare Workers account; no paid plan is required or enabled by the build.
 
-Badges require the module to be enabled and a recent authenticated heartbeat. Disable it to stop publishing presence. Only Tar users can see these badges. Existing server nametag visibility rules remain intact. An open-source client cannot cryptographically prove that its binary is unmodified; this is verified account presence, not anti-cheat attestation. Outages or exhausted free quotas temporarily hide badges without blocking Minecraft.
+Every signed-in Tar player automatically receives a white Normal badge while in a world; no rank request or separate signup is needed. Assigned ranks replace white with their rank color. The module is on by default; turning it off only hides badges on your own screen, and other Tar users can still see yours. Badge lookup covers the full player list in batches of 100. Presence normally refreshes within 30 seconds and expires after disconnect. Both players need Tar running, valid Minecraft sessions, and access to the community service. Only Tar users can see these badges. Existing server nametag visibility rules remain intact. An open-source client cannot cryptographically prove that its binary is unmodified; this is verified account presence, not anti-cheat attestation. Outages or exhausted free quotas temporarily hide badges without blocking Minecraft.
 
 ## Mods and profiles
 
@@ -63,3 +63,9 @@ Requires Windows x64, JDK 21, Gradle 9.3.0 and the Windows .NET Framework C# com
 The release JAR embeds the remapped mod at `bundled/tar-client.jar`. For isolated demo diagnostics, use `java -jar tar-launcher.jar --smoke C:/path/to/test-instance --launch`; never point it at a personal instance. `-Dtar.data=...` and `-Dtar.instance=...` override test locations. See [TESTING.md](TESTING.md) for what has actually been verified and the outstanding in-world checks.
 
 Source is MIT licensed; dependencies retain their own licenses. See [THIRD-PARTY.md](THIRD-PARTY.md). Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+
+## 1.0.1 changes
+
+**Right Shift > Visual > Totem Pop Size > Settings** controls your totem activation animation from 10% to 300%, in 5% steps. Enable the module to apply it; 100% is vanilla. Translation, spin and duration remain vanilla. Held totems and pop particles are unchanged. The separate Item Size module can still multiply the rendered item scale when enabled. Settings are saved in profiles.
+
+Badge sharing now works independently of the local display toggle. Normal badges need no action from the owner, and players beyond the first 100 entries are included.

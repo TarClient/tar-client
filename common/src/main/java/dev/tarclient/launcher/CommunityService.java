@@ -14,7 +14,7 @@ public final class CommunityService {
     public static boolean owner(String uuid){return uuid!=null&&OWNER_UUID.equals(uuid.replace("-","").toLowerCase(Locale.ROOT));}
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.0");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.1");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
         if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"Only Tarrecool may manage ranks.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}
@@ -34,6 +34,24 @@ public final class CommunityService {
         return new Connection(connection.get("token").getAsString(),connection.get("expires").getAsLong(),uuid);
     }
     public static JsonObject heartbeat(Connection connection,List<String> players)throws Exception {var body=new JsonObject();body.add("players",Net.JSON.toJsonTree(players));return post("/v1/heartbeat",body,connection.token());}
+    @FunctionalInterface interface BadgeLookup { JsonObject query(List<String> players)throws Exception; }
+    public static Map<String,String> heartbeatPlayers(Connection connection,List<String> players)throws Exception {
+        return lookupPlayers(players,batch->heartbeat(connection,batch));
+    }
+    static Map<String,String> lookupPlayers(List<String> players,BadgeLookup lookup)throws Exception {
+        // The service accepts 100 IDs per request, not 100 players per server.
+        var ids=new ArrayList<>(new LinkedHashSet<>(players));
+        var found=new HashMap<String,String>();
+        for(int start=0;start<ids.size();start+=100){
+            var batch=List.copyOf(ids.subList(start,Math.min(start+100,ids.size())));
+            var response=lookup.query(batch).getAsJsonObject("players");
+            for(var entry:response.entrySet()){
+                String rank=entry.getValue().getAsString();
+                if(batch.contains(entry.getKey())&&Set.of("normal","partner","mod","admin").contains(rank))found.put(entry.getKey(),rank);
+            }
+        }
+        return Map.copyOf(found);
+    }
     public static void leave(Connection connection)throws Exception {post("/v1/leave",new JsonObject(),connection.token());}
     public static JsonObject rank(Connection connection,String name,String rank)throws Exception {var body=new JsonObject();body.addProperty("name",name);body.addProperty("rank",rank);return post("/v1/rank",body,connection.token());}
     public static JsonObject ranks(Connection connection)throws Exception {return post("/v1/ranks",new JsonObject(),connection.token());}

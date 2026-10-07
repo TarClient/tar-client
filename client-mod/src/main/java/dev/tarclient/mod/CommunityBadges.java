@@ -9,21 +9,57 @@ public final class CommunityBadges {
     private static final ExecutorService worker=Executors.newSingleThreadExecutor(r->Thread.ofVirtual().name("Tar community").unstarted(r));
     private static CommunityService.Connection connection;
     private static Map<String,String> players=Map.of();
-    private static long validUntil,next;
+    private static long validUntil,next,generation;
     private static boolean pending,present;
     private static String identity="";
-    public static String status="Community not connected";
+    private static Object world;
+    public static String status="Join a world to connect your badge";
     private static MicrosoftAuth.Session session(){var mc=MinecraftClient.getInstance();var s=mc.getSession();return new MicrosoftAuth.Session(s.getUsername(),s.getUuidOrNull()==null?"":s.getUuidOrNull().toString().replace("-",""),s.getAccessToken(),Long.MAX_VALUE,mc.isDemo());}
-    private static CommunityService.Connection connection(MicrosoftAuth.Session session)throws Exception {if(connection==null||!connection.uuid().equals(session.uuid())||connection.expires()<System.currentTimeMillis()+60000)connection=CommunityService.connect(session);return connection;}
-    public static void tick(){var mc=MinecraftClient.getInstance();String id=session().uuid();if(!identity.equals(id)){identity=id;players=Map.of();validUntil=0;next=0;}
-        boolean enabled=TarClient.CONFIG.on("badges")&&mc.world!=null&&!mc.isDemo()&&CommunityService.configured();
-        if(!enabled){players=Map.of();if(present&&!pending){present=false;pending=true;worker.submit(()->{try{if(connection!=null)CommunityService.leave(connection);}catch(Exception ignored){}finally{mc.execute(()->pending=false);}});}return;}
+    // Called only on the community worker, including rank-management requests.
+    private static CommunityService.Connection connection(MicrosoftAuth.Session session)throws Exception {
+        if(connection!=null&&!connection.uuid().equals(session.uuid())){
+            try{CommunityService.leave(connection);}catch(Exception ignored){}
+            connection=null;
+        }
+        if(connection==null||connection.expires()<System.currentTimeMillis()+60000)connection=CommunityService.connect(session);
+        return connection;
+    }
+    public static void tick(){
+        var mc=MinecraftClient.getInstance();var auth=session();
+        if(!identity.equals(auth.uuid())||world!=mc.world){
+            identity=auth.uuid();world=mc.world;generation++;players=Map.of();validUntil=0;next=0;
+            status=mc.world==null?"Join a world to connect your badge":"Connecting your badge...";
+        }
+        // All authenticated Tar players advertise their normal (or assigned) badge.
+        // The module switch is a local display preference, never a rank requirement.
+        boolean active=mc.world!=null&&!auth.demo()&&auth.uuid().matches("[a-f0-9]{32}")&&CommunityService.configured();
+        if(!active){
+            players=Map.of();
+            if(present&&!pending){pending=true;worker.submit(()->{
+                try{if(connection!=null)CommunityService.leave(connection);}catch(Exception ignored){}
+                finally{mc.execute(()->{present=false;pending=false;});}
+            });}
+            return;
+        }
         if(System.currentTimeMillis()>validUntil)players=Map.of();
-        if(pending||System.currentTimeMillis()<next)return;pending=true;next=System.currentTimeMillis()+30000;
-        var auth=session();var ids=new ArrayList<String>();ids.add(auth.uuid());if(mc.getNetworkHandler()!=null)for(var entry:mc.getNetworkHandler().getPlayerList()){String uuid=entry.getProfile().id().toString().replace("-","");if(ids.size()<100&&!ids.contains(uuid))ids.add(uuid);}
-        worker.submit(()->{try{var result=CommunityService.heartbeat(connection(auth),ids);Map<String,String> found=new HashMap<>();for(var entry:result.getAsJsonObject("players").entrySet())if(ids.contains(entry.getKey())&&Set.of("normal","partner","mod","admin").contains(entry.getValue().getAsString()))found.put(entry.getKey(),entry.getValue().getAsString());
-            mc.execute(()->{if(identity.equals(auth.uuid())&&TarClient.CONFIG.on("badges")&&mc.world!=null){players=Map.copyOf(found);validUntil=System.currentTimeMillis()+90000;present=true;status="Connected";}});
-        }catch(Exception e){connection=null;mc.execute(()->status="Community unavailable; badges expire automatically.");}finally{mc.execute(()->pending=false);}});
+        if(pending||System.currentTimeMillis()<next)return;
+        pending=true;next=System.currentTimeMillis()+30000;long requestGeneration=generation;
+        var ids=new LinkedHashSet<String>();ids.add(auth.uuid());
+        if(mc.getNetworkHandler()!=null)for(var entry:mc.getNetworkHandler().getPlayerList())ids.add(entry.getProfile().id().toString().replace("-",""));
+        worker.submit(()->{
+            try{
+                var found=CommunityService.heartbeatPlayers(connection(auth),List.copyOf(ids));
+                mc.execute(()->{
+                    // Even a discarded response may have published presence. Ensure a
+                    // subsequent disconnect tick removes it instead of forgetting it.
+                    present=true;
+                    if(generation==requestGeneration&&mc.world!=null){
+                        players=found;validUntil=System.currentTimeMillis()+90000;status="Connected / badge shared automatically";
+                    }
+                });
+            }catch(Exception e){connection=null;mc.execute(()->{if(generation==requestGeneration)status="Badge service unavailable; retrying...";});}
+            finally{mc.execute(()->pending=false);}
+        });
     }
     public static Text decorate(UUID uuid,Text name){String rank=players.get(uuid.toString().replace("-",""));if(rank==null||!TarClient.CONFIG.on("badges")||System.currentTimeMillis()>validUntil)return name;
         int color=switch(rank){case "partner"->0xC4A0FF;case "mod"->0x91C8FF;case "admin"->0xFF9C9C;default->0xFFFFFF;};

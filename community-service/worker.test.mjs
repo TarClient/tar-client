@@ -51,3 +51,18 @@ test('a successful challenge is consumed and cannot create a second session',asy
   const replies=await Promise.all([s.send('/v1/confirm',{id:proof.id}),s.send('/v1/confirm',{id:proof.id})]);
   assert.deepEqual(replies.map(x=>x.status).sort(),[200,401]);
 });
+
+test('two new normal players automatically see each other without any rank assignment',async()=>{
+  const s=setup(),second='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',nonTar='cccccccccccccccccccccccccccccccc';
+  const firstToken=await s.login(OTHER,'FirstPlayer'),secondToken=await s.login(second,'SecondPlayer');
+  const body={players:[OTHER,second,nonTar]};
+  await s.send('/v1/heartbeat',body,firstToken);
+  const secondView=await (await s.send('/v1/heartbeat',body,secondToken)).json();
+  const firstView=await (await s.send('/v1/heartbeat',body,firstToken)).json();
+  assert.deepEqual(firstView.players,{[OTHER]:'normal',[second]:'normal'});
+  assert.deepEqual(secondView.players,firstView.players);
+  assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM ranks').get().count,0);
+  s.database.prepare('UPDATE presence SET expires=0 WHERE uuid=?').run(second);
+  const expired=await (await s.send('/v1/heartbeat',body,firstToken)).json();
+  assert.deepEqual(expired.players,{[OTHER]:'normal'});
+});

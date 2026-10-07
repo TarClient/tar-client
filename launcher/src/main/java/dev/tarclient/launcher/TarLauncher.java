@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,GREEN=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.0.0";
+    public static final String VERSION="1.0.1";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;

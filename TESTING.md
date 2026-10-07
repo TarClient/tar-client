@@ -1,3 +1,7 @@
+# 1.0.1 validation — 7 October 2026
+
+Pending Windows CI and release packaging. Added regression coverage for complete player lists beyond 100 entries, no partial snapshot after a failed batch, totem settings in profiles, and two new normal users seeing each other without assigned ranks. In-game totem rendering and two real authenticated Minecraft clients remain manual checks. Historical 1.0 results below are not a test result for 1.0.1.
+
 # Published 1.0 validation — 7 October 2026
 
 [Tar Client 1.0](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.0) was published from tested commit `a70a9c64e95ab87aba566bbd6f253ff8cf7c3d3a` as a full release, not a prerelease.

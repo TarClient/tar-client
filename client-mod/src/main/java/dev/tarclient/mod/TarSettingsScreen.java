@@ -71,12 +71,16 @@ public final class TarSettingsScreen extends Screen {
         if(selected.equals("streamer"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Randomize again",b->StreamerMode.reroll()));
         if(selected.equals("timechanger")){var apply=new TarButton(mainX+96,top+44,mainWidth-96,22,"Apply time",b->ClientFeatures.applyTime());apply.active=client.player!=null;addDrawableChild(apply);}
         if(selected.equals("motionblur")){captions.add(new Caption(MotionBlurBridge.status(),mainX,contentY,mainWidth));contentY+=18;}
+        if(selected.equals("badges")){
+            captions.add(new Caption("Your badge is shared automatically.",mainX,contentY,mainWidth));
+            captions.add(new Caption(CommunityBadges.status,mainX,contentY+14,mainWidth));contentY+=32;
+        }
         var settings=module.settings().stream().filter(s->!s.key().equals("pattern")).toList();
         int perPage=Math.max(1,(top+panelHeight-contentY-32)/42);
         page=Math.clamp(page,0,Math.max(0,(settings.size()-1)/perPage));
         for(int i=page*perPage;i<Math.min(settings.size(),(page+1)*perPage);i++){
             var s=settings.get(i);int y=contentY+(i-page*perPage)*42;
-            captions.add(new Caption(s.label(),mainX,y,mainWidth));
+            captions.add(new Caption(selected.equals("badges")&&s.key().equals("enabled")?"Show badges on my screen":s.label(),mainX,y,mainWidth));
             if(s.initial() instanceof Boolean){
                 addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.bool(selected,s.key())?"Enabled":"Disabled",b->{CONFIG.set(selected,s.key(),!CONFIG.bool(selected,s.key()));TarClient.save();b.setMessage(Text.literal(CONFIG.bool(selected,s.key())?"Enabled":"Disabled"));},()->CONFIG.bool(selected,s.key())));
             }else if(s.initial() instanceof Number){

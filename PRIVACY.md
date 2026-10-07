@@ -1,6 +1,6 @@
-# Privacy — Tar Client 1.0
+# Privacy — Tar Client 1.0.1
 
-Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and an optional shared player-badge service.
+Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and a shared player-badge service.
 
 ## Microsoft accounts and local files
 
@@ -12,9 +12,9 @@ Minecraft receives an access token in a temporary `.launch-*.args` file. Cleanup
 
 ## Player badges and ranks
 
-The **Tar player badges** module is enabled by default and can be turned off in either module menu. While playing, it sends your public Minecraft UUID/name and up to 100 player UUIDs from the current player list to `tar-client-community.prutprut2003.workers.dev`, hosted in the publisher's Cloudflare account. It does not send server addresses, coordinates, chat, inventory, passwords, Microsoft refresh tokens or Minecraft access tokens to the community service.
+All signed-in Tar players automatically publish badge presence while in a world, including singleplayer. The **Tar player badges** toggle is enabled by default and controls only whether badges are displayed locally; disabling it does not hide your badge from others. While playing, Tar sends your public Minecraft UUID/name and the current player-list UUIDs, in requests of up to 100 IDs, to `tar-client-community.prutprut2003.workers.dev`, hosted in the publisher's Cloudflare account. It does not send server addresses, coordinates, chat, inventory, passwords, Microsoft refresh tokens or Minecraft access tokens to the community service.
 
-Minecraft identity is proven through Mojang's session service: the Minecraft access token goes only to Mojang's `/join` endpoint. The backend receives a public one-time challenge and checks it with Mojang. Community bearer tokens stay in game memory; only their hashes are stored by the backend. Tokens expire after six hours, challenges after one minute, and presence after two minutes. Expired records are cleaned on subsequent service requests. Turning badges off or leaving a world requests immediate presence removal; network failures fall back to expiry.
+Minecraft identity is proven through Mojang's session service: the Minecraft access token goes only to Mojang's `/join` endpoint. The backend receives a public one-time challenge and checks it with Mojang. Community bearer tokens stay in game memory; only their hashes are stored by the backend. Tokens expire after six hours, challenges after one minute, and presence after two minutes. Expired records are cleaned on subsequent service requests. Leaving a world requests immediate presence removal; network failures fall back to expiry.
 
 Active presence and assigned badge colors are visible to other Tar users requesting those UUIDs. Permanent rank records contain UUID, last assigned name, rank and update time until the owner removes them. Only Tarrecool's verified UUID can change ranks. The server retains no custom request logs. Cloudflare receives ordinary network metadata, including IP addresses; short-lived in-memory counters limit abuse. Cloudflare may retain its own operational/security data under its [privacy policy](https://www.cloudflare.com/privacypolicy/).
 

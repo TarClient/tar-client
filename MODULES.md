@@ -84,7 +84,7 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 | Module / change | Behavior |
 | --- | --- |
 | Fullbright | At strength 1, blends the game lightmap toward white, including zero-light areas. Lower strengths blend with normal lighting. Does not place torches or change server light levels. Shader/renderer replacements can require compatibility testing. |
-| Tar player badges | Verified recent community presence adds your logo to visible nametags and the player list. Normal white, Partner purple, Mod blue, Admin red. Tarrecool sees Manage ranks under Settings. Disable to stop publishing presence. |
+| Tar player badges | Verified recent community presence adds your logo to visible nametags and the player list. Normal white, Partner purple, Mod blue, Admin red. Tarrecool sees Manage ranks under Settings. All signed-in players automatically share a white badge while in a world; disabling this module only hides badges locally. The entire player list is queried in batches of 100. |
 | Dark mode | Switch Tar's in-game menus between dark and light palettes. Launcher Settings has its own theme switch, applied on restart. |
 | TPS | Estimates 0–20 ticks per second from server time packets; choose averaging samples. Network delay affects the estimate. It is not direct server instrumentation. |
 | Particles | Adjust overall quantity and crit, potion and other particle percentages independently, including zero. Disable module to restore vanilla particle spawning. Applies to vanilla ParticleManager effect creation. |
@@ -96,4 +96,12 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 
 New information/visual modules start disabled, except Dark mode and Tar player badges. The crosshair's custom color now defaults to white with no outline; the original green default migrates once, while later custom color choices are preserved.
 
-The movable download is **TarClient-1.0.0.exe**, which contains all app/runtime files. The small inner EXE from the optional ZIP still needs its sibling folders.
+The movable download is **TarClient-1.0.1.exe**, which contains all app/runtime files. The small inner EXE from the optional ZIP still needs its sibling folders.
+
+## 1.0.1
+
+| Module | Controls and behavior |
+|---|---|
+| Totem Pop Size | Visual category. Enable to resize the totem activation animation from 10% to 300% in 5% steps; 100% is vanilla. Does not resize held items or particles, or alter animation timing/position. Item Size can additionally multiply the model scale. Saved per profile. |
+
+Normal badges require no owner assignment. Every signed-in Tar player automatically advertises presence while playing, even if they hide badges locally. Both players need Tar running and connectivity; discovery normally takes up to 30 seconds. Existing assigned colors and owner-only rank management are preserved.

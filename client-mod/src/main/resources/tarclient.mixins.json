@@ -12,6 +12,7 @@
     "ItemStateMixin",
     "HeldItemMixin",
     "FireMixin",
+    "TotemPopMixin",
     "WindowMixin",
     "HitboxMixin",
     "DebugRendererMixin",
