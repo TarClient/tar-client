@@ -1,6 +1,15 @@
 # 1.0.2 validation — 7 October 2026
 
-Local checks passed the new regression tests and the updated HUD-background test (4 tests), the actual AppleSkin 3.0.8 configuration API (enable/configure/disable), and automatic download of AppleSkin plus Fabric API in an isolated folder, including repeat-install reuse and dependency preflight. Windows CI is pending. Added regression coverage for live display toggles, preserved food-overlay preferences, legacy saturation profiles, and reuse of an existing disabled AppleSkin JAR. The official AppleSkin Fabric 1.21.11 build is used for rendering; the old text panel is removed. Live visual testing in a running world remains outstanding. Historical results below are not validation of this build.
+[Windows CI 37683146724](https://github.com/TarClient/tar-client/actions/runs/37683146724) passed for commit `610b3162330ae6642fe5d381841cf6a5bca3d8e4`: **47 Java tests**, zero failures/skips, **six community-service tests**, both release packages, native desktop installation, and two starts of the movable EXE with the full extracted payload verified.
+
+The exact CI artifact and both release-file checksums were verified. The packaged mod reports 1.0.2 and contains AppleSkinBridge, the existing TotemPopMixin and badge assets, the public Microsoft app ID and community endpoint. The initial failed run stopped at Java setup after a version-replacement typo; the Java 21.0.10 pin was restored before this successful run.
+
+Local checks passed four targeted tests covering live display toggles, preserved preferences, old saturation profiles, existing disabled AppleSkin reuse, and the HUD background schema. The actual official AppleSkin 3.0.8+mc1.21.11 JAR configuration API was instantiated and successfully enabled/configured/disabled using Tar's binding. Automatic installation fetched AppleSkin and Fabric API in an isolated directory, verified their hashes, passed dependency preflight, and reused the same two JARs on a second call.
+
+Exact multiplayer hunger statistics still require compatible server synchronization. Live visual checks in a running Minecraft world (hunger bar, held-food preview, GUI scales, creative/spectator visibility, profile switching and module disable) remain outstanding. No in-world rendering result is claimed. Windows signing is unchanged.
+
+- EXE SHA-256: `61c798260f627a7de36443e356199f4a4367d0f69c321581aba12026ff7ff887`.
+- ZIP SHA-256: `67b6a6072f17e1b343e5249bbd832f420d49016c973a9a41b309aafaf1a39037`.
 
 # 1.0.1 validation — 7 October 2026
 
