@@ -1,4 +1,17 @@
-# 1.0 validation — 6 October 2026
+# Published 1.0 validation — 7 October 2026
+
+[Tar Client 1.0](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.0) was published from tested commit `a70a9c64e95ab87aba566bbd6f253ff8cf7c3d3a` as a full release, not a prerelease.
+
+[Windows CI 37641982310](https://github.com/prutprut2003-creator/tar-client/actions/runs/37641982310) passed all **41 Java tests with zero failures/skips**, including the Windows DPAPI round trip and native desktop-copy checks that were restricted locally. All **five backend authorization tests** passed. Both package formats built successfully. CI verified that moving the standalone EXE to the desktop installs the full app/runtime, creates the correct shortcut, matches the original file hashes, and reuses its installation on a second start.
+
+The exact CI artifact was downloaded and its artifact digest and both release-file checksums verified. The embedded mod reports 1.0.0, includes the public Microsoft application ID and deployed community endpoint, and contains the correct logo/font assets. The actual CI mod passed structural validation for 28 mixins, 36 injection targets and 23 shadow fields. Spotify and 3D-skin classes are absent. Importing BetterF3 alone in an isolated folder downloaded its missing Fabric API and Cloth Config dependencies and passed preflight against live Modrinth.
+
+- `TarClient-1.0.0.exe`: 62,138,368 bytes; SHA-256 `170dbc3be3e2a6dfa6f90992413eb12f58d2f771e9a04f2268f440997b933b48`.
+- `TarClient-1.0.0-Windows.zip`: 62,098,049 bytes; SHA-256 `5c60332a1ed328f107097cc32ad8d1171566481e93d75165d5d13fb39e7004d8`.
+
+GitHub's uploaded asset digests match these files. The earlier packaging failure was a C# compiler path-parsing issue; resolving native Windows paths fixed it. No failing test was removed or skipped. The live-game, account and rank checks listed below remain unverified. Windows signing is still unfinished.
+
+# 1.0 local validation — 6–7 October 2026
 
 - Launcher and client compile locally with Java 21. Structural checks pass for 28 remapped mixin classes, 36 injection targets and 23 shadow fields against Minecraft 1.21.11 and BetterF3.
 - Local Java run: 39 of 41 tests passed; the existing desktop canonical-path test and new Windows DPAPI round-trip fail in this restricted environment. Both remain mandatory on Windows CI; no tests were skipped.
