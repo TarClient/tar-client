@@ -1,215 +1,65 @@
-# Tar Client 0.4.0 â€” Windows preview
+# Tar Client 1.0
 
-A standalone Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**,
-plus its bundled Tar Client cosmetic and HUD mod. This is a real desktop app,
-not a website or a mod-only download.
+A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
-Tar Client is a free, MIT-licensed project branded **Tarre Industries**. This is
-a project name, not a claim of incorporation or a verified Windows publisher.
-Minecraft itself remains a separate product and requires its own entitlement
-for full-game play.
+## Download and open
 
-[Public releases](https://github.com/prutprut2003-creator/tar-client/releases) include checksums. The current source is 0.4.1; check the download version before installing. Windows signing remains subject to the limitation below.
+Download **TarClient-1.0.0.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.0). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
 
-## Code signing policy
+The optional **TarClient-1.0.0-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
 
-The current preview is unsigned. Free community signing is being explored;
-no provider has accepted this project yet. See [Code signing policy](CODE-SIGNING.md),
-[Privacy](PRIVACY.md), and [Contributing](CONTRIBUTING.md).
+**Windows signing is still unfinished.** These downloads are unsigned. Smart App Control may block them, and a Microsoft review of an older file does not automatically approve a new build. See [WINDOWS-SIGNING.md](WINDOWS-SIGNING.md). Renaming files, moving them or using a shortcut does not establish publisher trust.
 
-**Windows signing remains unfinished.** Smart App Control may block this unsigned
-EXE without a Run anyway option. See [WINDOWS-SIGNING.md](WINDOWS-SIGNING.md).
-Do not disable Windows protection or use the CMD launcher to evade that block.
+Open Accounts and sign in through Microsoft's official page. The public application ID is included: there is nothing to paste. New sign-ins open a fresh private Edge/Chrome profile so another browser session does not choose your main account. Enter the email belonging to the account you want. If automatic browser opening is unavailable, use the copied URL in a fresh private window.
 
-## Start
+Windows encrypts remembered account sessions and refresh tokens for the current Windows user. Reopening Tar restores the selected account when Microsoft accepts its refresh token. Sign out/Forget removes that account from Tar's saved list. Expired, revoked or restricted accounts can still require sign-in. See [SIGN-IN-SETUP.md](SIGN-IN-SETUP.md) and [PRIVACY.md](PRIVACY.md).
 
-1. Extract the entire `TarClient-0.4.1-Windows.zip` archive.
-2. Open `Tar Client/Tar Client.exe`. Keep `app` and `runtime` beside the EXE.
-   For ordinary startup errors (not a Windows security block), `Start Tar Client.cmd`
-   starts the same launcher using the bundled Java runtime and shows startup errors.
-   For a desktop app, click **Install to desktop** on the Play page. This copies the complete app and Java runtime into `%LOCALAPPDATA%\Programs\Tar Client` and creates **Tar Client** on your Windows desktop. Open that shortcut afterwards; you can then move or remove the extracted download. Each installation keeps previous installed versions for rollback. No administrator access is required.
-3. Click **Install / verify files**. The first download includes Minecraft,
-   Fabric, assets, Fabric API, Mod Menu, BetterF3 and their required dependencies.
-4. To try it without an account, choose **Try Minecraft demo**. This launches
-   Minecraft's own restricted demo, not an offline full-game account.
-5. Open **Accounts** and choose **Sign in with Microsoft**. Tar Client's public
-   application ID is built in; you do not need to register or paste an ID.
-   Minecraft API review was approved on 21 September 2026. A successful live account login is still a separate check.
-   See [SIGN-IN-SETUP.md](SIGN-IN-SETUP.md).
+Choose **Install / verify files**, then **Play Minecraft**. Minecraft, Fabric, assets and required mods download automatically. Minecraft Java ownership or a qualifying subscription is required for full play; **Try demo** starts Minecraft's own restricted demo. Java 21 is bundled. Default game memory is **8 GB**, adjustable in Settings; existing chosen memory settings are preserved.
 
-Java 21 is bundled. The download targets Windows x64. The launcher defaults to
-4 GB game memory; change it under **Settings**.
+## New in 1.0
 
-## What's new in 0.4.1
+- Fullbright blends the lightmap toward uniform white light, including unlit areas. Strength is adjustable; server light levels do not change.
+- Your Tar logo appears in the launcher/icon and beside verified active Tar users in nametags and the player list.
+- Owner-controlled Normal, Partner, Mod and Admin badges: white, light purple, light blue and light red.
+- Dark/light launcher theme, plus a Dark mode module for Tar's game menus.
+- TPS estimate, Particles, TNT timer, Mouse tracer, Item counter and custom Text modules.
+- HUD panels support rounded, solid, gradient and outline backgrounds, with background visibility, colors and opacity controls. Potion icons can keep vanilla backgrounds.
+- White default custom crosshair, vanilla mode and the existing 15×15 drawing editor.
+- Scroll while holding Zoom to change magnification temporarily; releasing resets it.
+- Item-size filters can include only listed item IDs or exclude them, alongside existing per-item scales.
+- Delete profiles in either menu. Deleted settings move to a recoverable `config/tar-profiles/deleted` folder.
+- Required Modrinth dependencies install automatically, including dependencies of recognized imported JARs. Unpublished local JARs still need their missing dependencies supplied manually.
 
-- Microsoft application ID is always built in. Old overrides are ignored and the editable setup field is removed.
-- Launcher Accounts offers Add another account and a list of verified accounts for this session. Sign-in shows progress and errors identify the failing step. Choose Use another account on Microsoft's page; a private browser window avoids reusing an existing browser account.
-- Custom crosshair defaults to Minecraft's original rendering. Draw a 15x15 design from the launcher settings or Right Shift > Custom crosshair > Draw crosshair. Left-click/drag paints, right-click erases, and Save activates the design. Grid designs are included in profiles.
-- Potion status uses the original corner effect icons with countdowns and levels, rather than a separate text panel. Turning it off restores vanilla icons.
-- 3D skins removed. At the next launcher preparation, an existing 3D Skin Layers JAR is moved to the recoverable removed-mods folder.
+The previous armor directions/customization, potion corner timers, streamer coordinates, account switching, motion-blur settings, profiles, keybinds and mod browser remain. Spotify and 3D skins remain removed.
 
-Live sign-in with multiple real accounts and in-world rendering still require real-machine verification. A friend's unspecified sign-in problem has not been reproduced; this release does not claim to resolve every Microsoft account restriction.
+Press **Right Shift** for modules, **Edit HUD** to move panels, and **Keybinds** to change controls. **Accounts** switches Minecraft accounts without restarting the game; switching asks before leaving a world/server. [MODULES.md](MODULES.md) describes every module and its limitations.
 
-## What's new in 0.4.0
+## Give ranks (Tarrecool only)
 
-- **Streamer mode** randomizes coordinates shown by Tar's Coordinates HUD, vanilla F3 and BetterF3. The fake position is consistent between those displays until you randomize it again or re-enable the module. Real positions, packets and world data are untouched. Chat, screenshots taken earlier, maps and other mods are outside its scope.
-- **Right Shift > Accounts** lets you add Microsoft accounts, switch between verified sessions, and forget inactive accounts. A switch from a world asks before leaving; Minecraft stays open. Entitlement, profile, account permissions, chat-signing keys and Realms state are refreshed. Accounts are stored only in Minecraft's memory and must be added again after it closes. Changes here do not change the separate launcher's selected account for its next launch.
-- **Install to desktop** installs a complete copy per Windows user and creates a normal desktop shortcut. Java remains bundled.
-- Armor Settings now has a quick **Direction: Right / Down / Left / Up** button.
-- New account and streamer controls can be rebound through **Right Shift > Keybinds**. All 0.3.1 profile, motion-blur, keybind and armor options remain available.
+Sign in to Minecraft as **Tarrecool**. Open **Right Shift > Tar player badges > Settings > Manage ranks**. Enter the recipient's Minecraft Java username and select Partner, Mod or Admin. Select Normal to remove their assigned rank. You retain the red owner badge. Rank changes appear after the next presence refresh, normally within 30 seconds.
 
-## Improvements in 0.3.1
+The service verifies Minecraft identity through Mojang. Only owner UUID `ccb2c06282bc4afb86a71058b176dbef` can manage ranks; an Admin badge does not grant this permission. Ranks follow UUIDs, not changeable names. The service is deployed on the owner's free Cloudflare Workers account; no paid plan is required or enabled by the build.
 
-- Removed the Spotify overlay and its Windows media helper.
-- Create your own named profiles in the launcher or directly from Right Shift > Profiles. Create never overwrites an existing profile; Update asks before replacing it.
-- Motion blur has its own strength and pause-in-menus settings in Tar. After its first installation and restart, adjustments and toggles apply live. These settings are saved in profiles.
-- Right Shift > Keybinds opens the binding editor for Tar controls, Minecraft controls and installed mods. Optional module toggle keys, Open profiles and Apply time start unbound. Menu, zoom, freelook, F11 and installed motion-blur shortcuts can be rebound. For a bindable hitbox shortcut, enable Always show in Hitbox outlines and assign its Tar toggle; Minecraft's own F3+B remains fixed.
-- Armor supports horizontal/vertical layout, reversed direction (up/left), icon size, slot spacing, optional durability text and bars, bar width and durability colors.
-- Read [MODULES.md](MODULES.md) for controls and verification limits.
+Badges require the module to be enabled and a recent authenticated heartbeat. Disable it to stop publishing presence. Only Tar users can see these badges. Existing server nametag visibility rules remain intact. An open-source client cannot cryptographically prove that its binary is unmodified; this is verified account presence, not anti-cheat attestation. Outages or exhausted free quotas temporarily hide badges without blocking Minecraft.
 
-## Earlier improvements in 0.2.1
+## Mods and profiles
 
-- Built in Tar Client's registered Microsoft application ID for every download, including upgrades with empty settings. Version 0.4.1 also ignores obsolete custom IDs.
-- Back up either previous bundled core (0.1.0 or 0.2.0) when upgrading, keeping worlds and other mods.
-- Minecraft API approval is still pending; registration alone does not confirm full login works.
+Discover mods searches Modrinth for Fabric 1.21.11 releases with sorting, filters and pagination. Required dependencies and hashes are checked before installation. Installed mods can import Fabric JARs, toggle, remove or resolve dependencies. Removing a mod moves it to `removed-mods`. Declared incompatibilities block launch. Metadata cannot guarantee that arbitrary third-party mods work together.
 
-## Earlier improvements in 0.2.0
+Close Minecraft before editing launcher module settings or installed mods. While playing, use the game menu. Profiles save all Tar module settings; Minecraft keybindings and detailed upstream-mod settings remain global. Bedwars and SMP presets are seeded once.
 
-- Fixed borderless F11 resizing: native window callbacks no longer overwrite the target monitor dimensions.
-- Right Shift opens/closes the new searchable, categorized in-game module menu; it respects text input and key-binding screens.
-- Redesigned launcher with a dark sidebar, original block artwork, module cards and an Accounts page.
-- Modrinth discovery now has category filters, sorting, pagination and asynchronous mod icons.
-- Start Microsoft sign-in or account creation from Accounts. The official browser completes the account flow; the registered Tar application ID is now included.
-- Existing worlds and settings are reused. The previous bundled core is backed up during upgrade.
+## Data and uninstall
 
-**Verification status:** see [TESTING.md](TESTING.md) for the current launcher checks and earlier verification. Twenty-four remapped mixins/accessors were checked against Minecraft 1.21.11 and BetterF3 17.0.0 bytecode. A real GLFW window passed three fullscreen/windowed cycles with geometry callbacks at 3840x2160. The Swing launcher and live Modrinth catalog were rendered and inspected. Full gameplay, multi-monitor transitions and Microsoft account login remain unverified. See [TESTING.md](TESTING.md).
+Game data lives in `%LOCALAPPDATA%/TarClient/instance-1.21.11`, separate from the official `.minecraft` folder. It contains saves, screenshots, resource packs, mods and `config/tarclient.json`. Launcher preferences and encrypted `accounts.dpapi` live in `%LOCALAPPDATA%/TarClient`. Review logs before sharing; never share account files or `.launch-*.args` files.
 
-## Included features
-
-| Feature | Controls |
-| --- | --- |
-| Fullbright | Enable and brightness strength; visual lightmap only |
-| Crosshair | Color, arm length, gap, thickness, dot, outline, third-person display |
-| Item size | First-person, inventory, dropped, third-person and fixed/display scales; per-item overrides; held maps included |
-| No fog | Terrain fog; optional fluid-fog removal |
-| FPS | Live game FPS; position, scale and colors |
-| Ping | Your multiplayer latency in ms; singleplayer is labeled separately |
-| Armor status | Every armor slot, remaining points or percent; configurable warning threshold, volume and cooldown |
-| Borderless fullscreen | F11 uses the current monitor's borderless desktop-sized window |
-| Keystrokes | Actual bound movement/jump keys, mouse buttons, left/right CPS, pressed color |
-| BetterF3 | Actual BetterF3 mod, installed from Modrinth for 1.21.11 |
-| Potion status | Timers and levels on the top-right effect icons; filters, scale, padding, timer colors and optional vanilla backgrounds |
-| Hitbox outlines | F3+B color, eye-height box and direction; optional always-on display |
-| Low / side shield | Downward and outward offsets |
-| Low fire | Fire-overlay vertical offset |
-| Glint | Hide enchantment glint or set its vanilla strength and speed |
-
-**Right Shift** opens Tar settings in game; it can be rebound in Minecraft's key
-settings. The title and pause screens also have a **Tar settings** button.
-Choose **Edit HUD** in a world to drag panels. Numeric controls, colors
-and toggles save automatically. HUD coordinates are percentages so layouts adapt
-to resolution changes. Disable a module to restore its normal rendering path.
-
-Glint customization here means strength and speed, not replacement textures or
-arbitrary glint colors. Hitbox customization affects debug drawing only; it never
-changes collision boxes, attack reach or server behavior. Fullbright, no fog and
-item scaling start disabled. Armor alerts use the game's pling sound, so the
-Minecraft Master volume also affects their audibility.
-
-The first-person map renderer is covered separately by item scaling. Per-item
-overrides apply across contexts, for example:
-
-`minecraft:diamond_sword=0.65;minecraft:shield=0.8`
-
-Change borderless mode while windowed, then press F11. BetterF3 and other
-third-party mods expose their own settings in the in-game **Mods** menu. Their
-schemas differ, so they are not copied into Tar's built-in settings form.
-
-## Add and manage mods
-
-- **Discover mods:** search Modrinth, filtered to Fabric and 1.21.11. Installation
-  resolves required dependencies and checks SHA-512 hashes before committing files.
-- **Installed mods â†’ Import Fabric JARs:** select one or more local `.jar` files.
-  Forge-only, server-only and declared incompatible versions are rejected.
-- Use **Check dependencies** after importing local JARs. Missing requirements and
-  declared conflicts block launching and are reported by name.
-- Disabling renames a mod to `.jar.disabled`. Removing moves it into
-  `removed-mods`, allowing recovery. Tar's core mod is managed by the launcher.
-- Close Minecraft before changing installed mods. Use the in-game menu for Tar
-  settings while playing, so the launcher cannot overwrite live settings.
-
-Version declarations and hashes cannot guarantee that arbitrary third-party mods
-work together. Renderer replacements and other mods that modify the same game
-code still need a real launch test. Required Modrinth dependencies install
-automatically; optional dependencies do not. Search supports pagination, sorting and category filters.
-
-## Files and data
-
-The default instance is `%LOCALAPPDATA%\TarClient\instance-1.21.11` (on standard
-Windows profiles). It is separate from the official `.minecraft` folder.
-
-- `config/tarclient.json`: shared launcher/in-game settings.
-- `mods/`: installed JARs and disabled JARs.
-- `tar-mods.json`: Modrinth version and hash records.
-- `saves/`, `screenshots/`, `resourcepacks/`: normal Minecraft content.
-- `logs/latest.log`: Minecraft/Fabric log.
-- `%LOCALAPPDATA%\TarClient\game-output.log`: last game's console output.
-- `%LOCALAPPDATA%\TarClient\launcher.json`: memory preferences (Microsoft app ID is built into the program).
-
-The first launch needs Internet access and several gigabytes of free disk space.
-Minecraft files and third-party mods are downloaded from their providers; they
-are not redistributed in this ZIP. This preview rechecks official metadata online
-at launch, so it is not an offline launcher.
+To uninstall, close Minecraft and Tar, remove the desktop EXE/shortcut and `%LOCALAPPDATA%/Programs/Tar Client`. This leaves worlds intact. To remove game data too, first back up your worlds, then remove `%LOCALAPPDATA%/TarClient`. Use your selected locations instead if you configured custom data paths.
 
 ## Build and extend
 
-Requires a JDK 21 and Gradle 9.3.0. Run `build-windows.ps1`, or:
+Requires Windows x64, JDK 21, Gradle 9.3.0 and the Windows .NET Framework C# compiler. Run `./build-windows.ps1`. It tests Java code, builds/remaps the Fabric mod, packages Java, and embeds the complete ZIP in the movable EXE. The public-repository Windows workflow tests both desktop installation paths; it does not purchase services or automatically publish releases.
 
-```powershell
-gradle :launcher:test :client-mod:build :launcher:fatJar
-```
+`launcher` is the desktop app, `client-mod` is the Fabric component, `common` contains shared settings/authentication, `bootstrap` builds the self-contained EXE, and `community-service` contains the rank backend. Add module definitions to `ClientConfig.MODULES` and implement their rendering/events in `client-mod`. Third-party JARs require no source changes.
 
-The GitHub Actions workflow builds an **unsigned preview** on a standard Windows
-runner, only in a public repository. [Build 35425079764](https://github.com/prutprut2003-creator/tar-client/actions/runs/35425079764)
-passed on 19 September 2026, including all seven launcher tests and Windows packaging.
-It does not purchase services, sign executables, or publish releases automatically.
+The release JAR embeds the remapped mod at `bundled/tar-client.jar`. For isolated demo diagnostics, use `java -jar tar-launcher.jar --smoke C:/path/to/test-instance --launch`; never point it at a personal instance. `-Dtar.data=...` and `-Dtar.instance=...` override test locations. See [TESTING.md](TESTING.md) for what has actually been verified and the outstanding in-world checks.
 
-## Uninstall
-
-Close Minecraft and Tar Client, then delete the extracted launcher folder. If you used Install to desktop, remove the Tar Client desktop shortcut and `%LOCALAPPDATA%\Programs\Tar Client` as well. These application copies do not contain your saved worlds.
-To also remove downloaded files and settings, first back up worlds under
-`%LOCALAPPDATA%\TarClient\instance-1.21.11\saves`, then delete
-`%LOCALAPPDATA%\TarClient`. This second step deletes saved worlds, screenshots,
-mods and settings. If you chose custom data or instance locations, use those
-locations instead. No Windows service or registry installation is created.
-
-## Extend the source
-
-`launcher` is the desktop app; `client-mod` is the Fabric component; `common` holds
-the shared declarative settings schema. Add a module to `ClientConfig.MODULES`
-and implement its HUD/event/mixin behavior in `client-mod`; both settings menus
-then discover its controls. Third-party mods need no source changes.
-
-The release JAR must contain the **remapped** client mod, not a development JAR.
-The build task embeds it under `bundled/tar-client.jar`. The Windows packaging
-script deliberately retains `runtime/bin/java.exe` to launch the game.
-
-Development diagnostics:
-
-```powershell
-java -jar tar-launcher.jar --smoke C:\path\to\isolated-test-instance
-java -jar tar-launcher.jar --smoke C:\path\to\isolated-test-instance --launch
-```
-
-The second command starts Minecraft in demo mode. Never point a smoke test at an
-existing personal instance. `-Dtar.data=...` and `-Dtar.instance=...` can override
-the launcher data and game directories for isolated testing.
-
-## References
-
-- [Minecraft 1.21.11 release](https://www.minecraft.net/en-us/article/minecraft-java-edition-1-21-11)
-- [Fabric 1.21.11 developer notes](https://fabricmc.net/2025/12/05/12111.html)
-- [Modrinth version API](https://docs.modrinth.com/api/operations/getprojectversions/)
-- [Microsoft device-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code)
-
-Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+Source is MIT licensed; dependencies retain their own licenses. See [THIRD-PARTY.md](THIRD-PARTY.md). Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.

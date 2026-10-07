@@ -20,7 +20,7 @@ public final class IntegrationScreen extends Screen {
         if(entry.module().equals("packorganizer"))addDrawableChild(new TarButton(x,144,260,24,"Resource Packs",b->client.setScreen(new net.minecraft.client.gui.screen.pack.PackScreen(client.getResourcePackManager(),manager->{client.options.refreshResourcePacks(manager);client.setScreen(this);},client.getResourcePackDir(),Text.translatable("resourcePack.title")))));
         addDrawableChild(new TarButton(x,184,260,24,"Back",b->close()));
     }
-    public void render(DrawContext c,int x,int y,float delta){c.fill(0,0,width,height,0xEF101720);String title=dev.tarclient.config.ClientConfig.MODULES.stream().filter(m->m.id().equals(entry.module())).findFirst().orElseThrow().name();c.drawCenteredTextWithShadow(textRenderer,title,width/2,26,0xFFA5F078);c.drawCenteredTextWithShadow(textRenderer,textRenderer.trimToWidth(message,width-20),width/2,51,0xFFE8EDF5);super.render(c,x,y,delta);}
+    public void render(DrawContext c,int x,int y,float delta){c.fill(0,0,width,height,UiTheme.color(0xEF101720));String title=dev.tarclient.config.ClientConfig.MODULES.stream().filter(m->m.id().equals(entry.module())).findFirst().orElseThrow().name();c.drawCenteredTextWithShadow(textRenderer,title,width/2,26,UiTheme.color(0xFFA5F078));c.drawCenteredTextWithShadow(textRenderer,textRenderer.trimToWidth(message,width-20),width/2,51,UiTheme.color(0xFFE8EDF5));super.render(c,x,y,delta);}
     public void close(){client.setScreen(parent);}
     public boolean shouldPause(){return false;}
 }

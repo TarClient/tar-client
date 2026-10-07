@@ -1,3 +1,16 @@
+# 1.0 validation — 6 October 2026
+
+- Launcher and client compile locally with Java 21. Structural checks pass for 28 remapped mixin classes, 36 injection targets and 23 shadow fields against Minecraft 1.21.11 and BetterF3.
+- Local Java run: 39 of 41 tests passed; the existing desktop canonical-path test and new Windows DPAPI round-trip fail in this restricted environment. Both remain mandatory on Windows CI; no tests were skipped.
+- Five backend tests passed using SQLite and synthetic Mojang proofs: spoofed identities, owner-only grants/revocation, Admin permission isolation, heartbeat identity/expiry, hashed expiring tokens and concurrent proof replay.
+- Deployed the community Worker on the owner's free Cloudflare account. Live HTTPS health succeeds; unauthenticated rank/heartbeat requests return 401, invalid identity returns 400, and oversize request returns 413. Positive live Mojang authentication still requires an actual Minecraft account.
+- Dark/light launcher pages were rendered and inspected. Logo and 8 GB fresh-install default are present. Backend and login behavior changes have not been verified in live multiplayer.
+- Windows CI must pass Java tests, remapping, ZIP/standalone EXE packaging, native desktop copying and two starts of the moved self-contained desktop EXE with extracted file hashes checked.
+
+Required real-machine checks: remembered login across restart; two real entitled accounts with a fresh email prompt; fullbright in unlit caves; new HUD panels and backgrounds at several GUI scales; zoom wheel reset; particle controls; TNT fuse timing; player badges on two clients and Tarrecool's rank changes. No full in-world rendering result is claimed. An unsigned EXE can still be blocked by Smart App Control.
+
+Historical records follow.
+
 # 0.4.1 validation
 
 Added regression coverage for saved grid drawings, configuration migration, recoverable Skin Layers removal, 0.4.0 core upgrades, device-code polling/backoff, a different account profile, ownership rejection, cancellation and error-stage reporting. Authentication tests use synthetic responses, not real accounts. The native crosshair is kept intact when selected. Potion rendering targets the 1.21.11 renderStatusEffectOverlay method and uses Minecraft effect textures.

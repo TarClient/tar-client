@@ -6,8 +6,13 @@ import java.awt.*;
 
 /** Original vector artwork and shared native desktop components. */
 final class LauncherTheme {
-    static final Color BG=new Color(11,16,24),CARD=new Color(21,30,42),LINE=new Color(39,52,67),
+    static Color BG=new Color(11,16,24),CARD=new Color(21,30,42),LINE=new Color(39,52,67),
         ACCENT=new Color(185,244,122),TEXT=new Color(237,244,251),MUTED=new Color(143,160,179);
+    static boolean dark=true;
+    static void configure(boolean enabled){dark=enabled;if(!dark){BG=new Color(240,244,249);CARD=Color.WHITE;LINE=new Color(202,213,227);TEXT=new Color(25,36,51);MUTED=new Color(81,100,120);ACCENT=new Color(83,140,42);}}
+    static Color surface(){return dark?new Color(15,22,32):new Color(228,235,244);}
+    static Color button(){return dark?new Color(30,42,56):new Color(220,229,240);}
+    static JLabel logo(){try{var url=LauncherTheme.class.getResource("/branding/tar-logo.png");if(url!=null){var image=javax.imageio.ImageIO.read(url);var label=new JLabel(new ImageIcon(image.getScaledInstance(42,42,Image.SCALE_SMOOTH)));label.setOpaque(true);label.setBackground(new Color(18,25,36));label.setPreferredSize(new Dimension(48,48));return label;}}catch(Exception ignored){}return monogram("T");}
     private LauncherTheme(){}
     static JPanel panel(int padding){
         JPanel panel=new RoundedPanel(CARD);panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
@@ -30,7 +35,7 @@ final class LauncherTheme {
         Hero(){setOpaque(false);setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));setBorder(new EmptyBorder(34,32,30,32));}
         @Override protected void paintComponent(Graphics graphics){
             Graphics2D g=(Graphics2D)graphics.create();g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setPaint(new GradientPaint(0,0,new Color(28,49,42),getWidth(),getHeight(),new Color(18,29,42)));
+            g.setPaint(new GradientPaint(0,0,dark?new Color(28,49,42):new Color(211,233,218),getWidth(),getHeight(),dark?new Color(18,29,42):new Color(220,233,250)));
             g.fillRoundRect(0,0,getWidth(),getHeight(),24,24);g.clip(new java.awt.geom.RoundRectangle2D.Float(0,0,getWidth(),getHeight(),24,24));
             int origin=getWidth()-145;
             g.setColor(new Color(185,244,122,12));g.fillOval(origin-130,-100,420,420);
@@ -46,7 +51,7 @@ final class LauncherTheme {
     }
     static JLabel badge(String text){
         JLabel label=new JLabel(text);label.setFont(new Font("Segoe UI",Font.BOLD,11));label.setForeground(ACCENT);
-        label.setOpaque(true);label.setBackground(new Color(38,57,45));label.setBorder(new EmptyBorder(6,10,6,10));return label;
+        label.setOpaque(true);label.setBackground(dark?new Color(38,57,45):new Color(214,232,205));label.setBorder(new EmptyBorder(6,10,6,10));return label;
     }
     static JLabel monogram(String text){
         JLabel label=new JLabel(text,SwingConstants.CENTER);label.setFont(new Font("Segoe UI",Font.BOLD,20));label.setForeground(ACCENT);

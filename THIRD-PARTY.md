@@ -33,3 +33,7 @@ Optional 1.21.11 integrations, downloaded from Modrinth when enabled (not bundle
 Versions above were verified during 0.3.0 development. The launcher resolves a
 current compatible Fabric 1.21.11 release and verifies Modrinth's file checksum.
 Required dependencies retain their upstream licenses.
+
+## Tar branding and bootstrap
+
+The Tar logo was supplied by the project owner and traced into vector shapes with their permission. The generated raster/icon files derive from `branding/tar-logo.svg`. The Windows bootstrap uses built-in .NET Framework libraries; no third-party installer engine is bundled. The community service uses Cloudflare Workers and its SQLite Durable Object storage. Wrangler is a development tool and is not bundled in the launcher.

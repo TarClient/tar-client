@@ -38,17 +38,18 @@ public final class TarHud {
         if(CONFIG.on("saturation"))textPanel(c,"saturation",List.of(String.format(Locale.ROOT,"Saturation%s  %.1f",mc.isInSingleplayer()?"":" (estimate)",ClientFeatures.saturation)));
         if(CONFIG.on("reach")&&(editing||System.currentTimeMillis()-ClientFeatures.lastAttack<CONFIG.number("reach","seconds")*1000))textPanel(c,"reach",List.of(String.format(Locale.ROOT,"Last attack  %.2f blocks",ClientFeatures.reach)));
         if(CONFIG.on("server"))server(c);
+        ExtraHud.render(c,editing);
         if(editing)for(var e:BOXES.entrySet()){var b=e.getValue();c.drawStrokedRectangle(b.x-1,b.y-1,b.w+2,b.h+2,0xFFA5F078);}
     }
-    private static void begin(DrawContext c,String id,int w,int h) {
+    static void begin(DrawContext c,String id,int w,int h) {
         float scale=CONFIG.f(id,"scale");int width=Math.round(w*scale),height=Math.round(h*scale);
         int x=Math.round((c.getScaledWindowWidth()-width)*CONFIG.f(id,"x")/100),y=Math.round((c.getScaledWindowHeight()-height)*CONFIG.f(id,"y")/100);
         x=Math.max(0,x);y=Math.max(0,y);BOXES.put(id,new Box(x,y,width,height));
         c.getMatrices().pushMatrix();c.getMatrices().translate(x,y);c.getMatrices().scale(scale,scale);
-        if(CONFIG.bool(id,"showBackground")){int radius=CONFIG.i(id,"radius");rounded(c,0,0,w,h,radius,CONFIG.color(id,"background"));}
+        HudBackground.draw(c,id,0,0,w,h);
     }
-    private static void end(DrawContext c){c.getMatrices().popMatrix();}
-    private static void textPanel(DrawContext c,String id,List<String> lines) {
+    static void end(DrawContext c){c.getMatrices().popMatrix();}
+    static void textPanel(DrawContext c,String id,List<String> lines) {
         var font=MinecraftClient.getInstance().textRenderer;int w=lines.stream().mapToInt(font::getWidth).max().orElse(60)+12;
         begin(c,id,w,lines.size()*13+8);int y=5;for(String s:lines){c.drawTextWithShadow(font,s,6,y,CONFIG.color(id,"color"));y+=13;}end(c);
     }

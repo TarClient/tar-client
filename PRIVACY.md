@@ -1,60 +1,27 @@
-# Privacy
+# Privacy — Tar Client 1.0
 
-Tar Client has no Tar-operated analytics, advertising, account server, or automatic
-crash-report upload in this preview. Opening the launcher reads and writes local
-settings; installation, account sign-in, searches and game launching are initiated
-by the user.
+Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and an optional shared player-badge service.
 
-## Network activity
+## Microsoft accounts and local files
 
-- Installation and launching fetch Minecraft metadata, libraries and assets from
-  Mojang/Microsoft, and Fabric metadata/libraries from FabricMC. A launch checks
-  installation metadata online and installs the default mods if needed.
-- Mod discovery sends your search text, game version and loader filter to Modrinth.
-  Opening Discover mods requests a compatible catalog; displayed project icons
-  are fetched from Modrinth's CDN. Installation fetches mod metadata and files,
-  including required dependencies.
-- Microsoft sign-in opens the provider's page in your browser. The launcher uses
-  Microsoft, Xbox and Minecraft services to obtain a game session and check your
-  entitlement. It does not ask for your Microsoft password.
-- Opening a project's web page sends a normal browser request to that site.
-  Providers receive normal connection data such as your IP address and request
-  headers. Metadata can designate upstream file hosts for downloads.
+Microsoft, Xbox and Minecraft services handle sign-in, entitlement checks, profile restrictions and refresh tokens. Tar never asks for a Microsoft password. New sign-ins open an isolated private browser profile; normal browser cookies are not read or cleared. Temporary browser profiles are removed after that browser process exits when Windows permits it; an interrupted cleanup can leave a temporary `tar-microsoft-signin-*` folder.
 
-Provider policies:
-[Microsoft](https://privacy.microsoft.com/privacystatement) and
-[Modrinth](https://modrinth.com/legal/privacy).
-Fabric's service is operated by [FabricMC](https://fabricmc.net/); a separate
-published policy covering its metadata/download services has not been verified.
-Minecraft, multiplayer servers and any additional mods can have their own network
-behavior and policies; Tar does not control or disable that behavior.
+Minecraft sessions and Microsoft refresh tokens are saved together in `accounts.dpapi`, encrypted by Windows DPAPI for the current Windows user. Preferences JSON and profiles contain no tokens. Launcher reopening refreshes the selected account online. Launcher and in-game account lists share the encrypted store. Forget/Sign out removes an entry; deleting the data folder removes all saved Tar accounts. Software running as the same Windows user may be able to decrypt DPAPI data, so it is not protection from malware already running as you.
 
-## Local data
+Minecraft receives an access token in a temporary `.launch-*.args` file. Cleanup is attempted shortly after starting and on game exit; crashes can leave it behind. Do not share raw instance folders, account files or launch argument files. Minecraft manages its own profile-key cache, telemetry and network behavior. Account switching leaves the current world after confirmation and refreshes Minecraft's account services.
 
-Profiles store module settings under the game's `config/tar-profiles` directory.
-They contain no account tokens. The Server Address HUD displays the connected
-server address on screen; consider disabling it before sharing screenshots.
+## Player badges and ranks
 
-Optional integrations are downloaded from Modrinth when enabled. TierTagger
-contacts its tier-list providers for player ranks; its requests and those of
-other optional mods are governed by their own projects. These integrations are
-off by default and can be disabled for the next launch in Tar's module menu.
+The **Tar player badges** module is enabled by default and can be turned off in either module menu. While playing, it sends your public Minecraft UUID/name and up to 100 player UUIDs from the current player list to `tar-client-community.prutprut2003.workers.dev`, hosted in the publisher's Cloudflare account. It does not send server addresses, coordinates, chat, inventory, passwords, Microsoft refresh tokens or Minecraft access tokens to the community service.
 
-The default data directory is `%LOCALAPPDATA%\TarClient`. It holds settings,
-downloaded game files, mods, saves, screenshots and game output. Microsoft session
-tokens are held in memory. To start Java, a temporary argument file contains the
-game access token; deletion is attempted shortly after starting and when the game
-exits. A crash or failed cleanup can leave that file behind. Do not share raw
-instance folders or launch argument files. Review logs before posting them publicly.
+Minecraft identity is proven through Mojang's session service: the Minecraft access token goes only to Mojang's `/join` endpoint. The backend receives a public one-time challenge and checks it with Mojang. Community bearer tokens stay in game memory; only their hashes are stored by the backend. Tokens expire after six hours, challenges after one minute, and presence after two minutes. Expired records are cleaned on subsequent service requests. Turning badges off or leaving a world requests immediate presence removal; network failures fall back to expiry.
 
-Custom data paths are supported. See [Uninstall](README.md#uninstall) to remove
-local data after backing up your worlds. No data is uploaded to Tar maintainers
-unless you choose to share it yourself.
+Active presence and assigned badge colors are visible to other Tar users requesting those UUIDs. Permanent rank records contain UUID, last assigned name, rank and update time until the owner removes them. Only Tarrecool's verified UUID can change ranks. The server retains no custom request logs. Cloudflare receives ordinary network metadata, including IP addresses; short-lived in-memory counters limit abuse. Cloudflare may retain its own operational/security data under its [privacy policy](https://www.cloudflare.com/privacypolicy/).
 
-## In-game accounts and Streamer Mode
+## Downloads and other network activity
 
-Version 0.4.1 also keeps a list of verified accounts in the launcher process, cleared when the launcher closes. Its optional "Use another account" button opens Microsoft's device-verification page in a private Edge/Chrome window; it does not read browser cookies, clear your browser sessions, or write account tokens to disk.
+Installation and launching contact Mojang/Microsoft and FabricMC for game metadata, libraries and assets. Mod discovery sends query text and compatibility filters to Modrinth and fetches icons from its CDN. Required-dependency resolution queries Modrinth using local JAR SHA-512 hashes, not the contents of local JARs. Downloads use upstream URLs and hash verification.
 
-In-game sign-in uses the same Microsoft/Xbox/Minecraft services as the launcher. Switching verifies the entitlement and UUID again, fetches profile restrictions and user permissions, and refreshes Minecraft's account services including its chat-signing keys, telemetry context and Realms client. Tar keeps these account tokens only in the game process; Minecraft's own profile-key cache and networking remain vanilla behavior. Closing Minecraft clears Tar's account list. The list is separate from the launcher's in-memory account.
+Optional integrations contact their own services; TierTagger uses its tier-list providers. Multiplayer servers and other mods have independent behavior. Provider policies: [Microsoft](https://privacy.microsoft.com/privacystatement), [Modrinth](https://modrinth.com/legal/privacy), and [FabricMC](https://fabricmc.net/) (metadata/download provider).
 
-Streamer Mode changes only the coordinate text in Tar's HUD, vanilla F3 and supported BetterF3 displays. It does not hide information in chat, maps or unrelated mods. Desktop installation copies application files to `%LOCALAPPDATA%\Programs\Tar Client` and creates `Tar Client.lnk` on the desktop; it does not copy or move the game data folder.
+Game data defaults to `%LOCALAPPDATA%/TarClient`; app files install under `%LOCALAPPDATA%/Programs/Tar Client`. Profiles store module settings in the instance's `config/tar-profiles`; deleted profiles are retained in its `deleted` folder. The Server Address HUD can expose an address in screenshots. Streamer mode only masks supported coordinate displays, not chat, maps or unrelated mods. See README for uninstall and world-backup instructions.

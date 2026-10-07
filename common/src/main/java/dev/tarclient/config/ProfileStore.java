@@ -25,7 +25,14 @@ public final class ProfileStore {
         try{config.save(pending);Files.move(pending,target);}finally{Files.deleteIfExists(pending);}
     }
     public ClientConfig load(String name)throws IOException{Path p=path(name);if(!Files.isRegularFile(p))throw new IOException("Profile not found: "+name);return ClientConfig.read(p);}
+    public void delete(String name)throws IOException {
+        Path p=path(name);if(!Files.isRegularFile(p))throw new IOException("Profile not found: "+name);
+        Path trash=folder.resolve("deleted");Files.createDirectories(trash);
+        Files.move(p,trash.resolve(UUID.randomUUID()+"-"+p.getFileName()));
+    }
     public void presets()throws IOException {
+        Path marker=folder.resolve(".presets-created");if(Files.exists(marker))return;
+
         for(String name:List.of("Bedwars","SMP")) {
             if(Files.exists(path(name)))continue;
             ClientConfig config=new ClientConfig();
@@ -34,5 +41,6 @@ public final class ProfileStore {
             for(String id:name.equals("Bedwars")?List.of("fps","ping","keys","crosshair","armor"):List.of("fullbright","shield","fire","coordinates","shulker"))config.set(id,"enabled",true);
             save(name,config);
         }
+        Files.createDirectories(folder);Files.writeString(marker,"1");
     }
 }

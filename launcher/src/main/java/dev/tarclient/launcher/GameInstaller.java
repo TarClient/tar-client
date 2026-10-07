@@ -120,6 +120,7 @@ public final class GameInstaller {
         v.put("classpath",String.join(File.pathSeparator,installation.classpath().stream().map(Path::toString).toList()));
         v.put("library_directory",root.resolve("libraries").toString());v.put("classpath_separator",File.pathSeparator);v.put("clientid","");v.put("auth_xuid","");v.put("resolution_width","1280");v.put("resolution_height","800");
         List<String> args=new ArrayList<>(List.of(java,"-Xms512M","-Xmx"+ram+"M","-Dfile.encoding=UTF-8"));
+        if(System.getProperty("tar.data")!=null)args.add("-Dtar.data="+Path.of(System.getProperty("tar.data")).toAbsolutePath());
         Map<String,Boolean> features=Map.of("is_demo_user",session.demo(),"has_custom_resolution",true);
         arguments(installation.vanilla(),"jvm",args,v,features); arguments(installation.fabric(),"jvm",args,v,features);
         args.add(installation.fabric().get("mainClass").getAsString());

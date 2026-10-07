@@ -29,11 +29,11 @@ public final class CrosshairEditorScreen extends Screen {
     @Override public boolean mouseDragged(Click click,double dx,double dy){if(drawing){if(inside(click))paint(click);return true;}return super.mouseDragged(click,dx,dy);}
     @Override public boolean mouseReleased(Click click){if(drawing){drawing=false;return true;}return super.mouseReleased(click);}
     @Override public void render(DrawContext c,int mx,int my,float delta){
-        c.fill(0,0,width,height,0xF0101720);c.drawCenteredTextWithShadow(textRenderer,"DRAW YOUR CROSSHAIR",width/2,12,0xFFB9F47A);
-        c.drawCenteredTextWithShadow(textRenderer,"Click / drag to paint. Right-click to erase. Escape cancels.",width/2,29,0xFF9DADBF);
-        for(int y=0;y<15;y++)for(int x=0;x<15;x++){int color=CrosshairPattern.pixel(pattern,x,y)?CONFIG.color("crosshair","color"):((x+y)%2==0?0xFF273240:0xFF344150);c.fill(left+x*cell,top+y*cell,left+(x+1)*cell-1,top+(y+1)*cell-1,color);}
+        c.fill(0,0,width,height,UiTheme.color(0xF0101720));c.drawCenteredTextWithShadow(textRenderer,"DRAW YOUR CROSSHAIR",width/2,12,UiTheme.color(0xFFB9F47A));
+        c.drawCenteredTextWithShadow(textRenderer,"Click / drag to paint. Right-click to erase. Escape cancels.",width/2,29,UiTheme.color(0xFF9DADBF));
+        for(int y=0;y<15;y++)for(int x=0;x<15;x++){int color=CrosshairPattern.pixel(pattern,x,y)?CONFIG.color("crosshair","color"):((x+y)%2==0?UiTheme.color(0xFF273240):UiTheme.color(0xFF344150));c.fill(left+x*cell,top+y*cell,left+(x+1)*cell-1,top+(y+1)*cell-1,color);}
         int px=left+15*cell+12,py=top+6;
-        if(px+32<width){c.fill(px-4,py-4,px+34,py+34,0xFF52684C);for(int y=0;y<15;y++)for(int x=0;x<15;x++)if(CrosshairPattern.pixel(pattern,x,y))c.fill(px+x*2,py+y*2,px+x*2+2,py+y*2+2,CONFIG.color("crosshair","color"));}
+        if(px+32<width){c.fill(px-4,py-4,px+34,py+34,UiTheme.color(0xFF52684C));for(int y=0;y<15;y++)for(int x=0;x<15;x++)if(CrosshairPattern.pixel(pattern,x,y))c.fill(px+x*2,py+y*2,px+x*2+2,py+y*2+2,CONFIG.color("crosshair","color"));}
         super.render(c,mx,my,delta);
     }
     @Override public void close(){client.setScreen(parent);}

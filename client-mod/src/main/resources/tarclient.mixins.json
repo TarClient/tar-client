@@ -26,7 +26,11 @@
     "AccountSessionMixin",
     "RealmsClientAccess",
     "RealmsAvailabilityAccess",
-    "SplashSessionAccess"
+    "SplashSessionAccess",
+    "TpsMixin",
+    "ParticlesMixin",
+    "BadgeNameMixin",
+    "BadgeTabMixin"
   ],
   "injectors": {
     "defaultRequire": 1

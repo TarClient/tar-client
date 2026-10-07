@@ -28,7 +28,8 @@ public final class PotionHud {
             float x=c.getScaledWindowWidth()-margin-(column*26+24)*scale;
             float y=margin+(mc.isDemo()?15:0)+row*rowHeight*scale;
             c.getMatrices().pushMatrix();c.getMatrices().translate(x,y);c.getMatrices().scale(scale,scale);
-            if(CONFIG.bool("potions","showBackground"))c.drawGuiTexture(RenderPipelines.GUI_TEXTURED,Identifier.ofVanilla(effect.isAmbient()?"hud/effect_background_ambient":"hud/effect_background"),0,0,24,24);
+            if(CONFIG.bool("potions","showBackground")&&CONFIG.text("potions","backgroundStyle").equals("vanilla"))c.drawGuiTexture(RenderPipelines.GUI_TEXTURED,Identifier.ofVanilla(effect.isAmbient()?"hud/effect_background_ambient":"hud/effect_background"),0,0,24,24);
+            if(!CONFIG.text("potions","backgroundStyle").equals("vanilla"))HudBackground.draw(c,"potions",0,0,24,24);
             c.drawGuiTexture(RenderPipelines.GUI_TEXTURED,InGameHud.getEffectTexture(effect.getEffectType()),3,3,18,18);
             if(CONFIG.bool("potions","amplifier")&&effect.getAmplifier()>0){String level=Integer.toString(effect.getAmplifier()+1);c.drawTextWithShadow(mc.textRenderer,level,23-mc.textRenderer.getWidth(level),1,0xFFFFFFFF);}
             if(duration){int seconds=Math.max(0,(effect.getDuration()+19)/20);String time=effect.isInfinite()?"∞":String.format(Locale.ROOT,"%d:%02d",seconds/60,seconds%60);

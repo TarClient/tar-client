@@ -38,6 +38,9 @@ public final class ModManager {
     }
     public synchronized void install(String project) throws Exception {
         LinkedHashMap<String,JsonObject> plan=new LinkedHashMap<>(); resolve(latest(project),plan,new HashSet<>());
+        addMissingDependencies(plan);applyPlan(plan);
+    }
+    private void applyPlan(LinkedHashMap<String,JsonObject> plan)throws Exception {
         Path staging=Files.createTempDirectory(game,".mod-install-");
         try {
             var managed=readLock(); List<Path> staged=new ArrayList<>();
@@ -70,6 +73,25 @@ public final class ModManager {
                 throw e;
             }
         } finally { cleanStaging(staging); }
+    }
+    public synchronized void resolveMissingDependencies()throws Exception {
+        LinkedHashMap<String,JsonObject> plan=new LinkedHashMap<>();addMissingDependencies(plan);
+        if(!plan.isEmpty())applyPlan(plan);else preflight();
+    }
+    private void addMissingDependencies(LinkedHashMap<String,JsonObject> plan)throws Exception {
+        Map<String,String> installed=new HashMap<>(Map.of("minecraft","1.21.11","java","21","fabricloader",GameInstaller.LOADER));
+        List<JsonObject> metas=new ArrayList<>();
+        for(Path file:list())if(file.toString().endsWith(".jar"))try(var zip=new ZipFile(file.toFile())){collect(zip,metas,installed,0);}
+        for(Path file:list())if(file.toString().endsWith(".jar")){
+            var meta=metadata(file);if(meta.get("id").getAsString().equals("tarclient")||!meta.has("depends"))continue;
+            boolean missing=false;for(var dependency:meta.getAsJsonObject("depends").entrySet())if(!installed.containsKey(dependency.getKey())||!matches(dependency.getValue(),installed.get(dependency.getKey())))missing=true;
+            if(!missing)continue;
+            status.accept("Finding required dependencies for "+meta.get("id").getAsString());
+            JsonObject version;
+            try{version=Net.object(API+"version_file/"+Net.hash(file,"SHA-512")+"?algorithm=sha512");}
+            catch(Exception failure){throw new IOException("Cannot locate "+file.getFileName()+" on Modrinth. Reinstall this mod from Discover mods, or supply its required dependency. Unpublished local JARs cannot be resolved automatically.");}
+            if(!plan.containsKey(version.get("project_id").getAsString()))resolve(version,plan,new HashSet<>());
+        }
     }
     private void resolve(JsonObject v,LinkedHashMap<String,JsonObject> plan,Set<String> visiting) throws Exception {
         if(!contains(v.getAsJsonArray("game_versions"),"1.21.11")||!contains(v.getAsJsonArray("loaders"),"fabric"))throw new IOException("Incompatible required dependency: "+v.get("name"));

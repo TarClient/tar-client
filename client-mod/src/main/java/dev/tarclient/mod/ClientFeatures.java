@@ -16,7 +16,8 @@ public final class ClientFeatures {
     public static boolean freelooking;
     public static float yaw,pitch;
     private static Perspective previous;
-    private static double zoom=1;
+    private static double zoom=1,temporaryFactor=4;
+    private static boolean zoomHeld;
     private static long lastFrame;
     public static double reach;
     public static long lastAttack;
@@ -47,17 +48,24 @@ public final class ClientFeatures {
                 server.execute(()->{var player=server.getPlayerManager().getPlayer(uuid);if(player!=null)saturation=player.getHungerManager().getSaturationLevel();});
             }else saturation=client.player.getHungerManager().getSaturationLevel();
         }
+        ExtraHud.tick();
+        CommunityBadges.tick();
+        updateZoom();
         TarKeybinds.tick(client);
         MotionBlurBridge.tick();
     }
     public static void mouse(double dx,double dy){yaw+=(float)(dx*0.15*CONFIG.number("freelook","sensitivity"));pitch=(float)Math.clamp(pitch+dy*0.15*CONFIG.number("freelook","sensitivity"),-90,90);}
     public static float fov(float base){
         var mc=MinecraftClient.getInstance();boolean active=CONFIG.on("zoom")&&zoomKey!=null&&zoomKey.isPressed()&&mc.currentScreen==null&&mc.isWindowFocused();
-        double target=active?1/CONFIG.number("zoom","factor"):1;
+        updateZoom();
+        double target=active?1/temporaryFactor:1;
         long now=System.nanoTime();double dt=lastFrame==0?1:Math.clamp((now-lastFrame)/1e9,0,0.1);lastFrame=now;
         zoom=CONFIG.bool("zoom","smooth")?zoom+(target-zoom)*(1-Math.exp(-dt*18)):target;
         return (float)(base*zoom);
     }
+    private static boolean zoomActive(){var mc=MinecraftClient.getInstance();return CONFIG.on("zoom")&&zoomKey!=null&&zoomKey.isPressed()&&mc.player!=null&&mc.currentScreen==null&&mc.isWindowFocused();}
+    private static void updateZoom(){boolean active=zoomActive();if(!active||!zoomHeld)temporaryFactor=CONFIG.number("zoom","factor");zoomHeld=active;}
+    public static boolean scrollZoom(double amount){updateZoom();if(!zoomHeld)return false;temporaryFactor=Math.clamp(temporaryFactor+amount*CONFIG.number("zoom","scrollStep"),1.1,40);return true;}
     public static void applyTime(){
         var mc=MinecraftClient.getInstance();
         if(mc.player==null||mc.getNetworkHandler()==null||!CONFIG.on("timechanger"))return;

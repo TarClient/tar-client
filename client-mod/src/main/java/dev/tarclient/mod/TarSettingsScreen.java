@@ -59,6 +59,7 @@ public final class TarSettingsScreen extends Screen {
     private void detail(){
         var module=ClientConfig.MODULES.stream().filter(m->m.id().equals(selected)).findFirst().orElseThrow();
         addDrawableChild(new TarButton(mainX,top+44,90,22,"< Modules",b->{selected=null;page=0;clearAndInit();}));
+        if(selected.equals("badges")&&dev.tarclient.launcher.CommunityService.owner(client.getSession().getUuidOrNull()==null?"":client.getSession().getUuidOrNull().toString()))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Manage ranks",b->client.setScreen(new RanksScreen(this))));
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
         if(integration!=null&&!selected.equals("motionblur")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}
@@ -84,6 +85,8 @@ public final class TarSettingsScreen extends Screen {
                     protected void updateMessage(){setMessage(Text.literal(String.format(Locale.ROOT,"%.2f",CONFIG.number(selected,s.key()))));}
                     protected void applyValue(){double n=Math.round((s.min()+value*(s.max()-s.min()))/s.step())*s.step();CONFIG.set(selected,s.key(),n);updateMessage();TarClient.save();}
                 });
+            }else if(!ClientConfig.choices(s.key()).isEmpty()){
+                var choices=ClientConfig.choices(s.key());addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.text(selected,s.key()),b->{int next=(choices.indexOf(CONFIG.text(selected,s.key()))+1)%choices.size();CONFIG.set(selected,s.key(),choices.get(next));TarClient.save();b.setMessage(Text.literal(choices.get(next)));}));
             }else{
                 var field=new TextFieldWidget(textRenderer,mainX,y+13,mainWidth,22,Text.literal(s.label()));
                 field.setMaxLength(2048);field.setText(CONFIG.text(selected,s.key()));field.setChangedListener(v->{CONFIG.set(selected,s.key(),v);TarClient.save();});addDrawableChild(field);
@@ -99,22 +102,22 @@ public final class TarSettingsScreen extends Screen {
         }
     }
     @Override public void render(DrawContext c,int mx,int my,float delta){
-        c.fill(0,0,width,height,0xAD080C12);
-        TarButton.rounded(c,left,top,panelWidth,panelHeight,0xFA101720);
-        c.fill(mainX-8,top+12,mainX-7,top+panelHeight-12,0xFF293341);
-        c.drawTextWithShadow(textRenderer,"TAR",left+13,top+17,0xFFB9F47A);
-        c.drawTextWithShadow(textRenderer,"CLIENT",left+13,top+30,0xFF8D9BAC);
+        c.fill(0,0,width,height,UiTheme.color(0xAD080C12));
+        TarButton.rounded(c,left,top,panelWidth,panelHeight,UiTheme.color(0xFA101720));
+        c.fill(mainX-8,top+12,mainX-7,top+panelHeight-12,UiTheme.color(0xFF293341));
+        c.drawTextWithShadow(textRenderer,"TAR",left+13,top+17,UiTheme.color(0xFFB9F47A));
+        c.drawTextWithShadow(textRenderer,"CLIENT",left+13,top+30,UiTheme.color(0xFF8D9BAC));
         String title=selected==null?"Your client. Your way.":ClientConfig.MODULES.stream().filter(m->m.id().equals(selected)).findFirst().orElseThrow().name();
-        c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(title,Math.max(1,mainWidth-36)),mainX,top+20,0xFFF0F5FA);
+        c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(title,Math.max(1,mainWidth-36)),mainX,top+20,UiTheme.color(0xFFF0F5FA));
         for(var tile:tiles){
-            TarButton.rounded(c,tile.x(),tile.y(),tile.width(),61,0xFF1A2430);
-            c.fill(tile.x()+8,tile.y()+10,tile.x()+11,tile.y()+24,CONFIG.on(tile.module().id())?0xFFB9F47A:0xFF516074);
-            c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(tile.module().name(),Math.max(1,tile.width()-28)),tile.x()+18,tile.y()+8,0xFFEAF0F6);
-            c.drawTextWithShadow(textRenderer,tile.module().category(),tile.x()+18,tile.y()+20,0xFF8190A2);
+            TarButton.rounded(c,tile.x(),tile.y(),tile.width(),61,UiTheme.color(0xFF1A2430));
+            c.fill(tile.x()+8,tile.y()+10,tile.x()+11,tile.y()+24,CONFIG.on(tile.module().id())?UiTheme.color(0xFFB9F47A):UiTheme.color(0xFF516074));
+            c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(tile.module().name(),Math.max(1,tile.width()-28)),tile.x()+18,tile.y()+8,UiTheme.color(0xFFEAF0F6));
+            c.drawTextWithShadow(textRenderer,tile.module().category(),tile.x()+18,tile.y()+20,UiTheme.color(0xFF8190A2));
         }
-        for(var caption:captions)c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(caption.text(),caption.width()),caption.x(),caption.y(),0xFF9DADBF);
-        c.drawCenteredTextWithShadow(textRenderer,"Saved automatically  /  "+(page+1),mainX+mainWidth/2,top+panelHeight-21,0xFF8190A2);
-        c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(TarClient.MENU_KEY.getBoundKeyLocalizedText().getString()+" / ESC",mainX-left-20),left+11,top+panelHeight-21,0xFF8190A2);
+        for(var caption:captions)c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(caption.text(),caption.width()),caption.x(),caption.y(),UiTheme.color(0xFF9DADBF));
+        c.drawCenteredTextWithShadow(textRenderer,"Saved automatically  /  "+(page+1),mainX+mainWidth/2,top+panelHeight-21,UiTheme.color(0xFF8190A2));
+        c.drawTextWithShadow(textRenderer,textRenderer.trimToWidth(TarClient.MENU_KEY.getBoundKeyLocalizedText().getString()+" / ESC",mainX-left-20),left+11,top+panelHeight-21,UiTheme.color(0xFF8190A2));
         super.render(c,mx,my,delta);
     }
     @Override public void close(){TarClient.save();client.setScreen(parent);}

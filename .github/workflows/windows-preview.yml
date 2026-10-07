@@ -1,4 +1,4 @@
-name: Windows preview (unsigned)
+name: Windows release build (unsigned)
 
 on:
   push:
@@ -31,7 +31,12 @@ jobs:
         with:
           gradle-version: '9.3.0'
           cache-disabled: true
-      - name: Test, build and package unsigned preview
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Test owner-only community service
+        run: node --test community-service/worker.test.mjs
+      - name: Test, build and package release
         shell: pwsh
         run: ./build-windows.ps1
       - name: Verify native EXE desktop installation
@@ -60,15 +65,38 @@ jobs:
             if ($tarOriginal.Hash -ne $tarInstalled.Hash) { throw "Installed file differs: $tarRelative" }
           }
           Write-Output 'Native EXE created a valid desktop shortcut and copied the complete runtime.'
+      - name: Verify standalone desktop EXE
+        shell: pwsh
+        run: |
+          $tarDesktop = [Environment]::GetFolderPath('DesktopDirectory')
+          $tarStandalone = Join-Path $tarDesktop 'TarClient-1.0.0.exe'
+          Copy-Item -LiteralPath './dist/TarClient-1.0.0.exe' -Destination $tarStandalone
+          $tarProcess = Start-Process -FilePath $tarStandalone -ArgumentList '--install-only' -WindowStyle Hidden -PassThru
+          if (-not $tarProcess.WaitForExit(120000)) { $tarProcess.Kill(); throw 'Standalone installation timed out.' }
+          if ($tarProcess.ExitCode -ne 0) { throw "Standalone installation failed: $($tarProcess.ExitCode)" }
+          $tarShortcut = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $tarDesktop 'Tar Client.lnk'))
+          $tarTarget = $tarShortcut.TargetPath
+          $tarInstallRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Programs/Tar Client'))
+          if (-not ([IO.Path]::GetFullPath($tarTarget)).StartsWith($tarInstallRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Standalone shortcut points outside installation.' }
+          foreach ($tarRelative in @('Tar Client.exe','app/tar-launcher.jar','app/Tar Client.cfg','runtime/bin/java.exe','runtime/lib/modules')) {
+            if ((Get-FileHash -LiteralPath (Join-Path './dist/Tar Client' $tarRelative)).Hash -ne (Get-FileHash -LiteralPath (Join-Path (Split-Path $tarTarget) $tarRelative)).Hash) { throw "Standalone extracted file mismatch: $tarRelative" }
+          }
+          $tarFirstTarget = $tarTarget
+          $tarProcess = Start-Process -FilePath $tarStandalone -ArgumentList '--install-only' -WindowStyle Hidden -PassThru
+          if (-not $tarProcess.WaitForExit(120000) -or $tarProcess.ExitCode -ne 0) { throw 'Second standalone start failed.' }
+          $tarShortcut = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $tarDesktop 'Tar Client.lnk'))
+          if ($tarShortcut.TargetPath -ne $tarFirstTarget) { throw 'Standalone did not reuse the verified installation.' }
+          Write-Output 'Movable desktop EXE installed its complete payload, created a shortcut, and reopened without reinstallation.'
       - name: Audit native signatures (launcher is currently unsigned)
         shell: pwsh
         run: ./sign-windows.ps1 -PackagePath './dist/Tar Client'
-      - name: Upload preview
+      - name: Upload Windows build
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: TarClient-Windows-UNSIGNED-${{ github.sha }}
           path: |
-            dist/TarClient-0.4.1-Windows.zip
+            dist/TarClient-1.0.0-Windows.zip
+            dist/TarClient-1.0.0.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7

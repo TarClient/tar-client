@@ -26,7 +26,9 @@ public final class MicrosoftAuth {
     static String clientId(String override) {
         return DEFAULT_CLIENT_ID; // Ignore obsolete per-installation overrides.
     }
-    public record Session(String name,String uuid,String accessToken,long expiresAt,boolean demo) {
+    public record Session(String name,String uuid,String accessToken,long expiresAt,boolean demo,String refreshToken) {
+        public Session(String name,String uuid,String accessToken,long expiresAt,boolean demo){this(name,uuid,accessToken,expiresAt,demo,"");}
+        public Session { refreshToken=refreshToken==null?"":refreshToken; }
         public static Session demoSession() { return new Session("DemoPlayer","00000000000000000000000000000000","0",Long.MAX_VALUE,true); }
         @Override public String toString() { return name+(demo?" (demo)":""); }
     }
@@ -39,22 +41,40 @@ public final class MicrosoftAuth {
         String clientId=DEFAULT_CLIENT_ID;
         clientId=clientId(clientId);
         String root="https://login.microsoftonline.com/consumers/oauth2/v2.0/";
-        var device=transport.form(root+"devicecode",Map.of("client_id",clientId.trim(),"scope","XboxLive.signin"));
+        var device=transport.form(root+"devicecode",Map.of("client_id",clientId.trim(),"scope","XboxLive.signin offline_access"));
         check(device);
         int seconds=device.get("expires_in").getAsInt(), interval=device.get("interval").getAsInt();
         showCode.accept(new DeviceCode(device.get("user_code").getAsString(),device.get("verification_uri").getAsString(),seconds));
         stage="Waiting for you to finish in the Microsoft browser page";progress.accept(stage);
-        long deadline=System.currentTimeMillis()+seconds*1000L; String ms=null;
+        long deadline=System.currentTimeMillis()+seconds*1000L; String ms=null,refresh="";
         while(System.currentTimeMillis()<deadline) {
             sleeper.sleep(interval*1000L);
             var token=transport.form(root+"token",Map.of("grant_type","urn:ietf:params:oauth:grant-type:device_code","client_id",clientId.trim(),"device_code",device.get("device_code").getAsString()));
-            if(!token.has("error")) { ms=token.get("access_token").getAsString(); break; }
+            if(!token.has("error")) { ms=token.get("access_token").getAsString();refresh=token.has("refresh_token")?token.get("refresh_token").getAsString():""; break; }
             String err=token.get("error").getAsString();
             if(err.equals("authorization_pending")) continue;
             if(err.equals("slow_down")) { interval+=5; continue; }
             check(token);
         }
         if(ms==null) throw new IOException("Sign-in expired. Please try again.");
+        return exchange(ms,refresh,progress);
+        }catch(InterruptedException e){throw e;}
+        catch(IOException e){throw e;}
+        catch(Exception e){throw new IOException(stage+" failed. Please retry Microsoft sign-in.");}
+    }
+    public Session refresh(Session saved,Consumer<String> progress)throws Exception {
+        if(saved.demo())throw new IOException("Demo accounts cannot be refreshed.");
+        if(saved.refreshToken().isBlank()) {validate(saved);return saved;}
+        progress.accept("Restoring your Microsoft account");
+        var token=transport.form("https://login.microsoftonline.com/consumers/oauth2/v2.0/token",Map.of("grant_type","refresh_token","client_id",DEFAULT_CLIENT_ID,"scope","XboxLive.signin offline_access","refresh_token",saved.refreshToken()));
+        check(token);
+        var updated=exchange(token.get("access_token").getAsString(),token.has("refresh_token")?token.get("refresh_token").getAsString():saved.refreshToken(),progress);
+        if(!updated.uuid().equalsIgnoreCase(saved.uuid()))throw new IOException("The restored Minecraft account does not match. Please sign in again.");
+        return updated;
+    }
+    private Session exchange(String ms,String refresh,Consumer<String> progress)throws Exception {
+        String stage="Connecting your Xbox profile";
+        try {
         stage="Connecting your Xbox profile";progress.accept(stage);
         var xboxBody=new JsonObject(); var p=new JsonObject();
         p.addProperty("AuthMethod","RPS"); p.addProperty("SiteName","user.auth.xboxlive.com"); p.addProperty("RpsTicket","d="+ms);
@@ -76,7 +96,7 @@ public final class MicrosoftAuth {
         stage="Loading your Minecraft Java profile";progress.accept(stage);
         // A successful profile response is required: no offline account impersonation or ownership bypass.
         var profile=transport.get("https://api.minecraftservices.com/minecraft/profile",access);
-        return new Session(profile.get("name").getAsString(),profile.get("id").getAsString(),access,System.currentTimeMillis()+mc.get("expires_in").getAsLong()*1000L,false);
+        return new Session(profile.get("name").getAsString(),profile.get("id").getAsString(),access,System.currentTimeMillis()+mc.get("expires_in").getAsLong()*1000L,false,refresh);
         }catch(InterruptedException e){throw e;}
         catch(Exception e){throw new IOException(stage+" failed. "+(e instanceof IOException?e.getMessage():"Check your connection and try again.")+" If Microsoft selected the wrong account, retry using a private browser window. Each account needs its own Minecraft Java access.",e);}
     }

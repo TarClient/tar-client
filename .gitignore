@@ -16,3 +16,7 @@ runtime/
 *.args
 launcher.json
 instance-*/
+.wrangler/
+**/.wrangler/
+accounts.dpapi
+accounts.lock

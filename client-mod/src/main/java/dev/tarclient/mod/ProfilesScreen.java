@@ -24,15 +24,16 @@ public final class ProfilesScreen extends Screen {
             store.presets();List<String> profiles=store.list();int count=Math.max(1,(height-156)/28);page=Math.clamp(page,0,Math.max(0,(profiles.size()-1)/count));
             for(int i=page*count;i<Math.min(profiles.size(),(page+1)*count);i++){
                 String profile=profiles.get(i);int y=82+(i-page*count)*28;
-                addDrawableChild(new TarButton(x,y,w-78,22,"Load  "+profile,b->{try{TarClient.CONFIG=store.load(profile);TarClient.save();status="Loaded "+profile+". Other integrations apply next launch.";}catch(Exception e){status=e.getMessage();}}));
-                addDrawableChild(new TarButton(x+w-72,y,72,22,"Update",b->client.setScreen(new ConfirmScreen(yes->{client.setScreen(this);if(yes)try{store.save(profile,TarClient.CONFIG);status="Updated "+profile+" with your current setup.";}catch(Exception e){status=e.getMessage();}},Text.literal("Update profile?"),Text.literal("Replace settings saved in "+profile+"?")))));
+                addDrawableChild(new TarButton(x,y,w-146,22,"Load  "+profile,b->{try{TarClient.CONFIG=store.load(profile);TarClient.save();status="Loaded "+profile+". Other integrations apply next launch.";}catch(Exception e){status=e.getMessage();}}));
+                addDrawableChild(new TarButton(x+w-140,y,68,22,"Update",b->client.setScreen(new ConfirmScreen(yes->{client.setScreen(this);if(yes)try{store.save(profile,TarClient.CONFIG);status="Updated "+profile+" with your current setup.";}catch(Exception e){status=e.getMessage();}},Text.literal("Update profile?"),Text.literal("Replace settings saved in "+profile+"?")))));
+                addDrawableChild(new TarButton(x+w-66,y,66,22,"Delete",b->client.setScreen(new ConfirmScreen(yes->{client.setScreen(this);if(yes)try{store.delete(profile);status="Deleted "+profile+". A backup is in tar-profiles/deleted.";clearAndInit();}catch(Exception e){status=e.getMessage();}},Text.literal("Delete profile?"),Text.literal("Delete "+profile+"? Your current modules stay as they are.")))));
             }
             if(page>0)addDrawableChild(new TarButton(x,height-56,45,20,"<",b->{page--;clearAndInit();}));
             if((page+1)*count<profiles.size())addDrawableChild(new TarButton(x+w-45,height-56,45,20,">",b->{page++;clearAndInit();}));
         }catch(Exception e){status=e.getMessage();}
         addDrawableChild(new TarButton(width/2-45,height-30,90,20,"Done",b->close()));
     }
-    public void render(DrawContext c,int x,int y,float delta){c.fill(0,0,width,height,0xEF101720);c.drawCenteredTextWithShadow(textRenderer,"YOUR PROFILES",width/2,22,0xFFA5F078);c.drawCenteredTextWithShadow(textRenderer,textRenderer.trimToWidth(status,width-20),width/2,height-76,0xFFE8EDF5);super.render(c,x,y,delta);}
+    public void render(DrawContext c,int x,int y,float delta){c.fill(0,0,width,height,UiTheme.color(0xEF101720));c.drawCenteredTextWithShadow(textRenderer,"YOUR PROFILES",width/2,22,UiTheme.color(0xFFA5F078));c.drawCenteredTextWithShadow(textRenderer,textRenderer.trimToWidth(status,width-20),width/2,height-76,UiTheme.color(0xFFE8EDF5));super.render(c,x,y,delta);}
     public void close(){client.setScreen(parent);}
     public boolean shouldPause(){return false;}
 }

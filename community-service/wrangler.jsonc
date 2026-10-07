@@ -1,0 +1,11 @@
+{
+  "name": "tar-client-community",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-06",
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [{ "name": "COMMUNITY", "class_name": "Community" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Community"] }],
+  "observability": { "enabled": false }
+}
