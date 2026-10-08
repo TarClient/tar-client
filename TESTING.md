@@ -1,3 +1,7 @@
+# 1.0.3 signing preparation — 8 October 2026
+
+Local Java and C# compilation passed. Three privacy tests passed: missing/corrupt preferences disable sharing, profiles cannot override an opt-out, and community requests are rejected before network access when sharing is disabled. Windows CI is pending. No signing-provider approval or Smart App Control acceptance is claimed.
+
 # 1.0.2 validation — 7 October 2026
 
 [Windows CI 37683146724](https://github.com/TarClient/tar-client/actions/runs/37683146724) passed for commit `610b3162330ae6642fe5d381841cf6a5bca3d8e4`: **47 Java tests**, zero failures/skips, **six community-service tests**, both release packages, native desktop installation, and two starts of the movable EXE with the full extracted payload verified.

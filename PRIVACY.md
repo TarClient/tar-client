@@ -1,4 +1,4 @@
-# Privacy — Tar Client 1.0.2
+# Privacy — Tar Client 1.0.3 signing candidate
 
 Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and a shared player-badge service.
 
@@ -12,7 +12,12 @@ Minecraft receives an access token in a temporary `.launch-*.args` file. Cleanup
 
 ## Player badges and ranks
 
-All signed-in Tar players automatically publish badge presence while in a world, including singleplayer. The **Tar player badges** toggle is enabled by default and controls only whether badges are displayed locally; disabling it does not hide your badge from others. While playing, Tar sends your public Minecraft UUID/name and the current player-list UUIDs, in requests of up to 100 IDs, to `tar-client-community.prutprut2003.workers.dev`, hosted in the publisher's Cloudflare account. It does not send server addresses, coordinates, chat, inventory, passwords, Microsoft refresh tokens or Minecraft access tokens to the community service.
+Before installation, the standalone EXE displays this policy and an optional **Share my Minecraft identity for Tar player badges** checkbox, checked by default. The ZIP/inner-launcher route displays the same policy and choice before normal startup. Cancel stops setup. Existing installations are asked once when they first run this version. Unattended installation does not enable sharing; the first interactive launch asks for a choice.
+
+Change the choice at **Launcher Settings > Privacy and player badges**. The choice is stored outside module profiles in `badge-sharing.txt`, so loading a profile cannot undo an opt-out. Missing or invalid choices disable community requests. Turning sharing off stops new badge requests; an already-running request may finish, and a cleanup request can remove prior presence. Old presence expires within two minutes if cleanup fails. An opt-out also disables badge lookup and community rank-management requests until sharing is enabled again.
+
+With sharing enabled and a signed-in player in a world, Tar sends the public Minecraft UUID/name and current player-list UUIDs, in batches of up to 100 IDs, to `tar-client-community.prutprut2003.workers.dev` on the maintainer's Cloudflare account. It does not send server addresses, coordinates, chat, inventory, passwords, Microsoft refresh tokens or Minecraft access tokens to that service. The **Tar player badges** module toggle only controls local display; use the separate privacy choice to disable sharing.
+
 
 Minecraft identity is proven through Mojang's session service: the Minecraft access token goes only to Mojang's `/join` endpoint. The backend receives a public one-time challenge and checks it with Mojang. Community bearer tokens stay in game memory; only their hashes are stored by the backend. Tokens expire after six hours, challenges after one minute, and presence after two minutes. Expired records are cleaned on subsequent service requests. Leaving a world requests immediate presence removal; network failures fall back to expiry.
 

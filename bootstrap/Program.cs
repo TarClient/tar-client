@@ -10,7 +10,7 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Tar Client")]
 [assembly: AssemblyCompany("Tarre Industries")]
 [assembly: AssemblyProduct("Tar Client")]
-[assembly: AssemblyVersion("1.0.2.0")]
+[assembly: AssemblyVersion("1.0.3.0")]
 internal static class Program
 {
     [STAThread]
@@ -27,6 +27,7 @@ internal static class Program
                     try { owned = mutex.WaitOne(TimeSpan.FromMinutes(3)); }
                     catch (AbandonedMutexException) { owned = true; }
                     if (!owned) throw new IOException("Another Tar Client installation is still running.");
+                    if (!installOnly && !PrivacySetup()) return 0;
                     string app = Install();
                     CreateShortcut(app);
                     if (!installOnly) Process.Start(new ProcessStartInfo(app) { WorkingDirectory = Path.GetDirectoryName(app), UseShellExecute = true });
@@ -40,6 +41,38 @@ internal static class Program
             if (!installOnly) MessageBox.Show("Tar Client could not start.\n\n" + e.Message, "Tar Client", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
+    }
+    private static bool PrivacySetup()
+    {
+        string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TarClient");
+        string choice = Path.Combine(data, "badge-sharing.txt");
+        NoLinks(data);
+        if (File.Exists(choice)) { string saved = File.ReadAllText(choice).Trim(); if (saved == "enabled" || saved == "disabled") return true; }
+        string policy;
+        using (var payload = Resource("TarPayload.zip"))
+        using (var zip = new ZipArchive(payload, ZipArchiveMode.Read))
+        {
+            var entry = zip.GetEntry("Tar Client/PRIVACY.md") ?? zip.GetEntry("Tar Client\\PRIVACY.md");
+            if (entry == null) throw new IOException("The packaged privacy policy is missing.");
+            using (var reader = new StreamReader(entry.Open())) policy = reader.ReadToEnd();
+        }
+        using (var dialog = new Form())
+        {
+            dialog.Text = "Tar Client privacy setup"; dialog.Width = 720; dialog.Height = 580; dialog.StartPosition = FormStartPosition.CenterScreen;
+            var text = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, Text = policy.Replace("\n", "\r\n") };
+            var share = new CheckBox { Text = "Share my Minecraft identity for Tar player badges (optional)", Checked = true, Dock = DockStyle.Bottom, Height = 40 };
+            var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 42, FlowDirection = FlowDirection.RightToLeft };
+            var install = new Button { Text = "Install", DialogResult = DialogResult.OK };
+            var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel };
+            buttons.Controls.Add(cancel); buttons.Controls.Add(install); dialog.Controls.Add(text); dialog.Controls.Add(share); dialog.Controls.Add(buttons);
+            dialog.AcceptButton = install; dialog.CancelButton = cancel;
+            if (dialog.ShowDialog() != DialogResult.OK) return false;
+            Directory.CreateDirectory(data);
+            string temporary = Path.Combine(data, "privacy-" + Guid.NewGuid().ToString("N") + ".tmp");
+            File.WriteAllText(temporary, share.Checked ? "enabled" : "disabled");
+            if (File.Exists(choice)) File.Replace(temporary, choice, null); else File.Move(temporary, choice);
+        }
+        return true;
     }
     private static Stream Resource(string name)
     {
@@ -66,7 +99,7 @@ internal static class Program
         string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Tar Client");
         NoLinks(root);
         Directory.CreateDirectory(root);
-        string target = Path.Combine(root, "1.0.2-" + expected.Substring(0, 12));
+        string target = Path.Combine(root, "1.0.3-" + expected.Substring(0, 12));
         string executable = Path.Combine(target, "Tar Client", "Tar Client.exe");
         if (File.Exists(Path.Combine(target, ".complete")) && File.Exists(executable) && File.Exists(Path.Combine(target, "Tar Client", "runtime", "lib", "modules"))) return executable;
         string pending = Path.Combine(root, ".install-" + Guid.NewGuid().ToString("N"));

@@ -105,3 +105,7 @@ The movable download is **TarClient-1.0.2.exe**, which contains all app/runtime 
 | Totem Pop Size | Visual category. Enable to resize the totem activation animation from 10% to 300% in 5% steps; 100% is vanilla. Does not resize held items or particles, or alter animation timing/position. Item Size can additionally multiply the model scale. Saved per profile. |
 
 Normal badges require no owner assignment. Every signed-in Tar player automatically advertises presence while playing, even if they hide badges locally. Both players need Tar running and connectivity; discovery normally takes up to 30 seconds. Existing assigned colors and owner-only rank management are preserved.
+
+## Badge-sharing privacy (1.0.3 signing candidate)
+
+The installation privacy screen offers badge sharing on by default. Opt out there or under launcher Settings > Privacy and player badges. This is separate from the local badge display module and is never changed by profiles. With sharing off, new community requests stop and the prior badge expires within two minutes. No identity proof is initiated without a valid enabled choice.

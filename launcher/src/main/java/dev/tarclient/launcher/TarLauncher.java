@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,GREEN=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.0.2";
+    public static final String VERSION="1.0.3";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -58,6 +58,7 @@ public final class TarLauncher extends JFrame {
         UIManager.put("ScrollBar.width",8);UIManager.put("Button.borderWidth",0);
         UIManager.put("Panel.background",BG);UIManager.put("Button.background",CARD);UIManager.put("Component.focusColor",GREEN);
         SwingUtilities.invokeLater(()->{try {
+            if(!Arrays.asList(args).contains("--render-preview")&&!PrivacySetup.showIfNeeded())return;
             var frame=new TarLauncher();
             if(args.length>=2&&args[0].equals("--render-preview")){
                 if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();default->frame.home();}}
@@ -281,6 +282,10 @@ public final class TarLauncher extends JFrame {
         JPanel list=column();JPanel gameCard=card();gameCard.add(label("Game preferences",22,LauncherTheme.TEXT));gameCard.add(Box.createVerticalStrut(10));gameCard.add(wrap("Set how much memory Minecraft can use. Changes apply the next time you launch.",2));gameCard.add(Box.createVerticalStrut(14));
         JPanel memory=new JPanel(new BorderLayout(14,0));memory.setOpaque(false);memory.add(label("Memory allocation (MB)",14,LauncherTheme.TEXT));JSpinner ram=new JSpinner(new SpinnerNumberModel(Integer.parseInt(pref("ram","8192")),2048,32768,512));ram.setPreferredSize(new Dimension(180,36));memory.add(ram,BorderLayout.EAST);gameCard.add(memory);gameCard.add(Box.createVerticalStrut(20));gameCard.add(label("Your game folder",14,LauncherTheme.TEXT));gameCard.add(Box.createVerticalStrut(6));gameCard.add(wrap(game.toString(),2));gameCard.add(Box.createVerticalStrut(10));gameCard.add(button("Open game folder",()->open(game)));list.add(gameCard);list.add(Box.createVerticalStrut(16));
         JPanel connection=card();connection.add(label("Microsoft connection ready",22,LauncherTheme.TEXT));connection.add(Box.createVerticalStrut(10));connection.add(wrap("Microsoft sign-in is built in for everyone. No application ID or publisher setup is needed. Add and switch Minecraft accounts from Accounts.",2));connection.add(Box.createVerticalStrut(12));connection.add(label("Remembered accounts are encrypted for your Windows user. Forget or Sign out removes the saved account.",12,MUTED));list.add(connection);list.add(Box.createVerticalStrut(18));
+        JPanel privacy=card();privacy.add(label("Privacy and player badges",22,LauncherTheme.TEXT));privacy.add(Box.createVerticalStrut(10));privacy.add(wrap("Badge sharing sends your public Minecraft identity and the server player-list UUIDs to Tar's community service. Turning it off hides your badge from others. This choice is not changed by profiles.",4));
+        JCheckBox share=new JCheckBox("Share my identity for player badges",PrivacyPreferences.defaults().sharingEnabled());share.setOpaque(false);
+        share.addActionListener(e->{try{PrivacyPreferences.defaults().save(share.isSelected());status("Badge sharing "+(share.isSelected()?"enabled":"disabled")+". Changes apply to new requests; old presence expires within two minutes.");}catch(Exception failure){share.setSelected(PrivacyPreferences.defaults().sharingEnabled());status("Could not save privacy choice: "+failure.getMessage());}});
+        privacy.add(share);privacy.add(button("Read privacy policy",()->browse("https://github.com/TarClient/tar-client/blob/main/PRIVACY.md")));list.add(privacy);list.add(Box.createVerticalStrut(16));
         JCheckBox darkMode=new JCheckBox("Dark mode (restart launcher to apply)",Boolean.parseBoolean(pref("darkMode","true")));list.add(darkMode);list.add(Box.createVerticalStrut(12));
         list.add(primary("Save preferences",()->{if(!canEdit())return;prefs.remove("clientId");prefs.addProperty("ram",ram.getValue().toString());prefs.addProperty("darkMode",darkMode.isSelected());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Launcher preferences saved");}catch(Exception e){status(e.getMessage());}}));
         page("Settings","Make yourself at home. Java 21 is already included.",scroll(list));

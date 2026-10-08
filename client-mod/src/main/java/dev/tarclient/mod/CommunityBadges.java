@@ -13,6 +13,8 @@ public final class CommunityBadges {
     private static boolean pending,present;
     private static String identity="";
     private static Object world;
+    private static boolean sharing;
+    private static long privacyCheck;
     public static String status="Join a world to connect your badge";
     private static MicrosoftAuth.Session session(){var mc=MinecraftClient.getInstance();var s=mc.getSession();return new MicrosoftAuth.Session(s.getUsername(),s.getUuidOrNull()==null?"":s.getUuidOrNull().toString().replace("-",""),s.getAccessToken(),Long.MAX_VALUE,mc.isDemo());}
     // Called only on the community worker, including rank-management requests.
@@ -30,9 +32,14 @@ public final class CommunityBadges {
             identity=auth.uuid();world=mc.world;generation++;players=Map.of();validUntil=0;next=0;
             status=mc.world==null?"Join a world to connect your badge":"Connecting your badge...";
         }
+        if(System.currentTimeMillis()>=privacyCheck){
+            privacyCheck=System.currentTimeMillis()+1000;boolean allowed=PrivacyPreferences.defaults().sharingEnabled();
+            if(allowed!=sharing){sharing=allowed;generation++;players=Map.of();validUntil=0;next=0;}
+        }
+        if(!sharing)status="Badge sharing is off in launcher Settings";
         // All authenticated Tar players advertise their normal (or assigned) badge.
         // The module switch is a local display preference, never a rank requirement.
-        boolean active=mc.world!=null&&!auth.demo()&&auth.uuid().matches("[a-f0-9]{32}")&&CommunityService.configured();
+        boolean active=sharing&&mc.world!=null&&!auth.demo()&&auth.uuid().matches("[a-f0-9]{32}")&&CommunityService.configured();
         if(!active){
             players=Map.of();
             if(present&&!pending){pending=true;worker.submit(()->{
@@ -53,7 +60,7 @@ public final class CommunityBadges {
                     // Even a discarded response may have published presence. Ensure a
                     // subsequent disconnect tick removes it instead of forgetting it.
                     present=true;
-                    if(generation==requestGeneration&&mc.world!=null){
+                    if(generation==requestGeneration&&mc.world!=null&&PrivacyPreferences.defaults().sharingEnabled()){
                         players=found;validUntil=System.currentTimeMillis()+90000;status="Connected / badge shared automatically";
                     }
                 });
