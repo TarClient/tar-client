@@ -1,12 +1,17 @@
-# Tar Client 1.0.2
+# Tar Client
+
+> **Latest recommended version: [V1.0 (v1.0.0)](https://github.com/TarClient/tar-client/releases/tag/v1.0.0).**
+> Use V1.0 for now. Versions 1.0.1, 1.0.2 and 1.0.3 have been withdrawn from public downloads because of reported issues. Their Git tags remain visible; they are not recommended downloads.
+>
+> This repository also contains newer development work. Features described below as 1.0.1 or later are not included in the recommended V1.0 download.
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
 ## Download and open
 
-Download **TarClient-1.0.2.exe** from [Releases](https://github.com/prutprut2003-creator/tar-client/releases/tag/v1.0.2). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
+Download **[TarClient-1.0.0.exe](https://github.com/TarClient/tar-client/releases/download/v1.0.0/TarClient-1.0.0.exe)** from the [V1.0 release](https://github.com/TarClient/tar-client/releases/tag/v1.0.0). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.
 
-The optional **TarClient-1.0.2-Windows.zip** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
+The optional **[TarClient-1.0.0-Windows.zip](https://github.com/TarClient/tar-client/releases/download/v1.0.0/TarClient-1.0.0-Windows.zip)** contains the same application. Extract the whole ZIP and keep its `app` and `runtime` folders beside the inner `Tar Client.exe`. The small EXE inside that ZIP is not the self-contained EXE above.
 
 **Windows signing is still unfinished.** These downloads are unsigned. Smart App Control may block them, and a Microsoft review of an older file does not automatically approve a new build. See [WINDOWS-SIGNING.md](WINDOWS-SIGNING.md). Renaming files, moving them or using a shortcut does not establish publisher trust.
 
@@ -64,13 +69,13 @@ The release JAR embeds the remapped mod at `bundled/tar-client.jar`. For isolate
 
 Source is MIT licensed; dependencies retain their own licenses. See [THIRD-PARTY.md](THIRD-PARTY.md). Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
 
-## 1.0.1 changes
+## 1.0.1 changes (withdrawn release)
 
 **Right Shift > Visual > Totem Pop Size > Settings** controls your totem activation animation from 10% to 300%, in 5% steps. Enable the module to apply it; 100% is vanilla. Translation, spin and duration remain vanilla. Held totems and pop particles are unchanged. The separate Item Size module can still multiply the rendered item scale when enabled. Settings are saved in profiles.
 
 Badge sharing now works independently of the local display toggle. Normal badges need no action from the owner, and players beyond the first 100 entries are included.
 
-## 1.0.2 changes
+## 1.0.2 changes (withdrawn release)
 
 **Saturation** now uses the official [AppleSkin](https://modrinth.com/mod/appleskin) renderer on the vanilla hunger bar instead of a separate text panel. Tar automatically downloads AppleSkin and its required dependencies at launch; it stays loaded so toggles and profile changes work live. Open **Right Shift > HUD > Saturation > Settings** and enable it. Controls include current saturation, held-food hunger/saturation preview, offhand preview, exhaustion, health recovery, food tooltips, vanilla animations and preview opacity. Existing Saturation enabled states are preserved.
 
@@ -78,4 +83,4 @@ The overlay follows Minecraft GUI scale and hunger-bar visibility rather than th
 
 ## Code signing policy
 
-See [Code signing policy](CODE-SIGNING.md). We are applying to SignPath Foundation for free open-source signing. **No approval or signed release is claimed.** The current public 1.0.2 download remains unsigned. The 1.0.3 signing candidate adds a privacy screen and optional badge-sharing switch before installation, plus a persistent opt-out in launcher Settings. Profiles cannot override this choice.
+See [Code signing policy](CODE-SIGNING.md). SignPath Foundation declined the application because the project has not yet established sufficient public recognition. **No approval or signed release is claimed.** The recommended V1.0 download remains unsigned and may still be blocked by Windows. The withdrawn 1.0.3 signing candidate adds a privacy screen and optional badge-sharing switch before installation, plus a persistent opt-out in launcher Settings. That switch is not included in V1.0.
