@@ -1,7 +1,7 @@
 # Tar Client
 
 > **Latest recommended version: [V1.0 (v1.0.0)](https://github.com/TarClient/tar-client/releases/tag/v1.0.0).**
-> Use V1.0 for now. Versions 1.0.1, 1.0.2 and 1.0.3 have been withdrawn from public downloads because of reported issues. Their Git tags remain visible; they are not recommended downloads.
+> Use V1.0 for now. Versions [1.0.1](https://github.com/TarClient/tar-client/releases/tag/v1.0.1), [1.0.2](https://github.com/TarClient/tar-client/releases/tag/v1.0.2) and [1.0.3](https://github.com/TarClient/tar-client/releases/tag/v1.0.3) are available again as optional downloads. They have reported issues and remain unsigned; restoring their downloads does not fix Windows Smart App Control blocks.
 >
 > This repository also contains newer development work. Features described below as 1.0.1 or later are not included in the recommended V1.0 download.
 
@@ -69,13 +69,13 @@ The release JAR embeds the remapped mod at `bundled/tar-client.jar`. For isolate
 
 Source is MIT licensed; dependencies retain their own licenses. See [THIRD-PARTY.md](THIRD-PARTY.md). Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
 
-## 1.0.1 changes (withdrawn release)
+## 1.0.1 changes (optional download; reported issues)
 
 **Right Shift > Visual > Totem Pop Size > Settings** controls your totem activation animation from 10% to 300%, in 5% steps. Enable the module to apply it; 100% is vanilla. Translation, spin and duration remain vanilla. Held totems and pop particles are unchanged. The separate Item Size module can still multiply the rendered item scale when enabled. Settings are saved in profiles.
 
 Badge sharing now works independently of the local display toggle. Normal badges need no action from the owner, and players beyond the first 100 entries are included.
 
-## 1.0.2 changes (withdrawn release)
+## 1.0.2 changes (optional download; reported issues)
 
 **Saturation** now uses the official [AppleSkin](https://modrinth.com/mod/appleskin) renderer on the vanilla hunger bar instead of a separate text panel. Tar automatically downloads AppleSkin and its required dependencies at launch; it stays loaded so toggles and profile changes work live. Open **Right Shift > HUD > Saturation > Settings** and enable it. Controls include current saturation, held-food hunger/saturation preview, offhand preview, exhaustion, health recovery, food tooltips, vanilla animations and preview opacity. Existing Saturation enabled states are preserved.
 
@@ -83,4 +83,4 @@ The overlay follows Minecraft GUI scale and hunger-bar visibility rather than th
 
 ## Code signing policy
 
-See [Code signing policy](CODE-SIGNING.md). SignPath Foundation declined the application because the project has not yet established sufficient public recognition. **No approval or signed release is claimed.** The recommended V1.0 download remains unsigned and may still be blocked by Windows. The withdrawn 1.0.3 signing candidate adds a privacy screen and optional badge-sharing switch before installation, plus a persistent opt-out in launcher Settings. That switch is not included in V1.0.
+See [Code signing policy](CODE-SIGNING.md). SignPath Foundation declined the application because the project has not yet established sufficient public recognition. **No approval or signed release is claimed.** The recommended V1.0 download remains unsigned and may still be blocked by Windows. The optional 1.0.3 signing candidate adds a privacy screen and optional badge-sharing switch before installation, plus a persistent opt-out in launcher Settings. That switch is not included in V1.0.
