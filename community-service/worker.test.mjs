@@ -52,6 +52,38 @@ test('a successful challenge is consumed and cannot create a second session',asy
   assert.deepEqual(replies.map(x=>x.status).sort(),[200,401]);
 });
 
+test('Mojang service failures are not reported as expired player sessions and grant no session',async()=>{
+  for(const status of [302,403,429,500]){
+    const s=setup();s.hub.env.MOJANG_FETCH=async()=>new Response('',{status});
+    const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();
+    const reply=await s.send('/v1/confirm',{id:proof.id});
+    assert.equal(reply.status,502);assert.equal((await reply.json()).upstreamStatus,status);
+    assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM sessions').get().count,0);
+    assert.equal((await s.send('/v1/confirm',{id:proof.id})).status,401);
+  }
+});
+
+test('rank lookup distinguishes upstream failures from nonexistent names without changing ranks',async()=>{
+  const s=setup(),owner=await s.login(OWNER,'Tarrecool');
+  s.hub.env.MOJANG_FETCH=async(url,options)=>{
+    assert.ok(url.startsWith('https://api.mojang.com/users/profiles/minecraft/'));
+    assert.equal(options.redirect,'manual');
+    assert.match(options.headers['User-Agent'],/^TarClient-Community\//);
+    return new Response('',{status:403});
+  };
+  const reply=await s.send('/v1/rank',{name:'OtherPlayer',rank:'partner'},owner);
+  assert.equal(reply.status,502);assert.equal((await reply.json()).code,'mojang_profile_failed');
+  assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM ranks').get().count,0);
+});
+
+test('a missing Mojang proof remains unauthorized',async()=>{
+  const s=setup();s.hub.env.MOJANG_FETCH=async()=>new Response(null,{status:204});
+  const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();
+  const reply=await s.send('/v1/confirm',{id:proof.id});
+  assert.equal(reply.status,401);assert.equal((await reply.json()).code,'proof_not_found');
+  assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM sessions').get().count,0);
+});
+
 test('two new normal players automatically see each other without any rank assignment',async()=>{
   const s=setup(),second='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',nonTar='cccccccccccccccccccccccccccccccc';
   const firstToken=await s.login(OTHER,'FirstPlayer'),secondToken=await s.login(second,'SecondPlayer');

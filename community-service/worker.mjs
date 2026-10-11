@@ -4,6 +4,7 @@ const username = value => typeof value === 'string' && /^[A-Za-z0-9_]{1,16}$/.te
 const random = () => [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2,'0')).join('');
 const sha = async value => [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 const json = (value,status=200) => Response.json(value,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+const mojangOptions = () => ({headers:{'Accept':'application/json','User-Agent':'TarClient-Community/1.0 (+https://github.com/TarClient/tar-client)'},redirect:'manual'});
 export default {fetch(request,env){return env.COMMUNITY.getByName('tar-community-v1').fetch(request);}};
 
 export class Community {
@@ -47,8 +48,9 @@ export class Community {
         if(!proof)return json({error:'Challenge expired'},401);
         // Consume before awaiting Mojang: a challenge cannot be replayed by concurrent requests.
         this.db.exec('DELETE FROM challenges WHERE id=?',body.id);
-        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://sessionserver.mojang.com/session/minecraft/hasJoined?username='+encodeURIComponent(proof.name)+'&serverId='+encodeURIComponent(proof.hash));
-        if(!lookup.ok||lookup.status===204)return json({error:'Minecraft could not verify this account'},401);
+        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://sessionserver.mojang.com/session/minecraft/hasJoined?username='+encodeURIComponent(proof.name)+'&serverId='+encodeURIComponent(proof.hash),mojangOptions());
+        if(lookup.status===204)return json({error:'Minecraft could not verify this account',code:'proof_not_found'},401);
+        if(lookup.status!==200)return json({error:'Minecraft verification service is unavailable',code:'mojang_lookup_failed',upstreamStatus:lookup.status},502);
         const profile=await lookup.json();
         if(profile.id!==proof.uuid||String(profile.name).toLowerCase()!==proof.name.toLowerCase())return json({error:'Minecraft identity did not match'},401);
         const token=random(),digest=await sha(token);
@@ -76,8 +78,9 @@ export class Community {
         if(session.uuid!==OWNER)return json({error:'Only Tarrecool can manage ranks'},403);
         if(path==='/v1/ranks')return json({ranks:this.rows('SELECT uuid,name,rank,updated FROM ranks ORDER BY name')});
         if(!username(body.name)||!['normal','partner','mod','admin'].includes(body.rank))return json({error:'Choose a Minecraft username and valid rank'},400);
-        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://api.mojang.com/users/profiles/minecraft/'+encodeURIComponent(body.name));
-        if(!lookup.ok||lookup.status===204)return json({error:'Minecraft username not found'},404);
+        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://api.mojang.com/users/profiles/minecraft/'+encodeURIComponent(body.name),mojangOptions());
+        if(lookup.status===204||lookup.status===404)return json({error:'Minecraft username not found'},404);
+        if(lookup.status!==200)return json({error:'Minecraft profile service is unavailable',code:'mojang_profile_failed',upstreamStatus:lookup.status},502);
         const target=await lookup.json();if(!uuid(target.id)||!username(target.name))return json({error:'Minecraft profile unavailable'},502);
         if(target.id===OWNER)return json({error:'The owner always has the red badge'},400);
         if(body.rank==='normal')this.db.exec('DELETE FROM ranks WHERE uuid=?',target.id);
