@@ -7,13 +7,17 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
-## Optional 1.0.5 menu update
+## Optional 1.0.6: Theme and gradient color pickers
 
-Tar menus and the launcher now default to warm orange accents and near-black panels. In game, open **Right Shift > Utility > Appearance / Dark mode > Settings** to change the accent and dark menu background using six-digit RGB hex colors. Changes apply as you type a complete color; incomplete values temporarily use the default. **Reset orange / black** restores the defaults. Disable Dark menu for light mode. HUD backgrounds and player badge colors remain separate.
+The **Theme** module controls orange button accents and the near-black menu background. Open **Right Shift > Utility > Theme > Settings**, then **Pick color**. The draggable gradient square chooses saturation/brightness, and the rainbow bar chooses hue. Backgrounds with transparency include an opacity bar and checkerboard preview. Hex entry is optional. **Apply** saves; **Cancel** or Escape preserves the previous setting. **Default** selects the setting's original color for you to apply. Tab and arrow keys work too; Shift increases the adjustment step.
 
-For launcher colors, open **Settings**, use the color pickers or hex fields, save, and restart the launcher. These preferences are independent of the game menu. Existing module settings and accounts are preserved.
+Every configurable module color uses this picker, including hit color, crosshair, hitboxes, keystrokes, HUD text, potion timers, backgrounds and their gradient endpoints. The picker selects a color; existing HUD **gradient** background style uses the two separately selected endpoint colors. Other modules keep their existing rendering behavior.
 
-Module search now keeps the same editing field while filtering results, preserving focus, the cursor and text selection. Text is explicitly white on the search field's black background, with a brighter placeholder.
+Disable Theme for light menus. **Reset orange / black** restores the in-game defaults. The existing theme preferences and profiles are preserved under the same saved ID. HUD backgrounds and player badge colors remain separate.
+
+Launcher **Settings** also has gradient pickers for its accent and background; save and restart to apply launcher colors. Launcher **Client modules > Theme** edits the game menu. All module color settings in the launcher use the same HSV picker, with opacity for ARGB settings.
+
+The 1.0.5 search fix is included: filtering keeps the editing field, focus, caret and selection, with visible white text on black.
 
 ## Download and open
 

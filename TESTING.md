@@ -1,3 +1,9 @@
+# 1.0.6 color pickers — 14 October 2026
+
+Local launcher/Fabric compilation and seven new color-picker tests passed. Coverage includes exact RGB/ARGB round trips across 4,096 colors, opacity editing, invalid hex preserving the last valid choice, hue retention for gray/black, gradient corners and edge clamping, complete color-setting picker metadata, saved Theme ID compatibility, and the actual Swing HSV picker retaining transparency.
+
+Manual in-game acceptance remains: click/drag and keyboard-edit each picker area, type valid/invalid hex, Apply/Cancel/Escape, compare opacity on checkerboard, resize at GUI scales down to 320x240, reset Theme and verify colors after reload/profile switching. Existing HUD gradient background style should show its two chosen endpoints. No live Minecraft rendering result is claimed.
+
 # 1.0.5 menu update — 14 October 2026
 
 Local launcher and Fabric Java compilation passed. New tests cover saved theme migration and persistence, malformed color fallback, contrast across 4,096 custom accents, alpha preservation, unchanged rank colors and switching between light/dark launcher palettes. The local sandbox blocks Java atomic file replacement; the complete persistence test is therefore checked on the Windows CI runner, without disabling or skipping it.

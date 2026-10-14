@@ -85,7 +85,7 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 | --- | --- |
 | Fullbright | At strength 1, blends the game lightmap toward white, including zero-light areas. Lower strengths blend with normal lighting. Does not place torches or change server light levels. Shader/renderer replacements can require compatibility testing. |
 | Tar player badges | Verified recent community presence adds your logo to visible nametags and the player list. Normal white, Partner purple, Mod blue, Admin red, Donator light green, Co-Owner light orange, Owner orange. Tarrecool can assign all ranks except the exclusive Owner badge; Co-Owners can assign Partner/Mod to players without a protected Admin, Co-Owner or Owner badge. All signed-in players automatically share a white badge while in a world; disabling this module only hides badges locally. The entire player list is queried in batches of 100. |
-| Dark mode | Switch Tar's in-game menus between dark and light palettes. Launcher Settings has its own theme switch, applied on restart. |
+| Theme | Choose menu button accents and background with gradient color pickers. Orange/near-black defaults; disable for light menus. Launcher Settings has separate colors, applied on restart. |
 | TPS | Estimates 0–20 ticks per second from server time packets; choose averaging samples. Network delay affects the estimate. It is not direct server instrumentation. |
 | Particles | Adjust overall quantity and crit, potion and other particle percentages independently, including zero. Disable module to restore vanilla particle spawning. Applies to vanilla ParticleManager effect creation. |
 | TNT timer | Shows the fuse in seconds while looking at primed TNT within configured range and unobstructed by blocks. It uses the client entity's fuse, so unusual server plugins/lag can affect accuracy. |
@@ -94,7 +94,7 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 | Text | Your own HUD text, up to 12 lines. Type `\n` for a line break. Position, scale, color and panel style are customizable. |
 | Item size filters | All items, Only listed or Except listed; use comma-separated IDs such as `minecraft:shield,minecraft:diamond_sword`. Filters take priority over per-item scale overrides. |
 
-New information/visual modules start disabled, except Dark mode and Tar player badges. The crosshair's custom color now defaults to white with no outline; the original green default migrates once, while later custom color choices are preserved.
+New information/visual modules start disabled, except Theme and Tar player badges. The crosshair's custom color now defaults to white with no outline; the original green default migrates once, while later custom color choices are preserved.
 
 The movable download is **TarClient-1.0.2.exe**, which contains all app/runtime files. The small inner EXE from the optional ZIP still needs its sibling folders.
 

@@ -92,7 +92,10 @@ public final class TarSettingsScreen extends Screen {
         for(int i=page*perPage;i<Math.min(settings.size(),(page+1)*perPage);i++){
             var s=settings.get(i);int y=contentY+(i-page*perPage)*42;
             captions.add(new Caption(selected.equals("badges")&&s.key().equals("enabled")?"Show badges on my screen":selected.equals("darkmode")&&s.key().equals("enabled")?"Dark menu":s.label(),mainX,y,mainWidth));
-            if(s.initial() instanceof Boolean){
+            if(s.color()){
+                String moduleId=selected;
+                addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,"Pick color  #"+CONFIG.text(moduleId,s.key()).replace("#",""),b->client.setScreen(new ColorPickerScreen(this,s.label(),CONFIG.text(moduleId,s.key()),(String)s.initial(),s.alpha(),value->{CONFIG.set(moduleId,s.key(),value);TarClient.save();}))));
+            }else if(s.initial() instanceof Boolean){
                 addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.bool(selected,s.key())?"Enabled":"Disabled",b->{CONFIG.set(selected,s.key(),!CONFIG.bool(selected,s.key()));TarClient.save();b.setMessage(Text.literal(CONFIG.bool(selected,s.key())?"Enabled":"Disabled"));},()->CONFIG.bool(selected,s.key())));
             }else if(s.initial() instanceof Number){
                 addDrawableChild(new SliderWidget(mainX,y+13,mainWidth,22,Text.empty(),(CONFIG.number(selected,s.key())-s.min())/(s.max()-s.min())){

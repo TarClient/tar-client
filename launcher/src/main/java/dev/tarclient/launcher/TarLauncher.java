@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,ACCENT=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.0.5";
+    public static final String VERSION="1.0.6";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -233,7 +233,11 @@ public final class TarLauncher extends JFrame {
         if(m.id().equals("profiles")){profiles();return;}
         JPanel c=card();c.add(label(m.name(),24,LauncherTheme.TEXT));c.add(Box.createVerticalStrut(8));c.add(wrap(m.description(),2));c.add(Box.createVerticalStrut(16));
             for(var s:m.settings())if(!s.key().equals("enabled")&&!s.key().equals("pattern")){JPanel r=new JPanel(new BorderLayout(20,8));r.setOpaque(false);r.setMaximumSize(new Dimension(10000,40));r.add(label(s.label(),13,MUTED));JComponent control;
-                if(s.initial() instanceof Boolean){JCheckBox check=new JCheckBox("",config.bool(m.id(),s.key()));check.setOpaque(false);check.addActionListener(e->{if(canEdit()){config.set(m.id(),s.key(),check.isSelected());saveConfig();}else check.setSelected(config.bool(m.id(),s.key()));});control=check;}
+                if(s.color()){
+                    JButton pick=button("Pick color  #"+config.text(m.id(),s.key()).replace("#",""),()->{});
+                    pick.addActionListener(e->{if(!canEdit())return;String chosen=ColorPickerDialog.choose(this,s.label(),config.text(m.id(),s.key()),(String)s.initial(),s.alpha());if(chosen!=null&&canEdit()){config.set(m.id(),s.key(),chosen);saveConfig();pick.setText("Pick color  #"+chosen);}});control=pick;
+                }
+                else if(s.initial() instanceof Boolean){JCheckBox check=new JCheckBox("",config.bool(m.id(),s.key()));check.setOpaque(false);check.addActionListener(e->{if(canEdit()){config.set(m.id(),s.key(),check.isSelected());saveConfig();}else check.setSelected(config.bool(m.id(),s.key()));});control=check;}
                 else if(s.initial() instanceof Number){JSpinner spinner=new JSpinner(new SpinnerNumberModel(config.number(m.id(),s.key()),s.min(),s.max(),s.step()));spinner.addChangeListener(e->{if(canEdit()){config.set(m.id(),s.key(),spinner.getValue());saveConfig();}});control=spinner;}
                 else if(!ClientConfig.choices(s.key()).isEmpty()){JComboBox<String> choices=new JComboBox<>(ClientConfig.choices(s.key()).toArray(String[]::new));choices.setSelectedItem(config.text(m.id(),s.key()));choices.addActionListener(e->{if(canEdit()){config.set(m.id(),s.key(),choices.getSelectedItem());saveConfig();}});control=choices;}
                 else{JTextField field=new JTextField(config.text(m.id(),s.key()),18);field.addActionListener(e->{if(canEdit()){config.set(m.id(),s.key(),field.getText());saveConfig();}});field.addFocusListener(new FocusAdapter(){public void focusLost(FocusEvent e){if(!running()&&!busy){config.set(m.id(),s.key(),field.getText());saveConfig();}}});control=field;}
@@ -298,13 +302,13 @@ public final class TarLauncher extends JFrame {
         list.add(themeColorRow("Launcher accent",accent));list.add(Box.createVerticalStrut(10));
         list.add(themeColorRow("Dark launcher background",background));list.add(Box.createVerticalStrut(10));
         list.add(button("Reset orange / black",()->{accent.setText(ThemeColors.DEFAULT_ACCENT);background.setText(ThemeColors.DEFAULT_BACKGROUND);darkMode.setSelected(true);}));
-        list.add(wrap("Save and restart the launcher to apply its colors. In-game menu colors: Client modules > Appearance / Dark mode.",2));list.add(Box.createVerticalStrut(12));
+        list.add(wrap("Save and restart the launcher to apply its colors. In-game menu colors: Client modules > Theme.",2));list.add(Box.createVerticalStrut(12));
         list.add(primary("Save preferences",()->{if(!canEdit())return;if(!ThemeColors.valid(accent.getText())||!ThemeColors.valid(background.getText())){status("Use six hex digits for each color, such as E78336 or 0B0B0D.");return;}prefs.remove("clientId");prefs.addProperty("ram",ram.getValue().toString());prefs.addProperty("darkMode",darkMode.isSelected());prefs.addProperty("accent",accent.getText().trim());prefs.addProperty("menuBackground",background.getText().trim());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Preferences saved. Restart the launcher to apply its colors.");}catch(Exception e){status(e.getMessage());}}));
         page("Settings","Make yourself at home. Java 21 is already included.",scroll(list));
     }
     private JPanel themeColorRow(String title,JTextField field){
         JPanel row=row();row.setAlignmentX(0);row.add(label(title+" (hex)",14,LauncherTheme.TEXT));row.add(field);
-        row.add(button("Choose color",()->{Color picked=JColorChooser.showDialog(this,title,new Color(ThemeColors.parse(field.getText(),ThemeColors.DEFAULT_ACCENT)));if(picked!=null)field.setText(String.format(Locale.ROOT,"%06X",picked.getRGB()&0xFFFFFF));}));return row;
+        row.add(button("Choose color",()->{String picked=ColorPickerDialog.choose(this,title,field.getText(),title.contains("background")?ThemeColors.DEFAULT_BACKGROUND:ThemeColors.DEFAULT_ACCENT,false);if(picked!=null)field.setText(picked);}));return row;
     }
     private void installDesktop(){
         operation(()->{var result=DesktopInstaller.install();status("Desktop shortcut created: "+result.shortcut());},()->JOptionPane.showMessageDialog(this,"Tar Client is installed. Use the Tar Client shortcut on your desktop. Your worlds and settings stay in the same game folder.","Ready to play",JOptionPane.INFORMATION_MESSAGE));
