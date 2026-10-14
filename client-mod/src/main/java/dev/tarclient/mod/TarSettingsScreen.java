@@ -59,7 +59,7 @@ public final class TarSettingsScreen extends Screen {
     private void detail(){
         var module=ClientConfig.MODULES.stream().filter(m->m.id().equals(selected)).findFirst().orElseThrow();
         addDrawableChild(new TarButton(mainX,top+44,90,22,"< Modules",b->{selected=null;page=0;clearAndInit();}));
-        if(selected.equals("badges")&&dev.tarclient.launcher.CommunityService.owner(client.getSession().getUuidOrNull()==null?"":client.getSession().getUuidOrNull().toString()))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Manage ranks",b->client.setScreen(new RanksScreen(this))));
+        if(selected.equals("badges")&&CommunityBadges.canManageRanks())addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Manage ranks",b->client.setScreen(new RanksScreen(this))));
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
         if(integration!=null&&!selected.equals("motionblur")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Install / configure module",b->client.setScreen(new IntegrationScreen(this,integration))));captions.add(new Caption("Restart Minecraft to apply enabled state",mainX,contentY+36,mainWidth));return;}

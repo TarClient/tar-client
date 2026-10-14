@@ -1,3 +1,7 @@
+# 1.0.4 badge update — 14 October 2026
+
+19 backend/verifier tests pass, including delegated Co-Owner permissions, protected roles, in-flight revocation, legacy badges and automatic presence. The Windows build also runs launcher tests, compiles the Fabric mod, and verifies both desktop installation paths. In-game rendering on two live clients requires a manual check.
+
 # 1.0.3 signing preparation — 8 October 2026
 
 Local Java and C# compilation passed. Three privacy tests passed: missing/corrupt preferences disable sharing, profiles cannot override an opt-out, and community requests are rejected before network access when sharing is disabled.

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {Community,OWNER} from './worker.mjs';
 const OTHER='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const THIRD='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 import {createVerifier} from './verifier/functions/mojang.mjs';
 function setup(){
   const database=new DatabaseSync(':memory:');
@@ -13,6 +14,50 @@ function setup(){
   async function login(id,name){proofProfile={id,name};const proof=await (await send('/v1/challenge',{uuid:id,name})).json();const response=await send('/v1/confirm',{id:proof.id});assert.equal(response.status,200);return (await response.json()).token;}
   return {hub,send,login,setProfile:p=>proofProfile=p,database};
 }
+
+test('new badges are grantable by the owner, with an exclusive orange Owner and legacy fallback',async()=>{
+  const s=setup(),owner=await s.login(OWNER,'Tarrecool'),other=await s.login(OTHER,'OtherPlayer');
+  await s.send('/v1/heartbeat',{players:[]},owner);
+  await s.send('/v1/heartbeat',{players:[]},other);
+  for(const rank of ['donator','coowner']){
+    assert.equal((await s.send('/v1/rank',{name:'OtherPlayer',rank},owner)).status,200);
+    const modern=await (await s.send('/v1/heartbeat',{players:[OWNER,OTHER],badgeVersion:2},owner)).json();
+    assert.deepEqual(modern.players,{[OWNER]:'owner',[OTHER]:rank});
+    const legacy=await (await s.send('/v1/heartbeat',{players:[OWNER,OTHER]},owner)).json();
+    assert.deepEqual(legacy.players,{[OWNER]:'admin',[OTHER]:'normal'});
+  }
+  assert.equal((await s.send('/v1/rank',{name:'OtherPlayer',rank:'owner'},owner)).status,400);
+  s.hub.env.MOJANG_FETCH=async()=>Response.json({id:OWNER,name:'Tarrecool'});
+  assert.equal((await s.send('/v1/rank',{name:'Tarrecool',rank:'normal'},owner)).status,403);
+});
+
+test('Co-Owners may grant only Partner or Mod and cannot alter protected ranks',async()=>{
+  const s=setup(),coowner=await s.login(OTHER,'OtherPlayer');
+  s.database.prepare('INSERT INTO ranks VALUES(?,?,?,?)').run(OTHER,'OtherPlayer','coowner',Date.now());
+  s.hub.env.MOJANG_FETCH=async()=>Response.json({id:THIRD,name:'ThirdPlayer'});
+  for(const rank of ['partner','mod'])assert.equal((await s.send('/v1/rank',{name:'ThirdPlayer',rank},coowner)).status,200);
+  for(const rank of ['normal','admin','donator','coowner'])assert.equal((await s.send('/v1/rank',{name:'ThirdPlayer',rank},coowner)).status,403);
+  for(const protectedRank of ['admin','coowner']){
+    s.database.prepare('UPDATE ranks SET rank=? WHERE uuid=?').run(protectedRank,THIRD);
+    assert.equal((await s.send('/v1/rank',{name:'ThirdPlayer',rank:'mod'},coowner)).status,403);
+    assert.equal(s.database.prepare('SELECT rank FROM ranks WHERE uuid=?').get(THIRD).rank,protectedRank);
+  }
+  s.hub.env.MOJANG_FETCH=async()=>Response.json({id:OWNER,name:'Tarrecool'});
+  assert.equal((await s.send('/v1/rank',{name:'Tarrecool',rank:'mod'},coowner)).status,403);
+  s.database.prepare('UPDATE ranks SET rank=? WHERE uuid=?').run('mod',OTHER);
+  assert.equal((await s.send('/v1/rank',{name:'ThirdPlayer',rank:'partner'},coowner)).status,403);
+});
+
+test('revoking a Co-Owner during a profile lookup prevents the pending write',async()=>{
+  const s=setup(),token=await s.login(OTHER,'OtherPlayer');
+  s.database.prepare('INSERT INTO ranks VALUES(?,?,?,?)').run(OTHER,'OtherPlayer','coowner',Date.now());
+  s.hub.env.MOJANG_FETCH=async()=>{
+    s.database.prepare('DELETE FROM ranks WHERE uuid=?').run(OTHER);
+    return Response.json({id:THIRD,name:'ThirdPlayer'});
+  };
+  assert.equal((await s.send('/v1/rank',{name:'ThirdPlayer',rank:'mod'},token)).status,403);
+  assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM ranks WHERE uuid=?').get(THIRD).count,0);
+});
 
 test('hosted verifier validates proofs while preserving owner-only rank controls',async()=>{
   const s=setup(),secret='a'.repeat(64);let verified={id:OWNER,name:'Tarrecool'};

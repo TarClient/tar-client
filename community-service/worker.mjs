@@ -84,21 +84,29 @@ export class Community {
         const result={};
         for(const id of new Set(body.players)){
           if(!this.rows('SELECT uuid FROM presence WHERE uuid=? AND expires>?',id,now).length)continue;
-          result[id]=id===OWNER?'admin':this.rows('SELECT rank FROM ranks WHERE uuid=?',id)[0]?.rank||'normal';
+          const rank=id===OWNER?'owner':this.rows('SELECT rank FROM ranks WHERE uuid=?',id)[0]?.rank||'normal';
+          result[id]=body.badgeVersion===2?rank:rank==='owner'?'admin':['donator','coowner'].includes(rank)?'normal':rank;
         }
         return json({players:result,validUntil:now+120000});
       }
       if(path==='/v1/leave'){this.db.exec('DELETE FROM presence WHERE uuid=?',session.uuid);return json({ok:true});}
       if(path==='/v1/ranks'||path==='/v1/rank'){
-        // Rank names never grant management permissions. Only this verified UUID may write.
-        if(session.uuid!==OWNER)return json({error:'Only Tarrecool can manage ranks'},403);
+        // Always consult current server records. A cached session never retains revoked privileges.
+        const isOwner=session.uuid===OWNER;
+        const canManage=()=>isOwner||this.rows('SELECT rank FROM ranks WHERE uuid=?',session.uuid)[0]?.rank==='coowner';
+        if(!canManage())return json({error:'Only the Owner and Co-Owners can manage ranks'},403);
         if(path==='/v1/ranks')return json({ranks:this.rows('SELECT uuid,name,rank,updated FROM ranks ORDER BY name')});
-        if(!username(body.name)||!['normal','partner','mod','admin'].includes(body.rank))return json({error:'Choose a Minecraft username and valid rank'},400);
+        if(!username(body.name)||!['normal','partner','mod','admin','donator','coowner'].includes(body.rank))return json({error:'Choose a Minecraft username and valid rank'},400);
+        if(!isOwner&&!['partner','mod'].includes(body.rank))return json({error:'Co-Owners can assign Partner or Mod only'},403);
         const lookup=await this.lookup('profile',body.name);
         if(lookup.status===204||lookup.status===404)return json({error:'Minecraft username not found'},404);
         if(lookup.status!==200)return json({error:'Minecraft profile service is unavailable',code:'mojang_profile_failed',upstreamStatus:lookup.status},502);
         const target=await lookup.json();if(!uuid(target.id)||!username(target.name))return json({error:'Minecraft profile unavailable'},502);
-        if(target.id===OWNER)return json({error:'The owner always has the red badge'},400);
+        if(target.id===OWNER)return json({error:'Tarrecool always has the orange Owner badge'},403);
+        // Recheck after the network await: the manager or target rank may have changed meanwhile.
+        if(!canManage())return json({error:'Rank-management access was revoked'},403);
+        const targetRank=this.rows('SELECT rank FROM ranks WHERE uuid=?',target.id)[0]?.rank;
+        if(!isOwner&&['admin','coowner'].includes(targetRank))return json({error:'Co-Owners cannot change Admin or Co-Owner badges'},403);
         if(body.rank==='normal')this.db.exec('DELETE FROM ranks WHERE uuid=?',target.id);
         else this.db.exec('INSERT INTO ranks VALUES(?,?,?,?) ON CONFLICT(uuid) DO UPDATE SET name=excluded.name,rank=excluded.rank,updated=excluded.updated',target.id,target.name,body.rank,now);
         return json({uuid:target.id,name:target.name,rank:body.rank});

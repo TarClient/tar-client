@@ -69,8 +69,9 @@ public final class CommunityBadges {
         });
     }
     public static Text decorate(UUID uuid,Text name){String rank=players.get(uuid.toString().replace("-",""));if(rank==null||!TarClient.CONFIG.on("badges")||System.currentTimeMillis()>validUntil)return name;
-        int color=switch(rank){case "partner"->0xC4A0FF;case "mod"->0x91C8FF;case "admin"->0xFF9C9C;default->0xFFFFFF;};
+        var badge=BadgeRank.find(rank);int color=badge==null?0xFFFFFF:badge.color;
         var glyph=Text.literal("\uE000").setStyle(Style.EMPTY.withFont(new StyleSpriteSource.Font(Identifier.of("tarclient","badge"))).withColor(color));return name.copy().append(" ").append(glyph);
     }
-    public static void manage(String name,String rank,java.util.function.Consumer<String> result){var mc=MinecraftClient.getInstance();var auth=session();worker.submit(()->{try{if(!CommunityService.owner(auth.uuid()))throw new java.io.IOException("Only Tarrecool can manage ranks.");var response=CommunityService.rank(connection(auth),name,rank);mc.execute(()->{next=0;result.accept(response.get("name").getAsString()+": "+response.get("rank").getAsString());});}catch(Exception e){mc.execute(()->result.accept(e.getMessage()));}});}
+    public static boolean canManageRanks(){return CommunityService.owner(session().uuid())||(System.currentTimeMillis()<validUntil&&"coowner".equals(players.get(session().uuid())));}
+    public static void manage(String name,String rank,java.util.function.Consumer<String> result){var mc=MinecraftClient.getInstance();var auth=session();worker.submit(()->{try{var response=CommunityService.rank(connection(auth),name,rank);mc.execute(()->{next=0;var badge=BadgeRank.find(response.get("rank").getAsString());result.accept(response.get("name").getAsString()+": "+(badge==null?"Updated":badge.label));});}catch(Exception e){mc.execute(()->result.accept(e.getMessage()));}});}
 }

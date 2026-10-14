@@ -15,10 +15,10 @@ public final class CommunityService {
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
         if(!path.equals("/v1/leave")&&!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.3");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.4");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
-        if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"Only Tarrecool may manage ranks.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}
+        if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"You cannot make that rank change. Co-Owners can assign Partner or Mod only, and cannot change Admins, Co-Owners or the Owner.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}
         if(response.body().length()>131072)throw new IOException("Unexpected community response.");
         return JsonParser.parseString(response.body()).getAsJsonObject();
     }
@@ -34,7 +34,7 @@ public final class CommunityService {
         if(!uuid.equals(connection.get("uuid").getAsString()))throw new IOException("Community identity mismatch.");
         return new Connection(connection.get("token").getAsString(),connection.get("expires").getAsLong(),uuid);
     }
-    public static JsonObject heartbeat(Connection connection,List<String> players)throws Exception {var body=new JsonObject();body.add("players",Net.JSON.toJsonTree(players));return post("/v1/heartbeat",body,connection.token());}
+    public static JsonObject heartbeat(Connection connection,List<String> players)throws Exception {var body=new JsonObject();body.addProperty("badgeVersion",2);body.add("players",Net.JSON.toJsonTree(players));return post("/v1/heartbeat",body,connection.token());}
     @FunctionalInterface interface BadgeLookup { JsonObject query(List<String> players)throws Exception; }
     public static Map<String,String> heartbeatPlayers(Connection connection,List<String> players)throws Exception {
         return lookupPlayers(players,batch->heartbeat(connection,batch));
@@ -48,7 +48,7 @@ public final class CommunityService {
             var response=lookup.query(batch).getAsJsonObject("players");
             for(var entry:response.entrySet()){
                 String rank=entry.getValue().getAsString();
-                if(batch.contains(entry.getKey())&&Set.of("normal","partner","mod","admin").contains(rank))found.put(entry.getKey(),rank);
+                if(batch.contains(entry.getKey())&&BadgeRank.find(rank)!=null)found.put(entry.getKey(),rank);
             }
         }
         return Map.copyOf(found);

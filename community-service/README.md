@@ -14,7 +14,9 @@ The backend distinguishes upstream failures (502) from absent proofs (401). Olde
 
 Cloudflare Worker + one SQLite Durable Object + Netlify Free Function. No paid plan or billing upgrade is required. Free quotas apply; exceeding them makes badges unavailable. Netlify Free has a hard credit limit, not paid overages. Minecraft can still run.
 
-Only the verified Minecraft UUID `ccb2c06282bc4afb86a71058b176dbef` (Tarrecool at deployment) may assign/revoke ranks. Names are resolved by Mojang before assignment. Never add a client-provided owner flag, username-only authorization or shared admin secret. Admin is only a cosmetic badge.
+The verified owner UUID `ccb2c06282bc4afb86a71058b176dbef` (Tarrecool) can assign/revoke Normal, Partner, Mod, Admin, Donator and Co-Owner. Only this UUID receives Owner. Co-Owners can assign Partner/Mod only, and cannot change Admin, Co-Owner or Owner accounts. Permissions and protected target ranks are rechecked after Mojang lookup, so revocation takes effect even during a pending operation. Admin and Donator have no management authority. Never trust client-provided role claims.
+
+Heartbeat clients with `badgeVersion: 2` receive the new rank IDs. Legacy clients receive white/normal for Donator and Co-Owner, and red/admin for Owner, preserving badge visibility without requiring older clients to understand new IDs.
 
 Proof flow: challenge → client sends its token to Mojang `/join` → backend checks Mojang `/hasJoined` → six-hour community token. The backend stores only its SHA-256 hash. Challenges are one-use, including concurrent requests. Heartbeats refresh only the authenticated UUID for 120 seconds; rank reads return active players only. No Minecraft token is sent to Cloudflare.
 

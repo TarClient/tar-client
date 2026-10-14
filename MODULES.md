@@ -84,7 +84,7 @@ Right Shift > Accounts opens the Microsoft account switcher. Open accounts, Togg
 | Module / change | Behavior |
 | --- | --- |
 | Fullbright | At strength 1, blends the game lightmap toward white, including zero-light areas. Lower strengths blend with normal lighting. Does not place torches or change server light levels. Shader/renderer replacements can require compatibility testing. |
-| Tar player badges | Verified recent community presence adds your logo to visible nametags and the player list. Normal white, Partner purple, Mod blue, Admin red. Tarrecool sees Manage ranks under Settings. All signed-in players automatically share a white badge while in a world; disabling this module only hides badges locally. The entire player list is queried in batches of 100. |
+| Tar player badges | Verified recent community presence adds your logo to visible nametags and the player list. Normal white, Partner purple, Mod blue, Admin red, Donator light green, Co-Owner light orange, Owner orange. Tarrecool can assign all ranks except the exclusive Owner badge; Co-Owners can assign Partner/Mod to players without a protected Admin, Co-Owner or Owner badge. All signed-in players automatically share a white badge while in a world; disabling this module only hides badges locally. The entire player list is queried in batches of 100. |
 | Dark mode | Switch Tar's in-game menus between dark and light palettes. Launcher Settings has its own theme switch, applied on restart. |
 | TPS | Estimates 0–20 ticks per second from server time packets; choose averaging samples. Network delay affects the estimate. It is not direct server instrumentation. |
 | Particles | Adjust overall quantity and crit, potion and other particle percentages independently, including zero. Disable module to restore vanilla particle spawning. Applies to vanilla ParticleManager effect creation. |
@@ -106,6 +106,6 @@ The movable download is **TarClient-1.0.2.exe**, which contains all app/runtime 
 
 Normal badges require no owner assignment. Every signed-in Tar player automatically advertises presence while playing, even if they hide badges locally. Both players need Tar running and connectivity; discovery normally takes up to 30 seconds. Existing assigned colors and owner-only rank management are preserved.
 
-## Badge-sharing privacy (1.0.3 signing candidate)
+## Badge-sharing privacy (1.0.3 and later)
 
 The installation privacy screen offers badge sharing on by default. Opt out there or under launcher Settings > Privacy and player badges. This is separate from the local badge display module and is never changed by profiles. With sharing off, new community requests stop and the prior badge expires within two minutes. No identity proof is initiated without a valid enabled choice.

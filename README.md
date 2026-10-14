@@ -25,7 +25,7 @@ Choose **Install / verify files**, then **Play Minecraft**. Minecraft, Fabric, a
 
 - Fullbright blends the lightmap toward uniform white light, including unlit areas. Strength is adjustable; server light levels do not change.
 - Your Tar logo appears in the launcher/icon and beside verified active Tar users in nametags and the player list.
-- Owner-controlled Normal, Partner, Mod and Admin badges: white, light purple, light blue and light red.
+- Normal, Partner, Mod, Admin, Donator, Co-Owner and Owner badges: white, light purple, light blue, light red, light green, light orange and orange.
 - Dark/light launcher theme, plus a Dark mode module for Tar's game menus.
 - TPS estimate, Particles, TNT timer, Mouse tracer, Item counter and custom Text modules.
 - HUD panels support rounded, solid, gradient and outline backgrounds, with background visibility, colors and opacity controls. Potion icons can keep vanilla backgrounds.
@@ -41,7 +41,7 @@ Press **Right Shift** for modules, **Edit HUD** to move panels, and **Keybinds**
 
 ## Give ranks (Tarrecool only)
 
-Sign in to Minecraft as **Tarrecool**. Open **Right Shift > Tar player badges > Settings > Manage ranks**. Enter the recipient's Minecraft Java username and select Partner, Mod or Admin. Select Normal to remove their assigned rank. You retain the red owner badge. Rank changes appear after the next presence refresh, normally within 30 seconds.
+Sign in to Minecraft as **Tarrecool**. Open **Right Shift > Tar player badges > Settings > Manage ranks**. Enter the recipient's Minecraft Java username and select Partner, Mod, Admin, Donator or Co-Owner. Select Normal to remove their assigned rank. Your orange Owner badge is reserved for Tarrecool. Co-Owners also see Manage ranks, but can assign only Partner or Mod and cannot change Admins, other Co-Owners or the Owner. Revoking Co-Owner immediately removes server-side management access. All viewers need 1.0.4 for the new colors; older clients show Donators/Co-Owners in white and the Owner in red. Rank changes appear after the next presence refresh, normally within 30 seconds.
 
 The service verifies Minecraft identity through Mojang. Only owner UUID `ccb2c06282bc4afb86a71058b176dbef` can manage ranks; an Admin badge does not grant this permission. Ranks follow UUIDs, not changeable names. The service is deployed on the owner's free Cloudflare Workers account; no paid plan is required or enabled by the build.
 
@@ -84,3 +84,7 @@ The overlay follows Minecraft GUI scale and hunger-bar visibility rather than th
 ## Code signing policy
 
 See [Code signing policy](CODE-SIGNING.md). SignPath Foundation declined the application because the project has not yet established sufficient public recognition. **No approval or signed release is claimed.** The recommended V1.0 download remains unsigned and may still be blocked by Windows. The optional 1.0.3 signing candidate adds a privacy screen and optional badge-sharing switch before installation, plus a persistent opt-out in launcher Settings. That switch is not included in V1.0.
+
+## 1.0.4 badge update
+
+Adds Donator (light green), Co-Owner (light orange), and the exclusive Owner (orange). Co-Owners can grant Partner/Mod only. Install 1.0.4 to see the new badge colors and management controls. This release remains unsigned; the badge update does not resolve Windows Smart App Control blocks.

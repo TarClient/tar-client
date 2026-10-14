@@ -1,4 +1,4 @@
-# Privacy — Tar Client 1.0.3 signing candidate
+# Privacy — Tar Client 1.0.4
 
 Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and a shared player-badge service.
 
@@ -23,7 +23,7 @@ Minecraft identity is proven through Mojang's session service: the Minecraft acc
 
 Community bearer tokens stay in game memory; only their hashes are stored by the Cloudflare backend. Tokens expire after six hours, challenges after one minute, and presence after two minutes. Expired records are cleaned on subsequent service requests. Leaving a world requests immediate presence removal; network failures fall back to expiry.
 
-Active presence and assigned badge colors are visible to other Tar users requesting those UUIDs. Permanent rank records contain UUID, last assigned name, rank and update time until the owner removes them. Only Tarrecool's verified UUID can change ranks. The server retains no custom request logs. Cloudflare receives ordinary network metadata, including IP addresses; short-lived in-memory counters limit abuse. Cloudflare may retain its own operational/security data under its [privacy policy](https://www.cloudflare.com/privacypolicy/).
+Active presence and assigned badge colors are visible to other Tar users requesting those UUIDs. Permanent rank records contain UUID, last assigned name, rank and update time until the owner removes them. Tarrecool's verified UUID can assign or remove all assignable ranks. Verified Co-Owners can assign Partner or Mod to accounts without an Admin, Co-Owner or Owner badge. The Owner badge is exclusive to Tarrecool. The server retains no custom request logs. Cloudflare receives ordinary network metadata, including IP addresses; short-lived in-memory counters limit abuse. Cloudflare may retain its own operational/security data under its [privacy policy](https://www.cloudflare.com/privacypolicy/).
 
 ## Downloads and other network activity
 

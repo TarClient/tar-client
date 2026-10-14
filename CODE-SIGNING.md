@@ -1,6 +1,6 @@
 # Code signing policy
 
-Status: applying for free open-source signing; no provider acceptance, certificate access or signed Tar release is claimed. Tarre Industries is a personal project name, not a registered company or verified Windows publisher. The latest public 1.0.2 release is unsigned; the 1.0.3 candidate adds installation privacy controls.
+Status: SignPath Foundation declined free signing due to insufficient public recognition; no certificate access or signed Tar release is claimed. Tarre Industries is a personal project name, not a registered company or verified Windows publisher. Tar releases remain unsigned; 1.0.3 and later include installation privacy controls.
 
 ## Proposed provider and team
 
