@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {Community,OWNER} from './worker.mjs';
 const OTHER='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+import {createVerifier} from './verifier/functions/mojang.mjs';
 function setup(){
   const database=new DatabaseSync(':memory:');
   const sql={exec(statement,...args){const prepared=database.prepare(statement);if(/^SELECT/.test(statement))return {toArray:()=>prepared.all(...args)};prepared.run(...args);return {toArray:()=>[]};}};
@@ -12,6 +13,35 @@ function setup(){
   async function login(id,name){proofProfile={id,name};const proof=await (await send('/v1/challenge',{uuid:id,name})).json();const response=await send('/v1/confirm',{id:proof.id});assert.equal(response.status,200);return (await response.json()).token;}
   return {hub,send,login,setProfile:p=>proofProfile=p,database};
 }
+
+test('hosted verifier validates proofs while preserving owner-only rank controls',async()=>{
+  const s=setup(),secret='a'.repeat(64);let verified={id:OWNER,name:'Tarrecool'};
+  s.hub.env.VERIFIER_URL='https://tar-client-verifier.netlify.app/.netlify/functions/mojang';
+  s.hub.env.TAR_VERIFIER_SECRET=secret;
+  const handler=createVerifier({secret,fetcher:async url=>Response.json(url.includes('hasJoined')?verified:{id:OTHER,name:'OtherPlayer'})});
+  s.hub.env.VERIFIER_FETCH=async (url,opts)=>handler(new Request(url,opts));
+  s.hub.env.MOJANG_FETCH=()=>{throw Error('Must use configured verifier');};
+  const owner=await s.login(OWNER,'Tarrecool');
+  assert.equal((await s.send('/v1/rank',{name:'OtherPlayer',rank:'partner'},owner)).status,200);
+  verified={id:OTHER,name:'OtherPlayer'};
+  const other=await s.login(OTHER,'OtherPlayer');
+  assert.equal((await s.send('/v1/rank',{name:'Tarrecool',rank:'admin'},other)).status,403);
+  const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();
+  assert.notEqual((await s.send('/v1/confirm',{id:proof.id})).status,200);
+});
+
+test('hosted verifier outages and invalid configuration cannot create a session',async()=>{
+  for(const status of [401,403,429,502]){
+    const s=setup();s.hub.env.VERIFIER_URL='https://tar-client-verifier.netlify.app/.netlify/functions/mojang';s.hub.env.TAR_VERIFIER_SECRET='a'.repeat(64);
+    s.hub.env.VERIFIER_FETCH=async()=>new Response('{}',{status});
+    const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();
+    assert.equal((await s.send('/v1/confirm',{id:proof.id})).status,502);
+    assert.equal(s.database.prepare('SELECT COUNT(*) AS count FROM sessions').get().count,0);
+  }
+  const s=setup();s.hub.env.VERIFIER_URL='http://unsafe.example';
+  const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();
+  assert.equal((await s.send('/v1/confirm',{id:proof.id})).status,503);
+});
 test('a username or UUID claim cannot obtain the owner session without Mojang proof',async()=>{
   const s=setup();s.setProfile({id:OTHER,name:'OtherPlayer'});
   const proof=await (await s.send('/v1/challenge',{uuid:OWNER,name:'Tarrecool'})).json();

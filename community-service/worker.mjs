@@ -18,6 +18,22 @@ export class Community {
     this.db.exec('CREATE INDEX IF NOT EXISTS challenge_expiry ON challenges(expires)');
   }
   rows(sql,...params){return this.db.exec(sql,...params).toArray();}
+  async lookup(kind,name,serverId){
+    if(this.env.VERIFIER_URL){
+      const url=new URL(this.env.VERIFIER_URL);
+      if(url.protocol!=='https:'||!url.hostname.endsWith('.netlify.app')||url.port||url.username||url.password||url.search||url.hash||url.pathname!=='/.netlify/functions/mojang'||!/^[a-f0-9]{64}$/.test(this.env.TAR_VERIFIER_SECRET||''))throw Error('Invalid verifier configuration');
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+      try{
+        const response=await (this.env.VERIFIER_FETCH||fetch)(url.href,{method:'POST',redirect:'manual',signal:controller.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+this.env.TAR_VERIFIER_SECRET},body:JSON.stringify({kind,name,...(kind==='session'?{serverId}:{})})});
+        // Buffer the small sanitized response before releasing the timeout.
+        const reader=response.body?.getReader(),decoder=new TextDecoder();let text='',bytes=0;
+        if(reader)try{while(true){const chunk=await reader.read();if(chunk.done)break;bytes+=chunk.value.byteLength;if(bytes>4096){await reader.cancel();throw Error('Invalid verifier response');}text+=decoder.decode(chunk.value,{stream:true});}text+=decoder.decode();}finally{reader.releaseLock();}
+        return new Response(response.status===204?null:text,{status:response.status});
+      }finally{clearTimeout(timer);}
+    }
+    const url=kind==='session'?'https://sessionserver.mojang.com/session/minecraft/hasJoined?username='+encodeURIComponent(name)+'&serverId='+encodeURIComponent(serverId):'https://api.mojang.com/users/profiles/minecraft/'+encodeURIComponent(name);
+    return (this.env.MOJANG_FETCH||fetch)(url,mojangOptions());
+  }
   allow(key,max,now){
     if(this.limits.size>=10000){for(const [k,v] of this.limits)if(v.until<=now)this.limits.delete(k);if(this.limits.size>=10000&&!this.limits.has(key))return false;}
     let item=this.limits.get(key);if(!item||item.until<=now)item={count:0,until:now+60000};item.count++;this.limits.set(key,item);return item.count<=max;
@@ -48,7 +64,7 @@ export class Community {
         if(!proof)return json({error:'Challenge expired'},401);
         // Consume before awaiting Mojang: a challenge cannot be replayed by concurrent requests.
         this.db.exec('DELETE FROM challenges WHERE id=?',body.id);
-        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://sessionserver.mojang.com/session/minecraft/hasJoined?username='+encodeURIComponent(proof.name)+'&serverId='+encodeURIComponent(proof.hash),mojangOptions());
+        const lookup=await this.lookup('session',proof.name,proof.hash);
         if(lookup.status===204)return json({error:'Minecraft could not verify this account',code:'proof_not_found'},401);
         if(lookup.status!==200)return json({error:'Minecraft verification service is unavailable',code:'mojang_lookup_failed',upstreamStatus:lookup.status},502);
         const profile=await lookup.json();
@@ -78,7 +94,7 @@ export class Community {
         if(session.uuid!==OWNER)return json({error:'Only Tarrecool can manage ranks'},403);
         if(path==='/v1/ranks')return json({ranks:this.rows('SELECT uuid,name,rank,updated FROM ranks ORDER BY name')});
         if(!username(body.name)||!['normal','partner','mod','admin'].includes(body.rank))return json({error:'Choose a Minecraft username and valid rank'},400);
-        const lookup=await (this.env.MOJANG_FETCH||fetch)('https://api.mojang.com/users/profiles/minecraft/'+encodeURIComponent(body.name),mojangOptions());
+        const lookup=await this.lookup('profile',body.name);
         if(lookup.status===204||lookup.status===404)return json({error:'Minecraft username not found'},404);
         if(lookup.status!==200)return json({error:'Minecraft profile service is unavailable',code:'mojang_profile_failed',upstreamStatus:lookup.status},502);
         const target=await lookup.json();if(!uuid(target.id)||!username(target.name))return json({error:'Minecraft profile unavailable'},502);
