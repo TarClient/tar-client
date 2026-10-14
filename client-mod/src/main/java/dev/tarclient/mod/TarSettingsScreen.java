@@ -14,11 +14,12 @@ public final class TarSettingsScreen extends Screen {
     private int page,left,top,panelWidth,panelHeight,mainX,mainWidth,contentY;
     private final List<Caption> captions=new ArrayList<>();
     private final List<Tile> tiles=new ArrayList<>();
+    private final List<TarButton> resultButtons=new ArrayList<>();
     private record Caption(String text,int x,int y,int width) {}
     private record Tile(ClientConfig.Module module,int x,int y,int width) {}
     public TarSettingsScreen(Screen parent){super(Text.literal("Tar Client"));this.parent=parent;}
     @Override protected void init(){
-        captions.clear();tiles.clear();
+        captions.clear();tiles.clear();resultButtons.clear();
         panelWidth=Math.min(740,width-20);panelHeight=Math.min(440,height-20);
         left=(width-panelWidth)/2;top=(height-panelHeight)/2;
         int side=panelWidth<480?88:110;
@@ -39,9 +40,17 @@ public final class TarSettingsScreen extends Screen {
         edit.active=client.player!=null;addDrawableChild(edit);
         if(selected!=null){detail();return;}
         var search=new TextFieldWidget(textRenderer,mainX,top+44,mainWidth,22,Text.literal("Search modules"));
-        search.setMaxLength(60);search.setText(query);search.setPlaceholder(Text.literal("Search modules..."));
-        search.setChangedListener(value->{query=value;page=0;clearAndInit();});addDrawableChild(search);
+        search.setMaxLength(60);search.setText(query);search.setEditableColor(0xFFFFFFFF);search.setUneditableColor(0xFFBBBBBB);
+        search.setPlaceholder(Text.literal("Search modules...").withColor(0xAAAAAA));
+        // Keep the editing widget alive: filtering must not discard its focus, selection or caret.
+        search.setChangedListener(value->{query=value;page=0;refreshModules();});addDrawableChild(search);
         if(!query.isEmpty())setFocused(search);
+        refreshModules();
+    }
+    private TarButton resultButton(TarButton button){resultButtons.add(button);return addDrawableChild(button);}
+    private void refreshModules(){
+        for(var button:resultButtons)remove(button);
+        resultButtons.clear();tiles.clear();captions.clear();
         var modules=ClientConfig.MODULES.stream().filter(m->category.equals("All")||m.category().equals(category))
             .filter(m->(m.name()+" "+m.description()).toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT))).toList();
         int cols=mainWidth>=270?2:1,rows=Math.max(1,(panelHeight-114)/67),perPage=rows*cols;
@@ -50,8 +59,8 @@ public final class TarSettingsScreen extends Screen {
         for(int i=page*perPage;i<Math.min(modules.size(),(page+1)*perPage);i++){
             var m=modules.get(i);int local=i-page*perPage,px=mainX+(local%cols)*(cw+8),py=contentY+(local/cols)*67;
             tiles.add(new Tile(m,px,py,cw));
-            addDrawableChild(new TarButton(px+8,py+34,cw-65,21,"Settings",b->{selected=m.id();page=0;clearAndInit();}));
-            addDrawableChild(new TarButton(px+cw-51,py+34,43,21,CONFIG.on(m.id())?"ON":"OFF",b->{CONFIG.set(m.id(),"enabled",!CONFIG.on(m.id()));TarClient.save();b.setMessage(Text.literal(CONFIG.on(m.id())?"ON":"OFF"));},()->CONFIG.on(m.id())));
+            resultButton(new TarButton(px+8,py+34,cw-65,21,"Settings",b->{selected=m.id();page=0;clearAndInit();}));
+            resultButton(new TarButton(px+cw-51,py+34,43,21,CONFIG.on(m.id())?"ON":"OFF",b->{CONFIG.set(m.id(),"enabled",!CONFIG.on(m.id()));TarClient.save();b.setMessage(Text.literal(CONFIG.on(m.id())?"ON":"OFF"));},()->CONFIG.on(m.id())));
         }
         if(modules.isEmpty())captions.add(new Caption("No matching modules",mainX,contentY+20,mainWidth));
         pages((modules.size()+perPage-1)/perPage);
@@ -59,6 +68,7 @@ public final class TarSettingsScreen extends Screen {
     private void detail(){
         var module=ClientConfig.MODULES.stream().filter(m->m.id().equals(selected)).findFirst().orElseThrow();
         addDrawableChild(new TarButton(mainX,top+44,90,22,"< Modules",b->{selected=null;page=0;clearAndInit();}));
+        if(selected.equals("darkmode"))addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Reset orange / black",b->{CONFIG.set("darkmode","accent",dev.tarclient.config.ThemeColors.DEFAULT_ACCENT);CONFIG.set("darkmode","menuBackground",dev.tarclient.config.ThemeColors.DEFAULT_BACKGROUND);CONFIG.set("darkmode","enabled",true);TarClient.save();clearAndInit();}));
         if(selected.equals("badges")&&CommunityBadges.canManageRanks())addDrawableChild(new TarButton(mainX+96,top+44,mainWidth-96,22,"Manage ranks",b->client.setScreen(new RanksScreen(this))));
         if(selected.equals("profiles")){addDrawableChild(new TarButton(mainX,contentY,mainWidth,24,"Open profiles",b->client.setScreen(new ProfilesScreen(this))));return;}
         var integration=dev.tarclient.config.Integrations.find(selected);
@@ -81,7 +91,7 @@ public final class TarSettingsScreen extends Screen {
         page=Math.clamp(page,0,Math.max(0,(settings.size()-1)/perPage));
         for(int i=page*perPage;i<Math.min(settings.size(),(page+1)*perPage);i++){
             var s=settings.get(i);int y=contentY+(i-page*perPage)*42;
-            captions.add(new Caption(selected.equals("badges")&&s.key().equals("enabled")?"Show badges on my screen":s.label(),mainX,y,mainWidth));
+            captions.add(new Caption(selected.equals("badges")&&s.key().equals("enabled")?"Show badges on my screen":selected.equals("darkmode")&&s.key().equals("enabled")?"Dark menu":s.label(),mainX,y,mainWidth));
             if(s.initial() instanceof Boolean){
                 addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.bool(selected,s.key())?"Enabled":"Disabled",b->{CONFIG.set(selected,s.key(),!CONFIG.bool(selected,s.key()));TarClient.save();b.setMessage(Text.literal(CONFIG.bool(selected,s.key())?"Enabled":"Disabled"));},()->CONFIG.bool(selected,s.key())));
             }else if(s.initial() instanceof Number){
@@ -94,7 +104,8 @@ public final class TarSettingsScreen extends Screen {
                 var choices=ClientConfig.choices(s.key());addDrawableChild(new TarButton(mainX,y+13,mainWidth,22,CONFIG.text(selected,s.key()),b->{int next=(choices.indexOf(CONFIG.text(selected,s.key()))+1)%choices.size();CONFIG.set(selected,s.key(),choices.get(next));TarClient.save();b.setMessage(Text.literal(choices.get(next)));}));
             }else{
                 var field=new TextFieldWidget(textRenderer,mainX,y+13,mainWidth,22,Text.literal(s.label()));
-                field.setMaxLength(2048);field.setText(CONFIG.text(selected,s.key()));field.setChangedListener(v->{CONFIG.set(selected,s.key(),v);TarClient.save();});addDrawableChild(field);
+                field.setEditableColor(0xFFFFFFFF);field.setUneditableColor(0xFFBBBBBB);
+                field.setMaxLength(selected.equals("darkmode")?7:2048);field.setText(CONFIG.text(selected,s.key()));field.setChangedListener(v->{CONFIG.set(selected,s.key(),v);TarClient.save();});addDrawableChild(field);
             }
         }
         pages((settings.size()+perPage-1)/perPage);
@@ -102,8 +113,9 @@ public final class TarSettingsScreen extends Screen {
     private String armorDirection(){return CONFIG.bool("armor","horizontal")?(CONFIG.bool("armor","reverse")?"Left":"Right"):(CONFIG.bool("armor","reverse")?"Up":"Down");}
     private void pages(int total){
         if(total>1){
-            TarButton back=new TarButton(mainX,top+panelHeight-27,30,20,"<",b->{page--;clearAndInit();});back.active=page>0;addDrawableChild(back);
-            TarButton next=new TarButton(mainX+mainWidth-30,top+panelHeight-27,30,20,">",b->{page++;clearAndInit();});next.active=page<total-1;addDrawableChild(next);
+            TarButton back=new TarButton(mainX,top+panelHeight-27,30,20,"<",b->{page--;if(selected==null)refreshModules();else clearAndInit();});back.active=page>0;
+            TarButton next=new TarButton(mainX+mainWidth-30,top+panelHeight-27,30,20,">",b->{page++;if(selected==null)refreshModules();else clearAndInit();});next.active=page<total-1;
+            if(selected==null){resultButton(back);resultButton(next);}else{addDrawableChild(back);addDrawableChild(next);}
         }
     }
     @Override public void render(DrawContext c,int mx,int my,float delta){

@@ -7,6 +7,14 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.0.5 menu update
+
+Tar menus and the launcher now default to warm orange accents and near-black panels. In game, open **Right Shift > Utility > Appearance / Dark mode > Settings** to change the accent and dark menu background using six-digit RGB hex colors. Changes apply as you type a complete color; incomplete values temporarily use the default. **Reset orange / black** restores the defaults. Disable Dark menu for light mode. HUD backgrounds and player badge colors remain separate.
+
+For launcher colors, open **Settings**, use the color pickers or hex fields, save, and restart the launcher. These preferences are independent of the game menu. Existing module settings and accounts are preserved.
+
+Module search now keeps the same editing field while filtering results, preserving focus, the cursor and text selection. Text is explicitly white on the search field's black background, with a brighter placeholder.
+
 ## Download and open
 
 Download **[TarClient-1.0.0.exe](https://github.com/TarClient/tar-client/releases/download/v1.0.0/TarClient-1.0.0.exe)** from the [V1.0 release](https://github.com/TarClient/tar-client/releases/tag/v1.0.0). You can put this file on your desktop and double-click it. It contains the full launcher and Java runtime, installs them under `%LOCALAPPDATA%/Programs/Tar Client`, and creates a **Tar Client** desktop shortcut. No administrator access is needed. Subsequent starts reuse the installed files. Previous versions are retained for rollback.

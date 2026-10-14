@@ -15,7 +15,7 @@ public final class CommunityService {
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
         if(!path.equals("/v1/leave")&&!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.4");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.5");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
         if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"You cannot make that rank change. Co-Owners can assign Partner or Mod only, and cannot change Admins, Co-Owners or the Owner.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}

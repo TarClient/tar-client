@@ -3,6 +3,7 @@ package dev.tarclient.launcher;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.*;
 import dev.tarclient.config.ClientConfig;
+import dev.tarclient.config.ThemeColors;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -15,8 +16,8 @@ import java.io.*;
 import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
-    static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,GREEN=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.0.4";
+    static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,ACCENT=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
+    public static final String VERSION="1.0.5";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -48,20 +49,26 @@ public final class TarLauncher extends JFrame {
             return;
         }
         if(Arrays.asList(args).contains("--smoke")) { Smoke.main(args);return; }
-        boolean dark=true;
-        try{Path settings=Path.of(System.getProperty("tar.data",Path.of(System.getProperty("user.home"),"AppData","Local","TarClient").toString())).resolve("launcher.json");if(Files.exists(settings)){var saved=JsonParser.parseString(Files.readString(settings)).getAsJsonObject();dark=!saved.has("darkMode")||saved.get("darkMode").getAsBoolean();}}catch(Exception ignored){}
-        LauncherTheme.configure(dark);BG=LauncherTheme.BG;CARD=LauncherTheme.CARD;GREEN=LauncherTheme.ACCENT;MUTED=LauncherTheme.MUTED;
+        boolean dark=true;String accent=ThemeColors.DEFAULT_ACCENT,menuBackground=ThemeColors.DEFAULT_BACKGROUND;
+        try{Path settings=Path.of(System.getProperty("tar.data",Path.of(System.getProperty("user.home"),"AppData","Local","TarClient").toString())).resolve("launcher.json");if(Files.exists(settings)){var saved=JsonParser.parseString(Files.readString(settings)).getAsJsonObject();dark=!saved.has("darkMode")||saved.get("darkMode").getAsBoolean();if(saved.has("accent"))accent=saved.get("accent").getAsString();if(saved.has("menuBackground"))menuBackground=saved.get("menuBackground").getAsString();}}catch(Exception ignored){}
+        LauncherTheme.configure(dark,accent,menuBackground);BG=LauncherTheme.BG;CARD=LauncherTheme.CARD;ACCENT=LauncherTheme.ACCENT;MUTED=LauncherTheme.MUTED;
         if(dark)FlatDarkLaf.setup();else com.formdev.flatlaf.FlatLightLaf.setup();
         UIManager.put("defaultFont",new Font("Segoe UI",Font.PLAIN,14));
         UIManager.put("Button.arc",16);UIManager.put("Component.arc",14);UIManager.put("TextComponent.arc",14);
         UIManager.put("Component.borderColor",LauncherTheme.LINE);UIManager.put("TextComponent.background",CARD);
         UIManager.put("ScrollBar.width",8);UIManager.put("Button.borderWidth",0);
-        UIManager.put("Panel.background",BG);UIManager.put("Button.background",CARD);UIManager.put("Component.focusColor",GREEN);
+        UIManager.put("Panel.background",BG);UIManager.put("Button.background",CARD);UIManager.put("Component.focusColor",ACCENT);
+        UIManager.put("Label.foreground",LauncherTheme.TEXT);UIManager.put("CheckBox.foreground",LauncherTheme.TEXT);
+        for(String component:List.of("TextField","TextArea","PasswordField","FormattedTextField")){
+            UIManager.put(component+".background",CARD);UIManager.put(component+".foreground",LauncherTheme.TEXT);
+            UIManager.put(component+".caretForeground",LauncherTheme.TEXT);UIManager.put(component+".selectionBackground",ACCENT);
+            UIManager.put(component+".selectionForeground",LauncherTheme.accentText());
+        }
         SwingUtilities.invokeLater(()->{try {
             if(!Arrays.asList(args).contains("--render-preview")&&!PrivacySetup.showIfNeeded())return;
             var frame=new TarLauncher();
             if(args.length>=2&&args[0].equals("--render-preview")){
-                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();default->frame.home();}}
+                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();case "settings"->frame.settings();default->frame.home();}}
                 frame.worker.submit(()->SwingUtilities.invokeLater(()->{
                     try{frame.addNotify();frame.validate();var surface=frame.getContentPane();surface.setSize(frame.getWidth(),frame.getHeight());layoutTree(surface);
                         var picture=new java.awt.image.BufferedImage(surface.getWidth(),surface.getHeight(),java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -112,13 +119,13 @@ public final class TarLauncher extends JFrame {
     }
     private JLabel label(String text,int size,Color color){JLabel l=new JLabel(text);l.setFont(new Font("Segoe UI",size>=17?Font.BOLD:Font.PLAIN,size));l.setForeground(color);l.setAlignmentX(0);return l;}
     private JButton button(String text,Runnable action){JButton b=new JButton(text);b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));b.setFont(new Font("Segoe UI",Font.BOLD,12));b.setBackground(LauncherTheme.button());b.setForeground(LauncherTheme.TEXT);b.setBorder(new EmptyBorder(10,14,10,14));b.setAlignmentX(0);b.addActionListener(e->action.run());return b;}
-    private JButton primary(String text,Runnable action){JButton b=button(text,action);b.setBackground(GREEN);b.setForeground(new Color(18,31,20));return b;}
+    private JButton primary(String text,Runnable action){JButton b=button(text,action);b.setBackground(ACCENT);b.setForeground(LauncherTheme.accentText());return b;}
     private JPanel column(){JPanel p=new JPanel();p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));p.setAlignmentX(0);return p;}
     private JPanel row(){JPanel p=new JPanel(new FlowLayout(FlowLayout.LEFT,8,0));p.setOpaque(false);return p;}
     private JPanel card(){return LauncherTheme.panel(20);}
     private JTextArea wrap(String text,int rows){JTextArea area=new JTextArea(text);area.setEditable(false);area.setFocusable(false);area.setLineWrap(true);area.setWrapStyleWord(true);area.setOpaque(false);area.setForeground(MUTED);area.setFont(new Font("Segoe UI",Font.PLAIN,13));area.setRows(rows);area.setAlignmentX(0);return area;}
     private void page(String title,String subtitle,JComponent content){
-        navigation.forEach((name,b)->{boolean selected=name.equals(title);b.setBackground(selected?LauncherTheme.button():LauncherTheme.surface());b.setForeground(selected?GREEN:MUTED);});
+        navigation.forEach((name,b)->{boolean selected=name.equals(title);b.setBackground(selected?LauncherTheme.button():LauncherTheme.surface());b.setForeground(selected?ACCENT:MUTED);});
         body.removeAll();JPanel head=new JPanel(new BorderLayout());head.setOpaque(false);JPanel headings=column();headings.setOpaque(false);
         headings.add(label(title,28,LauncherTheme.TEXT));headings.add(Box.createVerticalStrut(6));headings.add(label(subtitle,12,MUTED));headings.setBorder(new EmptyBorder(0,0,24,0));head.add(headings);
         JPanel profile=row();profile.add(button(session==null?"Connect Microsoft":session.name(),this::accounts));head.add(profile,BorderLayout.EAST);
@@ -128,8 +135,8 @@ public final class TarLauncher extends JFrame {
     private void home(){
         JPanel content=column();JPanel hero=new LauncherTheme.Hero();hero.setAlignmentX(0);
         hero.add(LauncherTheme.badge("MINECRAFT JAVA  /  1.21.11"));hero.add(Box.createVerticalStrut(26));
-        hero.add(label("Your world.",43,LauncherTheme.TEXT));hero.add(label("Your rules.",43,GREEN));hero.add(Box.createVerticalStrut(14));
-        hero.add(label("A client that feels like you. Ready for the next session.",14,LauncherTheme.dark?new Color(178,197,191):MUTED));hero.add(Box.createVerticalStrut(28));
+        hero.add(label("Your world.",43,LauncherTheme.TEXT));hero.add(label("Your rules.",43,ACCENT));hero.add(Box.createVerticalStrut(14));
+        hero.add(label("A client that feels like you. Ready for the next session.",14,MUTED));hero.add(Box.createVerticalStrut(28));
         JPanel actions=row();actions.setAlignmentX(0);JButton play=primary(running()?"Minecraft is running":"Play Minecraft  >",()->launch(false));play.setFont(new Font("Segoe UI",Font.BOLD,16));play.setPreferredSize(new Dimension(212,48));play.setEnabled(!running()&&!busy);actions.add(play);
         actions.add(button("Try demo",()->launch(true)));hero.add(actions);hero.add(Box.createVerticalStrut(15));hero.add(label("Fabric "+GameInstaller.LOADER+"    /    Java 21    /    "+(Integer.parseInt(pref("ram","8192"))/1024)+" GB RAM",11,MUTED));
         content.add(hero);content.add(Box.createVerticalStrut(18));
@@ -162,7 +169,7 @@ public final class TarLauncher extends JFrame {
             options.add(button("Forget",()->{if(!canEdit())return;operation(()->accountStore.forget(saved.uuid()),()->{savedAccounts.remove(saved.uuid());if(session!=null&&session.uuid().equals(saved.uuid())){session=null;account.setText("Not signed in");}accounts();});}));entry.add(options);list.add(Box.createVerticalStrut(12));list.add(entry);
         }
         {
-            list.add(Box.createVerticalStrut(16));JPanel setup=card();setup.add(label("Microsoft connection ready",17,GREEN));setup.add(Box.createVerticalStrut(8));setup.add(wrap("Tar Client's application ID is included and its Minecraft API review was approved on September 21, 2026. Sign in with your own Minecraft Java account. In game, use Right Shift > Accounts to switch without restarting Minecraft.",3));list.add(setup);
+            list.add(Box.createVerticalStrut(16));JPanel setup=card();setup.add(label("Microsoft connection ready",17,ACCENT));setup.add(Box.createVerticalStrut(8));setup.add(wrap("Tar Client's application ID is included and its Minecraft API review was approved on September 21, 2026. Sign in with your own Minecraft Java account. In game, use Right Shift > Accounts to switch without restarting Minecraft.",3));list.add(setup);
         }
         page("Accounts","Your Minecraft identity, connected securely.",scroll(list));
     }
@@ -217,7 +224,7 @@ public final class TarLauncher extends JFrame {
             if(!category.getSelectedItem().equals("All")&&!m.category().equals(category.getSelectedItem()))continue;
             if(!(m.name()+" "+m.description()).toLowerCase(Locale.ROOT).contains(search.getText().toLowerCase(Locale.ROOT)))continue;
             JPanel c=card();JPanel title=new JPanel(new BorderLayout(10,0));title.setOpaque(false);title.add(label(m.name(),18,LauncherTheme.TEXT));title.add(LauncherTheme.badge(m.category().toUpperCase(Locale.ROOT)),BorderLayout.EAST);c.add(title);c.add(Box.createVerticalStrut(10));c.add(wrap(m.description(),3));c.add(Box.createVerticalStrut(14));
-            JPanel actions=row();actions.setAlignmentX(0);JButton toggle=button(config.on(m.id())?"Enabled":"Disabled",()->{});toggle.addActionListener(e->{if(canEdit()){config.set(m.id(),"enabled",!config.on(m.id()));saveConfig();toggle.setText(config.on(m.id())?"Enabled":"Disabled");toggle.setForeground(config.on(m.id())?GREEN:MUTED);}});toggle.setForeground(config.on(m.id())?GREEN:MUTED);actions.add(toggle);actions.add(button("Settings",()->moduleSettings(m)));c.add(actions);grid.add(c);
+            JPanel actions=row();actions.setAlignmentX(0);JButton toggle=button(config.on(m.id())?"Enabled":"Disabled",()->{});toggle.addActionListener(e->{if(canEdit()){config.set(m.id(),"enabled",!config.on(m.id()));saveConfig();toggle.setText(config.on(m.id())?"Enabled":"Disabled");toggle.setForeground(config.on(m.id())?ACCENT:MUTED);}});toggle.setForeground(config.on(m.id())?ACCENT:MUTED);actions.add(toggle);actions.add(button("Settings",()->moduleSettings(m)));c.add(actions);grid.add(c);
         }if(grid.getComponentCount()==0)grid.add(label("No modules match your search.",15,MUTED));grid.revalidate();grid.repaint();};
         search.getDocument().addDocumentListener(new javax.swing.event.DocumentListener(){public void insertUpdate(javax.swing.event.DocumentEvent e){refresh.run();}public void removeUpdate(javax.swing.event.DocumentEvent e){refresh.run();}public void changedUpdate(javax.swing.event.DocumentEvent e){refresh.run();}});category.addActionListener(e->refresh.run());refresh.run();panel.add(scroll(grid));
         page("Client modules","Your HUD and visuals. Right Shift opens the menu in game.",panel);
@@ -253,7 +260,7 @@ public final class TarLauncher extends JFrame {
         JPanel searchRow=new JPanel(new BorderLayout(10,0));searchRow.setOpaque(false);searchRow.setAlignmentX(0);JTextField field=new JTextField(catalogQuery);field.putClientProperty("JTextField.placeholderText","Search Modrinth for your next favorite mod");field.setPreferredSize(new Dimension(350,42));searchRow.add(field);
         JComboBox<String> sort=new JComboBox<>(new String[]{"Most downloaded","Relevance","Recently updated","Newest"});sort.setSelectedIndex(List.of("downloads","relevance","updated","newest").indexOf(catalogSort));searchRow.add(sort,BorderLayout.EAST);filters.add(searchRow);filters.add(Box.createVerticalStrut(12));
         JPanel categories=row();categories.setAlignmentX(0);String[] names={"All mods","Performance","Utility","Decorative"},ids={"","optimization","utility","decoration"};
-        for(int i=0;i<names.length;i++){String id=ids[i];JButton chip=button(names[i],()->{catalogQuery=field.getText();catalogCategory=id;catalogOffset=0;discover();});if(id.equals(catalogCategory))chip.setForeground(GREEN);categories.add(chip);}filters.add(categories);panel.add(filters,BorderLayout.NORTH);
+        for(int i=0;i<names.length;i++){String id=ids[i];JButton chip=button(names[i],()->{catalogQuery=field.getText();catalogCategory=id;catalogOffset=0;discover();});if(id.equals(catalogCategory))chip.setForeground(ACCENT);categories.add(chip);}filters.add(categories);panel.add(filters,BorderLayout.NORTH);
         JPanel results=new JPanel(new GridLayout(0,2,14,14));results.setOpaque(false);results.add(label("Finding compatible mods...",15,MUTED));panel.add(scroll(results));
         JLabel summary=label("Fabric 1.21.11  /  Modrinth",12,MUTED);JPanel bottom=new JPanel(new BorderLayout());bottom.setOpaque(false);bottom.add(summary);JPanel pagination=row();JButton prev=button("< Previous",()->{catalogOffset=Math.max(0,catalogOffset-12);discover();});JButton next=button("Next >",()->{catalogOffset+=12;discover();});prev.setEnabled(catalogOffset>0);next.setEnabled(false);pagination.add(prev);pagination.add(next);bottom.add(pagination,BorderLayout.EAST);panel.add(bottom,BorderLayout.SOUTH);
         Runnable find=()->{catalogQuery=field.getText().trim();catalogSort=List.of("downloads","relevance","updated","newest").get(sort.getSelectedIndex());catalogOffset=0;discover();};
@@ -287,8 +294,17 @@ public final class TarLauncher extends JFrame {
         share.addActionListener(e->{try{PrivacyPreferences.defaults().save(share.isSelected());status("Badge sharing "+(share.isSelected()?"enabled":"disabled")+". Changes apply to new requests; old presence expires within two minutes.");}catch(Exception failure){share.setSelected(PrivacyPreferences.defaults().sharingEnabled());status("Could not save privacy choice: "+failure.getMessage());}});
         privacy.add(share);privacy.add(button("Read privacy policy",()->browse("https://github.com/TarClient/tar-client/blob/main/PRIVACY.md")));list.add(privacy);list.add(Box.createVerticalStrut(16));
         JCheckBox darkMode=new JCheckBox("Dark mode (restart launcher to apply)",Boolean.parseBoolean(pref("darkMode","true")));list.add(darkMode);list.add(Box.createVerticalStrut(12));
-        list.add(primary("Save preferences",()->{if(!canEdit())return;prefs.remove("clientId");prefs.addProperty("ram",ram.getValue().toString());prefs.addProperty("darkMode",darkMode.isSelected());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Launcher preferences saved");}catch(Exception e){status(e.getMessage());}}));
+        JTextField accent=new JTextField(pref("accent",ThemeColors.DEFAULT_ACCENT),8),background=new JTextField(pref("menuBackground",ThemeColors.DEFAULT_BACKGROUND),8);
+        list.add(themeColorRow("Launcher accent",accent));list.add(Box.createVerticalStrut(10));
+        list.add(themeColorRow("Dark launcher background",background));list.add(Box.createVerticalStrut(10));
+        list.add(button("Reset orange / black",()->{accent.setText(ThemeColors.DEFAULT_ACCENT);background.setText(ThemeColors.DEFAULT_BACKGROUND);darkMode.setSelected(true);}));
+        list.add(wrap("Save and restart the launcher to apply its colors. In-game menu colors: Client modules > Appearance / Dark mode.",2));list.add(Box.createVerticalStrut(12));
+        list.add(primary("Save preferences",()->{if(!canEdit())return;if(!ThemeColors.valid(accent.getText())||!ThemeColors.valid(background.getText())){status("Use six hex digits for each color, such as E78336 or 0B0B0D.");return;}prefs.remove("clientId");prefs.addProperty("ram",ram.getValue().toString());prefs.addProperty("darkMode",darkMode.isSelected());prefs.addProperty("accent",accent.getText().trim());prefs.addProperty("menuBackground",background.getText().trim());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Preferences saved. Restart the launcher to apply its colors.");}catch(Exception e){status(e.getMessage());}}));
         page("Settings","Make yourself at home. Java 21 is already included.",scroll(list));
+    }
+    private JPanel themeColorRow(String title,JTextField field){
+        JPanel row=row();row.setAlignmentX(0);row.add(label(title+" (hex)",14,LauncherTheme.TEXT));row.add(field);
+        row.add(button("Choose color",()->{Color picked=JColorChooser.showDialog(this,title,new Color(ThemeColors.parse(field.getText(),ThemeColors.DEFAULT_ACCENT)));if(picked!=null)field.setText(String.format(Locale.ROOT,"%06X",picked.getRGB()&0xFFFFFF));}));return row;
     }
     private void installDesktop(){
         operation(()->{var result=DesktopInstaller.install();status("Desktop shortcut created: "+result.shortcut());},()->JOptionPane.showMessageDialog(this,"Tar Client is installed. Use the Tar Client shortcut on your desktop. Your worlds and settings stay in the same game folder.","Ready to play",JOptionPane.INFORMATION_MESSAGE));

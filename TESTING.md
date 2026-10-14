@@ -1,3 +1,9 @@
+# 1.0.5 menu update — 14 October 2026
+
+Local launcher and Fabric Java compilation passed. New tests cover saved theme migration and persistence, malformed color fallback, contrast across 4,096 custom accents, alpha preservation, unchanged rank colors and switching between light/dark launcher palettes. The local sandbox blocks Java atomic file replacement; the complete persistence test is therefore checked on the Windows CI runner, without disabling or skipping it.
+
+Manual in-game acceptance still needed: type a full search, move the caret, select/replace text, paste, backspace to empty, switch categories/pages, resize the window, and verify focus and text visibility at different GUI scales. Change/reset colors, restart the game and switch profiles. Compilation and palette tests alone do not prove in-world rendering.
+
 # 1.0.4 badge update — 14 October 2026
 
 19 backend/verifier tests pass, including delegated Co-Owner permissions, protected roles, in-flight revocation, legacy badges and automatic presence. The Windows build also runs launcher tests, compiles the Fabric mod, and verifies both desktop installation paths. In-game rendering on two live clients requires a manual check.
