@@ -31,7 +31,10 @@
     "TpsMixin",
     "ParticlesMixin",
     "BadgeNameMixin",
-    "BadgeTabMixin"
+    "BadgeTabMixin",
+    "EmoteModelMixin",
+    "EmoteTransformMixin",
+    "CosmeticCapeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -13,12 +13,15 @@ import static dev.tarclient.mod.TarClient.CONFIG;
 
 public final class TarKeybinds {
     private static final Map<String,KeyBinding> toggles=new LinkedHashMap<>();
-    private static KeyBinding profiles,time,accounts,reroll;
+    private static KeyBinding profiles,time,accounts,reroll,social,stopEmote;
+    private static final Map<String,KeyBinding> emotes=new LinkedHashMap<>();
     public static void initialize(){
         var category=KeyBinding.Category.create(Identifier.of("tarclient","toggles"));
         for(var module:ClientConfig.MODULES)if(!module.id().equals("profiles"))
             toggles.put(module.id(),register("toggle."+module.id(),category));
         profiles=register("profiles",category);time=register("time",category);accounts=register("accounts",category);reroll=register("streamer.reroll",category);
+        social=register("social",category);stopEmote=register("emote.stop",category);
+        for(var emote:dev.tarclient.config.SocialCatalog.EMOTES)emotes.put(emote.id(),register("emote."+emote.id(),category));
     }
     private static KeyBinding register(String id,KeyBinding.Category category){return KeyBindingHelper.registerKeyBinding(new KeyBinding("key.tarclient."+id,InputUtil.Type.KEYSYM,-1,category));}
     public static void tick(MinecraftClient client){
@@ -32,6 +35,9 @@ public final class TarKeybinds {
         }
         while(profiles.wasPressed())if(allowed){client.setScreen(new ProfilesScreen(null));allowed=false;}
         while(accounts.wasPressed())if(allowed){client.setScreen(new AccountsScreen(null));allowed=false;}
+        while(social.wasPressed())if(allowed){client.setScreen(new SocialScreen(null));allowed=false;}
+        while(stopEmote.wasPressed())if(allowed)SocialRuntime.emote("",s->client.player.sendMessage(Text.literal(s),true));
+        for(var entry:emotes.entrySet())while(entry.getValue().wasPressed())if(allowed)SocialRuntime.emote(entry.getKey(),s->{if(client.player!=null)client.player.sendMessage(Text.literal(s),true);});
         while(reroll.wasPressed())if(allowed&&StreamerMode.active())StreamerMode.reroll();
         while(time.wasPressed())if(allowed)ClientFeatures.applyTime();
         // Keyboard shortcuts are intercepted to allow the menu over other screens;

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Tar Client")]
 [assembly: AssemblyCompany("Tarre Industries")]
 [assembly: AssemblyProduct("Tar Client")]
-[assembly: AssemblyVersion("1.0.6.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
 internal static class Program
 {
     [STAThread]
@@ -60,7 +60,7 @@ internal static class Program
         {
             dialog.Text = "Tar Client privacy setup"; dialog.Width = 720; dialog.Height = 580; dialog.StartPosition = FormStartPosition.CenterScreen;
             var text = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, Text = policy.Replace("\n", "\r\n") };
-            var share = new CheckBox { Text = "Share my Minecraft identity for Tar player badges (optional)", Checked = true, Dock = DockStyle.Bottom, Height = 40 };
+            var share = new CheckBox { Text = "Share my identity for Tar badges, cosmetics and emotes (optional)", Checked = true, Dock = DockStyle.Bottom, Height = 40 };
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 42, FlowDirection = FlowDirection.RightToLeft };
             var install = new Button { Text = "Install", DialogResult = DialogResult.OK };
             var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel };
@@ -99,7 +99,7 @@ internal static class Program
         string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Tar Client");
         NoLinks(root);
         Directory.CreateDirectory(root);
-        string target = Path.Combine(root, "1.0.6-" + expected.Substring(0, 12));
+        string target = Path.Combine(root, "1.1.0-" + expected.Substring(0, 12));
         string executable = Path.Combine(target, "Tar Client", "Tar Client.exe");
         if (File.Exists(Path.Combine(target, ".complete")) && File.Exists(executable) && File.Exists(Path.Combine(target, "Tar Client", "runtime", "lib", "modules"))) return executable;
         string pending = Path.Combine(root, ".install-" + Guid.NewGuid().ToString("N"));

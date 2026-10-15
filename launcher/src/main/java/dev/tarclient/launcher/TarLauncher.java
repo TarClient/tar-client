@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,ACCENT=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.0.6";
+    public static final String VERSION="1.1.0";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -36,6 +36,7 @@ public final class TarLauncher extends JFrame {
     private volatile Process gameProcess;
     private ModManager mods;
     private AccountStore accountStore;
+    private SocialPanel socialPanel;
     private java.nio.channels.FileChannel lockChannel;
     private java.nio.channels.FileLock processLock;
     public static void main(String[] args) throws Exception {
@@ -68,7 +69,7 @@ public final class TarLauncher extends JFrame {
             if(!Arrays.asList(args).contains("--render-preview")&&!PrivacySetup.showIfNeeded())return;
             var frame=new TarLauncher();
             if(args.length>=2&&args[0].equals("--render-preview")){
-                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();case "settings"->frame.settings();default->frame.home();}}
+                if(args.length>2){switch(args[2]){case "mods"->frame.discover();case "modules"->frame.modules();case "profiles"->frame.profiles();case "accounts"->frame.accounts();case "settings"->frame.settings();case "social"->frame.social();default->frame.home();}}
                 frame.worker.submit(()->SwingUtilities.invokeLater(()->{
                     try{frame.addNotify();frame.validate();var surface=frame.getContentPane();surface.setSize(frame.getWidth(),frame.getHeight());layoutTree(surface);
                         var picture=new java.awt.image.BufferedImage(surface.getWidth(),surface.getHeight(),java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -97,7 +98,7 @@ public final class TarLauncher extends JFrame {
         sidebar.add(label("PLAY & PERSONALIZE",9,MUTED));sidebar.add(Box.createVerticalStrut(12));
         nav(sidebar,"Play",this::home);nav(sidebar,"Client modules",this::modules);nav(sidebar,"Discover mods",this::discover);nav(sidebar,"Installed mods",this::installed);
         sidebar.add(Box.createVerticalStrut(24));sidebar.add(label("YOUR SPACE",10,MUTED));sidebar.add(Box.createVerticalStrut(12));
-        nav(sidebar,"Profiles",this::profiles);nav(sidebar,"Accounts",this::accounts);nav(sidebar,"Settings",this::settings);nav(sidebar,"Activity",this::activity);
+        nav(sidebar,"Friends & style",this::social);nav(sidebar,"Profiles",this::profiles);nav(sidebar,"Accounts",this::accounts);nav(sidebar,"Settings",this::settings);nav(sidebar,"Activity",this::activity);
         sidebar.add(Box.createVerticalGlue());sidebar.add(LauncherTheme.badge("FABRIC  /  1.21.11"));sidebar.add(Box.createVerticalStrut(14));
         account.setForeground(MUTED);account.setFont(new Font("Segoe UI",Font.PLAIN,12));sidebar.add(account);
         sidebar.add(Box.createVerticalStrut(8));sidebar.add(label("Tarre Industries  /  "+VERSION,10,MUTED));
@@ -125,6 +126,7 @@ public final class TarLauncher extends JFrame {
     private JPanel card(){return LauncherTheme.panel(20);}
     private JTextArea wrap(String text,int rows){JTextArea area=new JTextArea(text);area.setEditable(false);area.setFocusable(false);area.setLineWrap(true);area.setWrapStyleWord(true);area.setOpaque(false);area.setForeground(MUTED);area.setFont(new Font("Segoe UI",Font.PLAIN,13));area.setRows(rows);area.setAlignmentX(0);return area;}
     private void page(String title,String subtitle,JComponent content){
+        if(socialPanel!=null&&content!=socialPanel){socialPanel.dispose();socialPanel=null;}
         navigation.forEach((name,b)->{boolean selected=name.equals(title);b.setBackground(selected?LauncherTheme.button():LauncherTheme.surface());b.setForeground(selected?ACCENT:MUTED);});
         body.removeAll();JPanel head=new JPanel(new BorderLayout());head.setOpaque(false);JPanel headings=column();headings.setOpaque(false);
         headings.add(label(title,28,LauncherTheme.TEXT));headings.add(Box.createVerticalStrut(6));headings.add(label(subtitle,12,MUTED));headings.setBorder(new EmptyBorder(0,0,24,0));head.add(headings);
@@ -132,6 +134,7 @@ public final class TarLauncher extends JFrame {
         body.add(head,BorderLayout.NORTH);body.add(content);body.revalidate();body.repaint();
     }
     private JScrollPane scroll(JComponent c){JPanel host=new JPanel(new BorderLayout());host.add(c,BorderLayout.NORTH);JScrollPane s=new JScrollPane(host);s.setBorder(null);s.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);s.getVerticalScrollBar().setUnitIncrement(22);return s;}
+    private void social(){if(socialPanel!=null)socialPanel.dispose();socialPanel=new SocialPanel(()->session);page("Friends & style","Connect with friends. Every cosmetic and emote is free.",socialPanel);}
     private void home(){
         JPanel content=column();JPanel hero=new LauncherTheme.Hero();hero.setAlignmentX(0);
         hero.add(LauncherTheme.badge("MINECRAFT JAVA  /  1.21.11"));hero.add(Box.createVerticalStrut(26));
@@ -293,8 +296,8 @@ public final class TarLauncher extends JFrame {
         JPanel list=column();JPanel gameCard=card();gameCard.add(label("Game preferences",22,LauncherTheme.TEXT));gameCard.add(Box.createVerticalStrut(10));gameCard.add(wrap("Set how much memory Minecraft can use. Changes apply the next time you launch.",2));gameCard.add(Box.createVerticalStrut(14));
         JPanel memory=new JPanel(new BorderLayout(14,0));memory.setOpaque(false);memory.add(label("Memory allocation (MB)",14,LauncherTheme.TEXT));JSpinner ram=new JSpinner(new SpinnerNumberModel(Integer.parseInt(pref("ram","8192")),2048,32768,512));ram.setPreferredSize(new Dimension(180,36));memory.add(ram,BorderLayout.EAST);gameCard.add(memory);gameCard.add(Box.createVerticalStrut(20));gameCard.add(label("Your game folder",14,LauncherTheme.TEXT));gameCard.add(Box.createVerticalStrut(6));gameCard.add(wrap(game.toString(),2));gameCard.add(Box.createVerticalStrut(10));gameCard.add(button("Open game folder",()->open(game)));list.add(gameCard);list.add(Box.createVerticalStrut(16));
         JPanel connection=card();connection.add(label("Microsoft connection ready",22,LauncherTheme.TEXT));connection.add(Box.createVerticalStrut(10));connection.add(wrap("Microsoft sign-in is built in for everyone. No application ID or publisher setup is needed. Add and switch Minecraft accounts from Accounts.",2));connection.add(Box.createVerticalStrut(12));connection.add(label("Remembered accounts are encrypted for your Windows user. Forget or Sign out removes the saved account.",12,MUTED));list.add(connection);list.add(Box.createVerticalStrut(18));
-        JPanel privacy=card();privacy.add(label("Privacy and player badges",22,LauncherTheme.TEXT));privacy.add(Box.createVerticalStrut(10));privacy.add(wrap("Badge sharing sends your public Minecraft identity and the server player-list UUIDs to Tar's community service. Turning it off hides your badge from others. This choice is not changed by profiles.",4));
-        JCheckBox share=new JCheckBox("Share my identity for player badges",PrivacyPreferences.defaults().sharingEnabled());share.setOpaque(false);
+        JPanel privacy=card();privacy.add(label("Privacy and player badges",22,LauncherTheme.TEXT));privacy.add(Box.createVerticalStrut(10));privacy.add(wrap("Player sharing sends your public Minecraft identity, player UUIDs and selected cosmetics/emotes to Tar's service. Turning it off hides your badge and appearance. Friends and messages connect only when you open Friends & style. Profiles cannot change this choice.",4));
+        JCheckBox share=new JCheckBox("Share my identity for badges, cosmetics and emotes",PrivacyPreferences.defaults().sharingEnabled());share.setOpaque(false);
         share.addActionListener(e->{try{PrivacyPreferences.defaults().save(share.isSelected());status("Badge sharing "+(share.isSelected()?"enabled":"disabled")+". Changes apply to new requests; old presence expires within two minutes.");}catch(Exception failure){share.setSelected(PrivacyPreferences.defaults().sharingEnabled());status("Could not save privacy choice: "+failure.getMessage());}});
         privacy.add(share);privacy.add(button("Read privacy policy",()->browse("https://github.com/TarClient/tar-client/blob/main/PRIVACY.md")));list.add(privacy);list.add(Box.createVerticalStrut(16));
         JCheckBox darkMode=new JCheckBox("Dark mode (restart launcher to apply)",Boolean.parseBoolean(pref("darkMode","true")));list.add(darkMode);list.add(Box.createVerticalStrut(12));

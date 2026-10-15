@@ -7,6 +7,18 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.0: free Friends, emotes and cosmetics
+
+Open **Friends & style** in the launcher or **Right Shift > Friends & style** in Minecraft. Send a request using a Minecraft Java username; the recipient must accept before either person can send messages. Select a person to accept, decline, remove, block or unblock. Messages are available in both interfaces while that page is open, with up to 100 recent messages per conversation. New messages refresh about every six seconds. Removing or blocking deletes that conversation. Messages expire after 30 days and are not end-to-end encrypted.
+
+All **16 emotes** and **20 cosmetics** are free, including all wings and capes. There are no Tar Coin purchases, payment-provider accounts, bank connections or ID checks. This does not include the Minecraft game license. Donator remains a manually assigned badge.
+
+**Cosmetics** lets you equip/remove one item in each slot: wings, head, face, hip and back. Your choices are saved to your verified Minecraft account. The launcher and game share the same outfit. **Emotes** plays an animation in game; use F5 to see yourself, or Stop emote to end it. Every emote and the Friends menu have configurable shortcuts under **Keybinds**. Emotes last 15 seconds, or two minutes for Sit, Lay and T-Pose. They animate the model only; flying emotes provide no flight or movement advantage. Swimming, crouching and other non-standing poses suppress emotes.
+
+Other nearby Tar users running 1.1.0 see your outfit and emotes when player sharing is enabled in launcher Settings. Appearance synchronization runs about every five seconds for the nearest 99 players plus yourself. Disabled sharing hides your appearance, but you can still open Friends to use messages. Invisible/spectator players do not reveal cosmetics. These features require the free community service; exhausted free quotas or outages can delay/hide them. Existing ranks and normal badges remain unchanged.
+
+The new accessories use original geometric models and procedural pixel-art textures: flapping wings, emissive halos, animated Ocean/Lightning/Blossom/Nether capes, and the free Tar-logo cape. No music is included. This is an optional prerelease; live two-player rendering and gameplay acceptance remain unverified. Windows executables remain unsigned.
+
 ## Optional 1.0.6: Theme and gradient color pickers
 
 The **Theme** module controls orange button accents and the near-black menu background. Open **Right Shift > Utility > Theme > Settings**, then **Pick color**. The draggable gradient square chooses saturation/brightness, and the rainbow bar chooses hue. Backgrounds with transparency include an opacity bar and checkerboard preview. Hex entry is optional. **Apply** saves; **Cancel** or Escape preserves the previous setting. **Default** selects the setting's original color for you to apply. Tab and arrow keys work too; Shift increases the adjustment step.

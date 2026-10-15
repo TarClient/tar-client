@@ -33,6 +33,7 @@ public final class TarSettingsScreen extends Screen {
             addDrawableChild(new TarButton(left+10,navY,side-18,navStep-1,cat.equals("All")?"All modules":cat,b->{selected=null;category=cat;page=0;clearAndInit();},()->selected==null&&category.equals(cat)));
             navY+=navStep;
         }
+        addDrawableChild(new TarButton(left+10,top+panelHeight-153,side-18,20,"Friends & style",b->client.setScreen(new SocialScreen(this))));
         addDrawableChild(new TarButton(left+10,top+panelHeight-131,side-18,20,"Accounts",b->client.setScreen(new AccountsScreen(this))));
         addDrawableChild(new TarButton(left+10,top+panelHeight-109,side-18,20,"Profiles",b->client.setScreen(new ProfilesScreen(this))));
         addDrawableChild(new TarButton(left+10,top+panelHeight-87,side-18,20,"Keybinds",b->client.setScreen(new net.minecraft.client.gui.screen.option.KeybindsScreen(this,client.options))));

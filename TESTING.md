@@ -1,3 +1,9 @@
+# 1.1.0 Friends & style — 15 October 2026
+
+Local launcher and Minecraft 1.21.11 Fabric sources compile. New tests exercise request acceptance, conversation authorization, blocking, idempotent sends, rate limits, 30-day cleanup, appearance opt-out/expiry, equipment slot validation, identity spoofing, simultaneous launcher/game sessions, free catalog coverage, and finite model-only poses. CI runs the full Windows account/profile and packaging suite.
+
+Pending live acceptance: two separately signed-in players send/accept requests and exchange messages in both interfaces; inspect all 16 emotes and 20 cosmetics in first/third person and on another client, including capes, slim arms, held items/armor and shader compatibility. Check shared animation latency, opt-out, reconnect, world/account changes, low GUI scales and remote service outages. Compilation and unit tests do not establish those live results.
+
 # 1.0.6 color pickers — 14 October 2026
 
 Local launcher/Fabric compilation and seven new color-picker tests passed. Coverage includes exact RGB/ARGB round trips across 4,096 colors, opacity editing, invalid hex preserving the last valid choice, hue retention for gray/black, gradient corners and edge clamping, complete color-setting picker metadata, saved Theme ID compatibility, and the actual Swing HSV picker retaining transparency.

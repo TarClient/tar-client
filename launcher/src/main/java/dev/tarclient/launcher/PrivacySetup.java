@@ -15,7 +15,7 @@ final class PrivacySetup {
         var panel=new JPanel(new BorderLayout(8,12));
         var text=new JTextArea(policy,18,68);text.setEditable(false);text.setLineWrap(true);text.setWrapStyleWord(true);text.setCaretPosition(0);
         panel.add(new JScrollPane(text),BorderLayout.CENTER);
-        var share=new JCheckBox("Share my Minecraft identity for Tar player badges (optional)",true);
+        var share=new JCheckBox("Share my identity for Tar badges, cosmetics and emotes (optional)",true);
         panel.add(share,BorderLayout.SOUTH);
         int choice=JOptionPane.showOptionDialog(null,panel,"Tar Client privacy setup",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE,null,new Object[]{"Continue","Cancel"},"Continue");
         if(choice!=0)return false;

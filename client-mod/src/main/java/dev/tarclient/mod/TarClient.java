@@ -35,6 +35,7 @@ public final class TarClient implements ClientModInitializer {
         MENU_KEY=KeyBindingHelper.registerKeyBinding(new KeyBinding("key.tarclient.menu",InputUtil.Type.KEYSYM,GLFW.GLFW_KEY_RIGHT_SHIFT,KeyBinding.Category.create(Identifier.of("tarclient","client"))));
         ClientFeatures.initialize();
         TarKeybinds.initialize();
+        CosmeticsRenderer.initialize();
         net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback.EVENT.register(data->data instanceof ShulkerPreview preview?new ShulkerPreview.Component(preview):null);
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,Identifier.of("tarclient","hud"),(context,ticks)->{if(!(MinecraftClient.getInstance().currentScreen instanceof HudEditorScreen))TarHud.render(context,false);});
         ScreenEvents.AFTER_INIT.register((client,screen,w,h)->{if(screen instanceof TitleScreen||screen instanceof GameMenuScreen)Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("Tar settings"),b->client.setScreen(new TarSettingsScreen(screen))).dimensions(w-114,8,106,20).build());});
@@ -43,6 +44,7 @@ public final class TarClient implements ClientModInitializer {
             StreamerMode.active();
             updateGlint(client);
             ClientFeatures.tick(client);
+            SocialRuntime.tick();
             if(client.player==null){lastAlert=0;return;}
             if(CONFIG.on("armor")&&CONFIG.bool("armor","sound")&&now-lastAlert>=CONFIG.number("armor","cooldown")*1000) {
                 for(var slot:ARMOR) {var stack=client.player.getEquippedStack(slot);if(stack.isDamageable()&&(stack.getMaxDamage()-stack.getDamage())*100.0/stack.getMaxDamage()<=CONFIG.number("armor","threshold")) {

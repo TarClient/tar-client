@@ -1,3 +1,4 @@
+import {Social} from './social.mjs';
 export const OWNER = 'ccb2c06282bc4afb86a71058b176dbef';
 const uuid = value => typeof value === 'string' && /^[a-f0-9]{32}$/.test(value);
 const username = value => typeof value === 'string' && /^[A-Za-z0-9_]{1,16}$/.test(value);
@@ -16,6 +17,7 @@ export class Community {
     this.db.exec('CREATE TABLE IF NOT EXISTS ranks (uuid TEXT PRIMARY KEY, name TEXT, rank TEXT, updated INTEGER)');
     this.db.exec('CREATE INDEX IF NOT EXISTS session_expiry ON sessions(expires)');
     this.db.exec('CREATE INDEX IF NOT EXISTS challenge_expiry ON challenges(expires)');
+    this.social=new Social(this);
   }
   rows(sql,...params){return this.db.exec(sql,...params).toArray();}
   async lookup(kind,name,serverId){
@@ -70,7 +72,8 @@ export class Community {
         const profile=await lookup.json();
         if(profile.id!==proof.uuid||String(profile.name).toLowerCase()!==proof.name.toLowerCase())return json({error:'Minecraft identity did not match'},401);
         const token=random(),digest=await sha(token);
-        this.db.exec('DELETE FROM sessions WHERE uuid=?',proof.uuid);
+        // Launcher and game may use independent sessions at the same time.
+        this.db.exec('DELETE FROM sessions WHERE uuid=? AND token NOT IN (SELECT token FROM sessions WHERE uuid=? ORDER BY expires DESC LIMIT 3)',proof.uuid,proof.uuid);
         this.db.exec('INSERT INTO sessions VALUES(?,?,?,?)',digest,proof.uuid,profile.name,now+21600000);
         return json({token,uuid:proof.uuid,expires:now+21600000,owner:proof.uuid===OWNER});
       }
@@ -78,6 +81,7 @@ export class Community {
       if(!/^Bearer [a-f0-9]{48}$/.test(bearer))return json({error:'Sign in to Minecraft first'},401);
       const session=this.rows('SELECT * FROM sessions WHERE token=? AND expires>?',await sha(bearer.slice(7)),now)[0];
       if(!session)return json({error:'Community session expired'},401);
+      if(path.startsWith('/v1/social/'))return await this.social.handle(path,body,session,now);
       if(path==='/v1/heartbeat'){
         if(!Array.isArray(body.players)||body.players.length>100||!body.players.every(uuid))return json({error:'Invalid player list'},400);
         this.db.exec('INSERT INTO presence VALUES(?,?) ON CONFLICT(uuid) DO UPDATE SET expires=excluded.expires',session.uuid,now+120000);

@@ -13,16 +13,21 @@ public final class CommunityService {
     public static boolean configured(){return ENDPOINT.startsWith("https://");}
     public static boolean owner(String uuid){return uuid!=null&&OWNER_UUID.equals(uuid.replace("-","").toLowerCase(Locale.ROOT));}
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
-        if(!path.equals("/v1/leave")&&!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
+        if(Set.of("/v1/heartbeat","/v1/ranks","/v1/rank").contains(path)&&!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.0.6");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.1.0");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
-        if(response.statusCode()/100!=2){String message=switch(response.statusCode()){case 401->"Community sign-in expired. Retry.";case 403->"You cannot make that rank change. Co-Owners can assign Partner or Mod only, and cannot change Admins, Co-Owners or the Owner.";case 429->"Too many requests. Wait a minute and retry.";default->"Community request failed (HTTP "+response.statusCode()+").";};throw new IOException(message);}
+        if(response.statusCode()/100!=2){String message="Community request failed (HTTP "+response.statusCode()+").";try{if(response.body().length()<4096){String error=JsonParser.parseString(response.body()).getAsJsonObject().get("error").getAsString();if(error.length()<200&&!error.matches(".*[\\p{Cntrl}].*"))message=error;}}catch(Exception ignored){}throw new RequestException(response.statusCode(),message);}
         if(response.body().length()>131072)throw new IOException("Unexpected community response.");
         return JsonParser.parseString(response.body()).getAsJsonObject();
     }
     public static Connection connect(MicrosoftAuth.Session session)throws Exception {
+        if(!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
+        return connectSocial(session);
+    }
+    public static final class RequestException extends IOException {public final int status;RequestException(int status,String message){super(message);this.status=status;}}
+    public static synchronized Connection connectSocial(MicrosoftAuth.Session session)throws Exception {
         if(session.demo())throw new IOException("Sign in with a Minecraft Java account first.");
         String uuid=session.uuid().replace("-","");var challenge=new JsonObject();challenge.addProperty("uuid",uuid);challenge.addProperty("name",session.name());
         var proof=post("/v1/challenge",challenge,null);String serverId=proof.get("serverId").getAsString();if(!serverId.matches("[a-f0-9]{40}"))throw new IOException("Invalid community challenge.");
@@ -56,4 +61,8 @@ public final class CommunityService {
     public static void leave(Connection connection)throws Exception {post("/v1/leave",new JsonObject(),connection.token());}
     public static JsonObject rank(Connection connection,String name,String rank)throws Exception {var body=new JsonObject();body.addProperty("name",name);body.addProperty("rank",rank);return post("/v1/rank",body,connection.token());}
     public static JsonObject ranks(Connection connection)throws Exception {return post("/v1/ranks",new JsonObject(),connection.token());}
+    public static JsonObject social(Connection connection,String action,JsonObject body)throws Exception {
+        if(!Set.of("state","request","respond","messages","send","equip","emote","presence","leave").contains(action))throw new IOException("Unknown social action");
+        return post("/v1/social/"+action,body,connection.token());
+    }
 }
