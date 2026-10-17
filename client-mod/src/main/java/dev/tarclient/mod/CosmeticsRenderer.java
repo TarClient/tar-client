@@ -19,10 +19,12 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
     private static final ModelPart[] CAPE_STRIPS=new ModelPart[4];
     private static final ModelPart WING_PANEL=part(ModelPartBuilder.create().uv(0,0).cuboid(0,-7,0,4,22,0),8,32);
     private static final ModelPart BANDANA=part(ModelPartBuilder.create().uv(0,0).cuboid(-4,-3.5f,-4,8,3,8,new Dilation(.2f)),32,16);
+    private static final ModelPart[] ANGEL_FLIGHT=new ModelPart[4],ANGEL_COVERTS=new ModelPart[4],ANGEL_SHAFTS=new ModelPart[4];
     private static final java.util.Map<String,RenderLayer[]> CAPES=new java.util.HashMap<>();
     private static final java.util.Map<String,RenderLayer[]> WINGS=new java.util.HashMap<>();
     private static final java.util.Map<String,RenderLayer> BANDANAS=new java.util.HashMap<>();
     static {
+        for(int i=0;i<4;i++){ANGEL_FLIGHT[i]=angelPanel(i,0);ANGEL_COVERTS[i]=angelPanel(i,1);ANGEL_SHAFTS[i]=angelPanel(i,2);}
         for(int i=0;i<CAPE_STRIPS.length;i++)CAPE_STRIPS[i]=part(ModelPartBuilder.create().uv(0,i*4).cuboid(-5,0,0,10,4,1),64,32);
         for(String id:new String[]{"basiccape","oceancape","lightningcape","blossomcape","nethercape"}){
             var frames=new RenderLayer[id.equals("basiccape")?1:CAPE_FRAMES];
@@ -41,6 +43,30 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
     public CosmeticsRenderer(FeatureRendererContext<PlayerEntityRenderState,PlayerEntityModel> context){super(context);}
     public static void initialize(){LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type,renderer,helper,ctx)->{if(renderer instanceof PlayerEntityRenderer<?> player)helper.register(new CosmeticsRenderer(player));});}
     private static ModelPart part(ModelPartBuilder b,int w,int h){var data=new ModelData();data.getRoot().addChild("shape",b,ModelTransform.NONE);return TexturedModelData.of(data,w,h).createModel().getChild("shape");}
+    private static ModelPart angelPanel(int panel,int layer){
+        var data=new ModelData();var root=data.getRoot();
+        // A rising upper edge joins the four hinges; individual tapered feathers fan below it.
+        if(layer==1)root.addChild("leading_edge",ModelPartBuilder.create().uv(0,0).cuboid(0,-.65f,.1f,4.78f,1.3f,.7f),ModelTransform.of(0,3.5f-panel*2.6f,0,0,0,-.5763752f));
+        for(int feather=0;feather<3;feather++){
+            float x=feather*1.34f,span=panel*4+x;
+            float length=11f+7f*(float)Math.sin(Math.PI*span/19f),angle=-.12f-span*.038f;
+            var shape=ModelPartBuilder.create().uv(0,0);
+            if(layer==2){
+                shape.cuboid(-.065f,.5f,.43f,.13f,length*.82f,.065f);
+            }else{
+                float size=layer==0?length:length*.48f;
+                float width=layer==0?2.5f:2.1f,z=layer==0?.05f:.5f,depth=layer==0?.35f:.3f;
+                // Overlapping stepped taper gives each feather thickness and a narrow tip.
+                float[] taper={.72f,1f,.88f,.67f,.4f,.13f};
+                for(int step=0;step<taper.length;step++){
+                    float w=width*taper[step],left=Math.max(-w/2,-span);
+                    shape.cuboid(left,step*size/6,z,w/2-left,size/6+.06f,depth);
+                }
+            }
+            root.addChild("feather_"+feather,shape,ModelTransform.of(x,3.5f-span*.65f,0,0,0,angle));
+        }
+        return TexturedModelData.of(data,1,1).createModel();
+    }
     private static void cube(MatrixStack m,OrderedRenderCommandQueue q,int light,int color,float x,float y,float z,float w,float h,float d,boolean glow){m.push();m.translate(x/16f,y/16f,z/16f);m.scale(w,h,d);q.submitModelPart(CUBE,m,glow?GLOW:SOLID,glow?LightmapTextureManager.MAX_LIGHT_COORDINATE:light,OverlayTexture.DEFAULT_UV,null,color,null);m.pop();}
     public void render(MatrixStack m,OrderedRenderCommandQueue q,int light,PlayerEntityRenderState state,float yaw,float pitch){
         var look=SocialRuntime.look(state);if(look==null||look.cosmetics().isEmpty()||state.invisible)return;
@@ -75,7 +101,7 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
     }
     private static void wings(MatrixStack m,OrderedRenderCommandQueue q,int light,String id,float t){
         var panels=WINGS.get(id);if(panels==null)return;
-        boolean fairy=id.equals("fairywings"),butterfly=id.equals("butterflywings");
+        boolean fairy=id.equals("fairywings"),butterfly=id.equals("butterflywings"),angel=id.equals("angelwings");
         for(int side:new int[]{-1,1}){
             // Pair the roots near the spine, just behind the jacket, slightly above the old anchor.
             m.push();m.translate(side*2f/16f,1/16f,2.4/16f);
@@ -85,11 +111,16 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
             float flap=butterfly?.4f:fairy?.3f:.22f;
             m.multiply(RotationAxis.POSITIVE_Y.rotation(side*(-spread+(float)Math.sin(beat)*flap)));
             m.multiply(RotationAxis.POSITIVE_Z.rotation(side*(float)Math.sin(beat-.4f)*.035f));
-            m.scale(side,1,1);
+            // Enlarge around the visible root, so it stays attached at the previous height.
+            m.translate(0,3.5/16,0);m.scale(side*1.35f,1.25f,1);m.translate(0,-3.5/16,0);
             for(int i=0;i<panels.length;i++){
                 // Each hinge inherits the previous hinge: no disconnected wing sections.
                 m.multiply(RotationAxis.POSITIVE_Y.rotation(-.035f+(float)Math.sin(beat-i*.3f)*.045f));
-                q.submitModelPart(WING_PANEL,m,panels[i],light,OverlayTexture.DEFAULT_UV,null);
+                if(angel){
+                    q.submitModelPart(ANGEL_FLIGHT[i],m,SOLID,light,OverlayTexture.DEFAULT_UV,null,0xFFE9EDF4,null);
+                    q.submitModelPart(ANGEL_SHAFTS[i],m,SOLID,light,OverlayTexture.DEFAULT_UV,null,0xFFBECADA,null);
+                    q.submitModelPart(ANGEL_COVERTS[i],m,SOLID,light,OverlayTexture.DEFAULT_UV,null,0xFFFFFCF4,null);
+                }else q.submitModelPart(WING_PANEL,m,panels[i],light,OverlayTexture.DEFAULT_UV,null);
                 m.translate(4/16f,0,0);
             }
             m.pop();

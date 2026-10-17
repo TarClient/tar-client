@@ -1,3 +1,9 @@
+# 1.1.5 larger wings and angel remodel — 17 October 2026
+
+The wing renderer scales X by 1.35 and Y by 1.25 around the artwork root at Y=3.5 model pixels after applying the existing attachment, preserving its placement. Angel wings render four hinged groups containing twelve tapered flight feathers per side, shorter overlying coverts, shafts and a rising upper edge. Mesh depth is behind the attachment; the innermost flight-feather width is clipped to the root plane. Demon/Fairy/Butterfly retain their artwork and flap parameters. Existing texture assets are unchanged; the old angel atlas is no longer drawn. Local mod compilation passed.
+
+Live acceptance pending: inspect feather silhouette, shading, overlapping tapered segments, each flap phase, both sides, near-skin roots, slim/wide skins and armor/cape overlap. Rendering overhead with many angel-wing players needs a live frame-time check. Compilation and launcher tests do not establish these visual/performance results.
+
 # 1.1.4 wing placement — 17 October 2026
 
 The shared anchor for all four wing styles changes from X=+/-4.2, Y=2, Z=3.2 to X=+/-2, Y=1, Z=2.4 model pixels. This moves each root 2.2 pixels inward, 0.8 pixels toward the skin and 1 pixel upward. The jacket back is Z=2.25, leaving a small gap at the anchor. Texture assets, wing geometry, flapping parameters and cape motion are unchanged. Local Minecraft mod compilation passed. Live acceptance remains: inspect roots from behind and above through the flap cycle on slim/wide skins and with the jacket layer enabled; armor/cape overlap still needs an in-game check.

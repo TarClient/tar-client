@@ -7,6 +7,10 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.5: larger wings and a new angel model
+
+All four wing styles are 35% wider and 25% taller, scaled around their attachment so the close-to-skin placement is retained. Angel wings now use a dimensional feather model instead of the earlier flat feather illustration: twelve tapered flight feathers per wing, overlapping shorter coverts, slender shafts and a rising upper edge, with the existing four-section flapping motion. Demon, Fairy and Butterfly artwork is retained. Live in-game visual acceptance remains pending. This remains an unsigned preview and requires manual installation.
+
 ## Optional 1.1.4: closer wing placement
 
 Angel, Demon, Fairy and Butterfly wing roots now sit closer together near the center of the back, closer to the skin and slightly higher. Their artwork, size and flapping animation are preserved. The 1.1.3 cape-clipping correction is included. This remains an unsigned preview; install it manually because automatic updates only install stable releases.
