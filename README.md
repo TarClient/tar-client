@@ -7,6 +7,10 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.4: closer wing placement
+
+Angel, Demon, Fairy and Butterfly wing roots now sit closer together near the center of the back, closer to the skin and slightly higher. Their artwork, size and flapping animation are preserved. The 1.1.3 cape-clipping correction is included. This remains an unsigned preview; install it manually because automatic updates only install stable releases.
+
 ## Optional 1.1.3: cape clipping correction
 
 The segmented capes in 1.1.1 and 1.1.2 bent toward the torso, causing the lower artwork to disappear into the skin. This update reverses the root and hinge angles to bend outward and positions the attachment behind the jacket layer. All five Tar cape styles use the corrected motion. Artwork, accounts and preferences are unchanged. Geometry regression tests cover idle and running animation samples; live in-game visual confirmation remains pending.

@@ -1,3 +1,7 @@
+# 1.1.4 wing placement — 17 October 2026
+
+The shared anchor for all four wing styles changes from X=+/-4.2, Y=2, Z=3.2 to X=+/-2, Y=1, Z=2.4 model pixels. This moves each root 2.2 pixels inward, 0.8 pixels toward the skin and 1 pixel upward. The jacket back is Z=2.25, leaving a small gap at the anchor. Texture assets, wing geometry, flapping parameters and cape motion are unchanged. Local Minecraft mod compilation passed. Live acceptance remains: inspect roots from behind and above through the flap cycle on slim/wide skins and with the jacket layer enabled; armor/cape overlap still needs an in-game check.
+
 # 1.1.3 cape clipping correction — 17 October 2026
 
 The previous comment describing negative X rotation as outward was incorrect: model Y points down, so negative X sends the hem into negative Z, toward the torso. CapeMotion now supplies positive root and hinge rotations and a 3-model-pixel back offset (jacket back: 2.25). Regression tests evaluate every cuboid corner over 720 animation times and seven stride values, requiring clearance from the jacket plane and an outward hem. Non-finite animation inputs are also checked. Local Java compilation and both new tests passed.

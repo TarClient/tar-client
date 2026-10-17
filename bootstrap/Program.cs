@@ -10,7 +10,7 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Tar Client")]
 [assembly: AssemblyCompany("Tarre Industries")]
 [assembly: AssemblyProduct("Tar Client")]
-[assembly: AssemblyVersion("1.1.3.0")]
+[assembly: AssemblyVersion("1.1.4.0")]
 internal static class Program
 {
     [STAThread]
@@ -104,7 +104,7 @@ internal static class Program
         string name = File.ReadAllText(pointer).Trim();
         if (name.Length > 180 || name != Path.GetFileName(name) || name.Contains(":") || name.Contains("/") || name.Contains("\\")) return null;
         Version version;
-        if (!Version.TryParse(name.Split('-')[0], out version) || version < new Version("1.1.3")) return null;
+        if (!Version.TryParse(name.Split('-')[0], out version) || version < new Version("1.1.4")) return null;
         string target = Path.Combine(root, name); NoLinks(Path.Combine(target, "Tar Client"));
         string marker = Path.Combine(target, ".complete");
         if (!File.Exists(marker)) return null;
@@ -144,7 +144,7 @@ internal static class Program
         string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Tar Client");
         NoLinks(root);
         Directory.CreateDirectory(root);
-        string target = Path.Combine(root, "1.1.3-" + expected.Substring(0, 12));
+        string target = Path.Combine(root, "1.1.4-" + expected.Substring(0, 12));
         string executable = Path.Combine(target, "Tar Client", "Tar Client.exe");
         if (File.Exists(Path.Combine(target, ".complete")) && File.Exists(executable) && File.Exists(Path.Combine(target, "Tar Client", "runtime", "lib", "modules"))) return executable;
         string pending = Path.Combine(root, ".install-" + Guid.NewGuid().ToString("N"));

@@ -77,8 +77,8 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
         var panels=WINGS.get(id);if(panels==null)return;
         boolean fairy=id.equals("fairywings"),butterfly=id.equals("butterflywings");
         for(int side:new int[]{-1,1}){
-            // Attach near the outer shoulder blades, leaving the spine/cape clear.
-            m.push();m.translate(side*4.2/16f,2/16f,3.2/16f);
+            // Pair the roots near the spine, just behind the jacket, slightly above the old anchor.
+            m.push();m.translate(side*2f/16f,1/16f,2.4/16f);
             float beat=t*(fairy?11f:butterfly?5f:2.8f);
             // Keep the whole flap behind the shoulders instead of sweeping through them.
             float spread=butterfly?.5f:fairy?.4f:.32f;
