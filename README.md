@@ -7,6 +7,14 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.1: detailed cosmetics
+
+**Security notice:** The earlier 1.1.0 Windows EXE was detected by Microsoft Defender as Trojan:Win32/Wacatac.B!ml and submitted to Microsoft for review. The cause has not been established. This cosmetic update does not resolve or disprove that detection, and this new build has not been cleared by Microsoft. Leave blocked files quarantined; do not disable protection or use the ZIP to bypass a block. Executables remain unsigned. Build tests and matching checksums do not establish safety.
+
+Higher-resolution cape artwork and 32-frame animations add a perched cherry-blossom bird, large black lightning on white, and an upright obsidian-framed Nether portal. Wings attach farther apart and use four connected animated panels. Ocean scenery, bandanas, horns, halos, caps and swords also have more detail. All cosmetics remain free.
+
+Base decoded cosmetic textures use about 70 MiB if every style is loaded, excluding graphics-driver overhead. Live in-game and two-player visual checks remain pending; this is a prerelease.
+
 ## Optional 1.1.0: free Friends, emotes and cosmetics
 
 Open **Friends & style** in the launcher or **Right Shift > Friends & style** in Minecraft. Send a request using a Minecraft Java username; the recipient must accept before either person can send messages. Select a person to accept, decline, remove, block or unblock. Messages are available in both interfaces while that page is open, with up to 100 recent messages per conversation. New messages refresh about every six seconds. Removing or blocking deletes that conversation. Messages expire after 30 days and are not end-to-end encrypted.

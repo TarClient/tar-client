@@ -20,3 +20,6 @@ instance-*/
 **/.wrangler/
 accounts.dpapi
 accounts.lock
+
+__pycache__/
+*.pyc
