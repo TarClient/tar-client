@@ -1,3 +1,9 @@
+# 1.1.7 demon horn redesign — 17 October 2026
+
+Replaced upright segmented horns with a mirrored, four-section hooked model. Broad roots intersect the scalp; the taper sweeps outward and backward to narrow charcoal tips. Geometry is constructed once and follows the existing head transform. Local compilation passed against the Minecraft/Fabric API. An offline geometry preview checks front and angled silhouettes and attachment; it is not an in-game rendering test.
+
+Live acceptance pending: inspect horns from front, side and back, including head rotation, crouching, slim/wide skins and hat-layer combinations. No changes to wings, capes, permissions or authentication. The earlier executable malware-review concern remains separate from this cosmetic change.
+
 # 1.1.6 animated storm lightning cape — 17 October 2026
 
 The deterministic 32-frame loop reveals a branched white bolt downward over drifting grayscale clouds, then fades it into a dark interval. Cosmetic validation checks the early upper strike, absence of an early lower strike, completed strike at the hem, reduced late brightness, dark interval, monochrome channels, opaque cape faces, mirrored UVs and loop endpoints. These checks passed. The phase contact sheet was inspected and the glow reduced to retain a sharp bolt. Local Minecraft mod compilation passed after adding full light coordinates for the lightning cape only; no world light is added.

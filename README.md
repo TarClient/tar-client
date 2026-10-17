@@ -7,6 +7,10 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.7: redesigned demon horns
+
+Demon horns have a broad, angular root and a tapered hook that sweeps outward and behind the head. Deep crimson transitions to charcoal tips; the previous pale rounded segments and rings are removed. The model remains attached to head movement. Includes the animated storm cape and larger wings. This remains an unsigned preview requiring manual installation.
+
 ## Optional 1.1.6: animated storm lightning cape
 
 Lightning now uses a dark cloudy background, fine pale border and bright white branched bolt. In each four-second loop, the bolt grows from the top to the hem, flashes, fades and leaves a dark interval. Its light level stays bright at night without lighting the world. The 32-frame atlas and cape attachment are preserved, along with the larger wings and new angel model. This remains an unsigned preview requiring manual installation.

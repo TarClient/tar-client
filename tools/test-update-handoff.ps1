@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$tarExe = (Resolve-Path -LiteralPath './dist/TarClient-1.1.6.exe').Path
+$tarExe = (Resolve-Path -LiteralPath './dist/TarClient-1.1.7.exe').Path
 $tarShell = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
 $tarParent = Start-Process -FilePath $tarShell -ArgumentList '-NoProfile','-NonInteractive','-Command','Start-Sleep -Seconds 4' -WindowStyle Hidden -PassThru
 $tarUpdate = Start-Process -FilePath $tarExe -ArgumentList '--install-only','--update-from',($tarParent.Id.ToString()) -WindowStyle Hidden -PassThru

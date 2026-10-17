@@ -15,6 +15,7 @@ import dev.tarclient.config.CapeMotion;
 public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderState,PlayerEntityModel> {
     private static final Identifier WHITE=Identifier.of("tarclient","textures/cosmetics/white.png");
     private static final ModelPart CUBE=part(ModelPartBuilder.create().uv(0,0).cuboid(0,0,0,1,1,1),1,1);
+    private static final ModelPart[] DEMON_HORNS={hornSection(0),hornSection(1),hornSection(2),hornSection(3)};
     private static final int CAPE_FRAMES=32;
     private static final ModelPart[] CAPE_STRIPS=new ModelPart[4];
     private static final ModelPart WING_PANEL=part(ModelPartBuilder.create().uv(0,0).cuboid(0,-7,0,4,22,0),8,32);
@@ -127,17 +128,30 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
             m.pop();
         }
     }
+    private static ModelPart hornSection(int section){
+        // Head-local pixels: the broad root intersects the scalp; +Z sweeps behind the head.
+        float[][] path={{2.6f,-7.4f,-.6f,2.6f},{4.3f,-10.2f,.1f,1.9f},
+            {5.2f,-11.8f,2.2f,1.25f},{4.5f,-13.5f,4.4f,.65f},{3.5f,-14.2f,6.2f,.025f}};
+        float[] a=path[section],b=path[section+1];
+        float dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2];
+        float length=(float)Math.sqrt(dx*dx+dy*dy+dz*dz);
+        float pitch=-(float)Math.asin(dz/length),roll=(float)Math.atan2(dx,-dy);
+        var data=new ModelData();var root=data.getRoot();
+        // Closely overlapping square slices make a continuous faceted taper, without rings or a rounded cap.
+        for(int i=0;i<12;i++){
+            float t=(i+.5f)/12f,w=a[3]+(b[3]-a[3])*t,h=length/12f+.045f;
+            root.addChild("taper_"+i,ModelPartBuilder.create().uv(0,0)
+                .cuboid(-w/2,-h/2,-w*.36f,w,h,w*.72f),
+                ModelTransform.of(a[0]+dx*t,a[1]+dy*t,a[2]+dz*t,pitch,0,roll));
+        }
+        return TexturedModelData.of(data,1,1).createModel();
+    }
     private static void horns(MatrixStack m,OrderedRenderCommandQueue q,int light){
+        int[] colors={0xFF51232B,0xFF38232D,0xFF26222C,0xFF171820};
         for(int side:new int[]{-1,1}){
-            m.push();m.translate(side*3/16f,-7/16f,0);
-            for(int i=0;i<7;i++){
-                m.multiply(RotationAxis.POSITIVE_Z.rotation(side*(.12f+i*.016f)));
-                float w=1.8f-i*.22f;
-                int c=i>4?0xFFF1CFB1:i>1?0xFF975660:0xFF462C3B;
-                cube(m,q,light,c,-w/2,-1.25f,-w/2,w,1.4f,w,false);
-                if(i<5)cube(m,q,light,0xFFBD8D84,-w/2,-.9f,-w/2-.015f,w,.12f,.06f,false);
-                m.translate(0,-1.1/16f,0);
-            }
+            m.push();m.scale(side,1,1);
+            for(int i=0;i<DEMON_HORNS.length;i++)
+                q.submitModelPart(DEMON_HORNS[i],m,SOLID,light,OverlayTexture.DEFAULT_UV,null,colors[i],null);
             m.pop();
         }
     }
