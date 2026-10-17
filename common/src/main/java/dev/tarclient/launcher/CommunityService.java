@@ -15,7 +15,7 @@ public final class CommunityService {
     private static JsonObject post(String path,JsonObject body,String token)throws Exception {
         if(Set.of("/v1/heartbeat","/v1/ranks","/v1/rank").contains(path)&&!PrivacyPreferences.defaults().sharingEnabled())throw new IOException("Enable badge sharing in launcher Settings to use the community service.");
         if(!configured())throw new IOException("Tar community is not deployed yet.");
-        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.1.2");
+        var request=HttpRequest.newBuilder(URI.create(ENDPOINT+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json").header("User-Agent","TarClient/1.1.3");
         if(token!=null)request.header("Authorization","Bearer "+token);
         var response=HTTP.send(request.POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),HttpResponse.BodyHandlers.ofString());
         if(response.statusCode()/100!=2){String message="Community request failed (HTTP "+response.statusCode()+").";try{if(response.body().length()<4096){String error=JsonParser.parseString(response.body()).getAsJsonObject().get("error").getAsString();if(error.length()<200&&!error.matches(".*[\\p{Cntrl}].*"))message=error;}}catch(Exception ignored){}throw new RequestException(response.statusCode(),message);}

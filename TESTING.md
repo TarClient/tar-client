@@ -1,3 +1,9 @@
+# 1.1.3 cape clipping correction — 17 October 2026
+
+The previous comment describing negative X rotation as outward was incorrect: model Y points down, so negative X sends the hem into negative Z, toward the torso. CapeMotion now supplies positive root and hinge rotations and a 3-model-pixel back offset (jacket back: 2.25). Regression tests evaluate every cuboid corner over 720 animation times and seven stride values, requiring clearance from the jacket plane and an outward hem. Non-finite animation inputs are also checked. Local Java compilation and both new tests passed.
+
+Live acceptance pending: inspect the full cape from behind and from the side while idle, walking, sprinting and crouching; check skin jacket, armor and cosmetic overlap. This addresses the reported torso intersection but is not a claim of complete cloth/armor collision simulation. The prior launcher malware review is unaffected.
+
 # 1.1.2 automatic updater — 17 October 2026
 
 Ten updater tests cover numeric versions, downgrade/same-version rejection, draft/preview exclusion, exact repository/asset URL binding, missing digests and oversized assets, duplicate/incomplete metadata, successful isolated staging with account/preferences preservation, tampering, interrupted downloads and no-update startup. Local Java and C# compilation passed. Windows CI additionally checks waiting for the previous process, invalid PID rejection, the remembered installation, rejection of pointer traversal, preference for newer installed versions and incomplete-install fallback. Preview/render-only/smoke/install-only entrypoints do not perform startup updates.

@@ -7,6 +7,12 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.3: cape clipping correction
+
+The segmented capes in 1.1.1 and 1.1.2 bent toward the torso, causing the lower artwork to disappear into the skin. This update reverses the root and hinge angles to bend outward and positions the attachment behind the jacket layer. All five Tar cape styles use the corrected motion. Artwork, accounts and preferences are unchanged. Geometry regression tests cover idle and running animation samples; live in-game visual confirmation remains pending.
+
+This remains an unsigned preview. The automatic updater installs only newer stable releases, so install this preview manually. The existing Defender-review warning still applies.
+
 ## Optional 1.1.2: automatic launcher updates
 
 The packaged Windows launcher checks GitHub's latest stable release at startup. A newer version downloads automatically, verifies its size and SHA-256 digest from GitHub, installs beside the previous version and restarts. Accounts, worlds, mods and profiles remain in the existing data folder. An offline check or invalid download leaves the current launcher usable. Settings has an **Automatically update on startup** switch (enabled by default) and **Check and install update now**.

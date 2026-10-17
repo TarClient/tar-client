@@ -10,6 +10,7 @@ import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import dev.tarclient.config.CapeMotion;
 /** Illustrated accessories with articulated cloth. All transforms affect rendering only. */
 public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderState,PlayerEntityModel> {
     private static final Identifier WHITE=Identifier.of("tarclient","textures/cosmetics/white.png");
@@ -63,12 +64,11 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
     private static void cape(MatrixStack m,OrderedRenderCommandQueue q,int light,String id,float t,float stride){
         var frames=CAPES.get(id);if(frames==null)return;
         var layer=frames[Math.floorMod((int)(t*8),frames.length)];
-        m.translate(0,0,2.7/16);
-        // Negative X bends the cape away from the back, including at running speed.
-        m.multiply(RotationAxis.POSITIVE_X.rotation(-.09f-Math.min(.48f,Math.abs(stride)*.3f)));
+        m.translate(0,0,CapeMotion.BACK_OFFSET/16f);
+        // Model Y points down. Positive X rotation moves the hem toward +Z, behind the torso.
+        m.multiply(RotationAxis.POSITIVE_X.rotation(CapeMotion.rootPitch(stride)));
         for(int i=0;i<CAPE_STRIPS.length;i++){
-            float ripple=(float)Math.sin(t*2.5f-i*.65f)*(.012f+i*.006f);
-            m.multiply(RotationAxis.POSITIVE_X.rotation(-.025f+ripple));
+            m.multiply(RotationAxis.POSITIVE_X.rotation(CapeMotion.hingePitch(i,t)));
             q.submitModelPart(CAPE_STRIPS[i],m,layer,light,OverlayTexture.DEFAULT_UV,null);
             m.translate(0,4/16f,0);
         }
