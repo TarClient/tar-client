@@ -35,4 +35,18 @@ for kind in ('black','white','basic'):
         assert image.getchannel('A').getextrema()==(255,255)
         memory+=image.width*image.height*4
 assert memory<=80*1024*1024
+# The strike must grow downward and disappear; a static or always-lit bolt fails.
+early=art.lightning(art.TAU*3/32).convert('L')
+peak=art.lightning(art.TAU*8/32).convert('L')
+late=art.lightning(art.TAU*20/32).convert('L')
+quiet=art.lightning(art.TAU*27/32).convert('L')
+def bright(image,box):return sum(v>=200 for v in image.crop(box).tobytes())
+assert bright(early,(12,10,148,90))>0,'Lightning leader missing at the top'
+assert bright(early,(12,128,148,246))==0,'Lightning appeared at the bottom before travelling down'
+assert bright(peak,(12,210,148,246))>0,'Lightning never reached the hem'
+assert bright(late,(12,10,148,246))<bright(peak,(12,10,148,246)),'Lightning did not fade'
+assert bright(quiet,(12,10,148,246))==0,'Lightning must have a dark interval'
+channels=art.lightning(art.TAU*8/32).split()
+assert channels[0].tobytes()==channels[1].tobytes()==channels[2].tobytes(),'Lightning should remain monochrome'
 print(f'PASS: cape opacity/UVs, 32-frame loops, articulated wing joins, bandanas; {memory/1024/1024:.1f} MiB decoded texture budget (all styles loaded).')
+print('PASS: white lightning grows top-to-bottom, reaches the hem, fades and has a dark interval.')

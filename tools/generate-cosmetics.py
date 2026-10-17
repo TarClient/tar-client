@@ -6,7 +6,7 @@ Each articulated wing panel uses a two-sided 8x32 atlas at 16x resolution.
 Run with --preview <directory> to also export a contact sheet and animated previews.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops
 import argparse
 import math
 import random
@@ -135,15 +135,60 @@ def blossom(t):
     border(im,'#C794AA');return im
 
 
+_storm_rng=random.Random(4841)
+_storm_grid=[[_storm_rng.random() for _ in range(32)] for _ in range(32)]
+
+
+def storm_noise(x,y,cell):
+    x/=cell;y/=cell;ix=math.floor(x);iy=math.floor(y);u=x-ix;v=y-iy
+    u=u*u*(3-2*u);v=v*v*(3-2*v)
+    a=_storm_grid[iy%32][ix%32]*(1-u)+_storm_grid[iy%32][(ix+1)%32]*u
+    b=_storm_grid[(iy+1)%32][ix%32]*(1-u)+_storm_grid[(iy+1)%32][(ix+1)%32]*u
+    return a*(1-v)+b*v
+
+
 def lightning(t):
-    # One solid lightning color, without colored cores, shadows or background rays.
-    im=Image.new('RGBA',(W,H),'#F5F5F5');d=ImageDraw.Draw(im)
-    bolt=[(109,12),(45,91),(76,84),(32,156),(68,143),(48,244),
-          (120,129),(88,140),(131,62),(85,72),(123,12)]
-    branch=[(60,111),(20,139),(38,140),(16,187),(52,149),(37,148),(70,125)]
-    for shape in (bolt,branch):
-        d.polygon([(x+math.sin(t+y*.035)*3,y) for x,y in shape],fill='#181818')
-    border(im,'#181818');return im
+    # Four-second loop: downward leader, white flash, fading afterglow, then darkness.
+    phase=(t/TAU)%1
+    active=.06<=phase<.65
+    reach=max(0,min(1,(phase-.06)/.16)) if active else 0
+    strength=1 if active and phase<=.28 else max(0,1-(phase-.28)/.37)**2 if active else 0
+    flash=strength*(.35 if reach<1 else 1)
+    sky=Image.new('L',(W,H));pixels=sky.load()
+    dx=math.sin(t)*9;dy=math.cos(t)*7
+    for y in range(H):
+        for x in range(W):
+            noise=.55*storm_noise(x+dx,y+dy,43)+.3*storm_noise(x-dy,y+dx,19)+.15*storm_noise(x+dy,y-dx,8)
+            cloud=max(0,(noise-.30)/.70)**1.7
+            edge=abs(x-W/2)/(W/2)
+            pixels[x,y]=min(95,round(5+cloud*(42+flash*44)+edge*cloud*13))
+    bolt=[(84,5),(94,18),(77,27),(101,42),(72,53),(85,65),(55,79),
+          (73,92),(64,109),(90,124),(69,139),(83,154),(62,169),(76,184),
+          (54,200),(78,217),(68,233),(83,251)]
+    branches=[[(72,53),(112,62),(104,78),(129,92)],
+              [(64,109),(40,125),(47,140),(27,157)],
+              [(62,169),(99,179),(92,196),(117,211)]]
+    mask=Image.new('L',(W,H));draw=ImageDraw.Draw(mask)
+    def leader(points,width):
+        cutoff=5+246*reach
+        for a,b in zip(points,points[1:]):
+            if a[1]>=cutoff:break
+            end=b if b[1]<=cutoff else (a[0]+(b[0]-a[0])*(cutoff-a[1])/(b[1]-a[1]),cutoff)
+            draw.line([a,end],fill=255,width=width)
+    if active:
+        leader(bolt,3)
+        for branch in branches:leader(branch,2)
+        haze=mask.filter(ImageFilter.GaussianBlur(9)).point(lambda v:min(255,round(v*1.8*strength)))
+        halo=mask.filter(ImageFilter.GaussianBlur(2.5)).point(lambda v:min(255,round(v*.9*strength)))
+        core=mask.point(lambda v:round(v*strength))
+        sky=ImageChops.add(sky,haze);sky=ImageChops.add(sky,halo);sky=ImageChops.add(sky,core)
+    # A fine irregular white edge echoes the reference without hiding the dark interval.
+    edge=Image.new('L',(W,H));e=ImageDraw.Draw(edge)
+    for side in (5,154):
+        e.line([(side+math.sin(y*.34)*.7,y) for y in range(5,251,3)],fill=120+round(flash*60),width=1)
+    for y in (5,250):e.line([(x,y+math.sin(x*.39)*.6) for x in range(5,155,3)],fill=140+round(flash*50),width=1)
+    sky=ImageChops.add(sky,edge.filter(ImageFilter.GaussianBlur(1.6)));sky=ImageChops.lighter(sky,edge)
+    return sky.convert('RGBA')
 
 
 def nether(t):

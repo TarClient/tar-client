@@ -90,12 +90,13 @@ public final class CosmeticsRenderer extends FeatureRenderer<PlayerEntityRenderS
     private static void cape(MatrixStack m,OrderedRenderCommandQueue q,int light,String id,float t,float stride){
         var frames=CAPES.get(id);if(frames==null)return;
         var layer=frames[Math.floorMod((int)(t*8),frames.length)];
+        int capeLight=id.equals("lightningcape")?LightmapTextureManager.MAX_LIGHT_COORDINATE:light;
         m.translate(0,0,CapeMotion.BACK_OFFSET/16f);
         // Model Y points down. Positive X rotation moves the hem toward +Z, behind the torso.
         m.multiply(RotationAxis.POSITIVE_X.rotation(CapeMotion.rootPitch(stride)));
         for(int i=0;i<CAPE_STRIPS.length;i++){
             m.multiply(RotationAxis.POSITIVE_X.rotation(CapeMotion.hingePitch(i,t)));
-            q.submitModelPart(CAPE_STRIPS[i],m,layer,light,OverlayTexture.DEFAULT_UV,null);
+            q.submitModelPart(CAPE_STRIPS[i],m,layer,capeLight,OverlayTexture.DEFAULT_UV,null);
             m.translate(0,4/16f,0);
         }
     }

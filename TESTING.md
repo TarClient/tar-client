@@ -1,3 +1,9 @@
+# 1.1.6 animated storm lightning cape — 17 October 2026
+
+The deterministic 32-frame loop reveals a branched white bolt downward over drifting grayscale clouds, then fades it into a dark interval. Cosmetic validation checks the early upper strike, absence of an early lower strike, completed strike at the hem, reduced late brightness, dark interval, monochrome channels, opaque cape faces, mirrored UVs and loop endpoints. These checks passed. The phase contact sheet was inspected and the glow reduced to retain a sharp bolt. Local Minecraft mod compilation passed after adding full light coordinates for the lightning cape only; no world light is added.
+
+Live acceptance pending: inspect cape playback at normal distance, nighttime brightness, frame pacing and shader compatibility. The larger wings, angel model and cape attachment are unchanged. The prior executable malware-review concern remains separate from these texture changes.
+
 # 1.1.5 larger wings and angel remodel — 17 October 2026
 
 The wing renderer scales X by 1.35 and Y by 1.25 around the artwork root at Y=3.5 model pixels after applying the existing attachment, preserving its placement. Angel wings render four hinged groups containing twelve tapered flight feathers per side, shorter overlying coverts, shafts and a rising upper edge. Mesh depth is behind the attachment; the innermost flight-feather width is clipped to the root plane. Demon/Fairy/Butterfly retain their artwork and flap parameters. Existing texture assets are unchanged; the old angel atlas is no longer drawn. Local mod compilation passed.
