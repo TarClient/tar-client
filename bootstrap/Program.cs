@@ -10,7 +10,7 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Tar Client")]
 [assembly: AssemblyCompany("Tarre Industries")]
 [assembly: AssemblyProduct("Tar Client")]
-[assembly: AssemblyVersion("1.1.1.0")]
+[assembly: AssemblyVersion("1.1.2.0")]
 internal static class Program
 {
     [STAThread]
@@ -19,6 +19,15 @@ internal static class Program
         bool installOnly = Array.IndexOf(args, "--install-only") >= 0;
         try
         {
+            int updateIndex = Array.IndexOf(args, "--update-from");
+            if (updateIndex >= 0)
+            {
+                int pid;
+                if (updateIndex + 1 >= args.Length || !Int32.TryParse(args[updateIndex + 1], out pid) || pid <= 0 || pid == Process.GetCurrentProcess().Id)
+                    throw new IOException("Invalid update handoff.");
+                try { using (var parent = Process.GetProcessById(pid)) { if (!parent.WaitForExit(120000)) throw new IOException("Close the previous launcher, then retry the update."); } }
+                catch (ArgumentException) { /* Previous launcher already exited. */ }
+            }
             using (var mutex = new Mutex(false, "Local\\TarClientBootstrap"))
             {
                 bool owned = false;
@@ -28,8 +37,10 @@ internal static class Program
                     catch (AbandonedMutexException) { owned = true; }
                     if (!owned) throw new IOException("Another Tar Client installation is still running.");
                     if (!installOnly && !PrivacySetup()) return 0;
-                    string app = Install();
+                    string app = !installOnly ? PreferredInstallation() : null;
+                    if (app == null) app = Install();
                     CreateShortcut(app);
+                    RememberInstallation(app);
                     if (!installOnly) Process.Start(new ProcessStartInfo(app) { WorkingDirectory = Path.GetDirectoryName(app), UseShellExecute = true });
                 }
                 finally { if (owned) mutex.ReleaseMutex(); }
@@ -80,6 +91,40 @@ internal static class Program
         if (stream == null) throw new IOException("The launcher download is incomplete. Download Tar Client again.");
         return stream;
     }
+    private static string InstallRoot()
+    {
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Tar Client");
+    }
+    // A desktop copy of an older bootstrap must reopen an already installed newer version.
+    private static string PreferredInstallation()
+    {
+        string root = InstallRoot(); NoLinks(root);
+        string pointer = Path.Combine(root, "current-install.txt");
+        if (!File.Exists(pointer)) return null;
+        string name = File.ReadAllText(pointer).Trim();
+        if (name.Length > 180 || name != Path.GetFileName(name) || name.Contains(":") || name.Contains("/") || name.Contains("\\")) return null;
+        Version version;
+        if (!Version.TryParse(name.Split('-')[0], out version) || version < new Version("1.1.2")) return null;
+        string target = Path.Combine(root, name); NoLinks(Path.Combine(target, "Tar Client"));
+        string marker = Path.Combine(target, ".complete");
+        if (!File.Exists(marker)) return null;
+        string hash = File.ReadAllText(marker).Trim();
+        if (!System.Text.RegularExpressions.Regex.IsMatch(hash, "^[a-f0-9]{64}$") || !name.StartsWith(version + "-" + hash.Substring(0,12), StringComparison.Ordinal)) return null;
+        foreach (string file in new[] { "Tar Client.exe", "app/tar-launcher.jar", "app/Tar Client.cfg", "runtime/bin/java.exe", "runtime/lib/modules" })
+            if (!File.Exists(Path.Combine(target, "Tar Client", file.Replace('/', Path.DirectorySeparatorChar)))) return null;
+        return Path.Combine(target, "Tar Client", "Tar Client.exe");
+    }
+    private static void RememberInstallation(string executable)
+    {
+        string root = InstallRoot(); NoLinks(root);
+        string name = new DirectoryInfo(Path.GetDirectoryName(Path.GetDirectoryName(executable))).Name;
+        // install-only validation must not redirect users from a newer saved installation.
+        if (PreferredInstallation() != null && !String.Equals(PreferredInstallation(), executable, StringComparison.OrdinalIgnoreCase)) return;
+        string pointer = Path.Combine(root, "current-install.txt");
+        string temp = Path.Combine(root, ".current-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(temp, name);
+        if (File.Exists(pointer)) File.Replace(temp, pointer, null); else File.Move(temp, pointer);
+    }
     private static string Hash(Stream stream)
     {
         using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
@@ -99,7 +144,7 @@ internal static class Program
         string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Tar Client");
         NoLinks(root);
         Directory.CreateDirectory(root);
-        string target = Path.Combine(root, "1.1.1-" + expected.Substring(0, 12));
+        string target = Path.Combine(root, "1.1.2-" + expected.Substring(0, 12));
         string executable = Path.Combine(target, "Tar Client", "Tar Client.exe");
         if (File.Exists(Path.Combine(target, ".complete")) && File.Exists(executable) && File.Exists(Path.Combine(target, "Tar Client", "runtime", "lib", "modules"))) return executable;
         string pending = Path.Combine(root, ".install-" + Guid.NewGuid().ToString("N"));

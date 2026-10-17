@@ -7,6 +7,14 @@
 
 A free, open-source Windows launcher for **Minecraft Java 1.21.11 / Fabric 0.19.5**, with the bundled Tar Client cosmetic and HUD mod. Published by **Tarre Industries**, a project name rather than a registered company or verified Windows publisher.
 
+## Optional 1.1.2: automatic launcher updates
+
+The packaged Windows launcher checks GitHub's latest stable release at startup. A newer version downloads automatically, verifies its size and SHA-256 digest from GitHub, installs beside the previous version and restarts. Accounts, worlds, mods and profiles remain in the existing data folder. An offline check or invalid download leaves the current launcher usable. Settings has an **Automatically update on startup** switch (enabled by default) and **Check and install update now**.
+
+Only releases marked stable/latest by the maintainer are eligible: drafts, previews, equal versions and downgrades are excluded. V1.0 is currently the recommended stable release, so 1.1.2 will not downgrade to it. A later stable release above 1.1.2 will update automatically. Install this updater-enabled version manually once; older versions cannot gain the feature by themselves. Use the new desktop shortcut. Standalone EXEs from 1.1.2 onward also remember newer installations when reopened. Development launches and custom data/instance paths do not self-update.
+
+Windows security checks remain in effect. The previous Defender detection remains unresolved by this feature; automatic updates do not make an unsigned release trusted. A blocked installer is not bypassed. Previous app installations are retained for recovery.
+
 ## Optional 1.1.1: detailed cosmetics
 
 **Security notice:** The earlier 1.1.0 Windows EXE was detected by Microsoft Defender as Trojan:Win32/Wacatac.B!ml and submitted to Microsoft for review. The cause has not been established. This cosmetic update does not resolve or disprove that detection, and this new build has not been cleared by Microsoft. Leave blocked files quarantined; do not disable protection or use the ZIP to bypass a block. Executables remain unsigned. Build tests and matching checksums do not establish safety.

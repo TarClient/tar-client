@@ -69,8 +69,8 @@ jobs:
         shell: pwsh
         run: |
           $tarDesktop = [Environment]::GetFolderPath('DesktopDirectory')
-          $tarStandalone = Join-Path $tarDesktop 'TarClient-1.1.1.exe'
-          Copy-Item -LiteralPath './dist/TarClient-1.1.1.exe' -Destination $tarStandalone
+          $tarStandalone = Join-Path $tarDesktop 'TarClient-1.1.2.exe'
+          Copy-Item -LiteralPath './dist/TarClient-1.1.2.exe' -Destination $tarStandalone
           $tarProcess = Start-Process -FilePath $tarStandalone -ArgumentList '--install-only' -WindowStyle Hidden -PassThru
           if (-not $tarProcess.WaitForExit(120000)) { $tarProcess.Kill(); throw 'Standalone installation timed out.' }
           if ($tarProcess.ExitCode -ne 0) { throw "Standalone installation failed: $($tarProcess.ExitCode)" }
@@ -87,6 +87,9 @@ jobs:
           $tarShortcut = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $tarDesktop 'Tar Client.lnk'))
           if ($tarShortcut.TargetPath -ne $tarFirstTarget) { throw 'Standalone did not reuse the verified installation.' }
           Write-Output 'Movable desktop EXE installed its complete payload, created a shortcut, and reopened without reinstallation.'
+      - name: Verify automatic update handoff
+        shell: pwsh
+        run: ./tools/test-update-handoff.ps1
       - name: Audit native signatures (launcher is currently unsigned)
         shell: pwsh
         run: ./sign-windows.ps1 -PackagePath './dist/Tar Client'
@@ -95,8 +98,8 @@ jobs:
         with:
           name: TarClient-Windows-UNSIGNED-${{ github.sha }}
           path: |
-            dist/TarClient-1.1.1-Windows.zip
-            dist/TarClient-1.1.1.exe
+            dist/TarClient-1.1.2-Windows.zip
+            dist/TarClient-1.1.2.exe
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7

@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public final class TarLauncher extends JFrame {
     static Color BG=LauncherTheme.BG,CARD=LauncherTheme.CARD,ACCENT=LauncherTheme.ACCENT,MUTED=LauncherTheme.MUTED;
-    public static final String VERSION="1.1.1";
+    public static final String VERSION="1.1.2";
     private final Path data,game,settingsPath;
     private ClientConfig config;
     private JsonObject prefs;
@@ -76,7 +76,7 @@ public final class TarLauncher extends JFrame {
                         var graphics=picture.createGraphics();surface.printAll(graphics);graphics.dispose();javax.imageio.ImageIO.write(picture,"png",Path.of(args[1]).toFile());
                     }catch(Exception e){e.printStackTrace();}finally{frame.dispose();frame.worker.shutdownNow();System.exit(0);}
                 }));
-            }else frame.setVisible(true);
+            }else {frame.setVisible(true);frame.startup();}
         }catch(Exception e){JOptionPane.showMessageDialog(null,e.getMessage(),"Tar Client",JOptionPane.ERROR_MESSAGE);}});
     }
     private static void layoutTree(Container c){c.doLayout();for(Component child:c.getComponents())if(child instanceof Container nested)layoutTree(nested);}
@@ -108,6 +108,27 @@ public final class TarLauncher extends JFrame {
         logs.setEditable(false);logs.setFont(new Font("Consolas",Font.PLAIN,12));logs.setLineWrap(true);logs.setWrapStyleWord(true);
         addWindowListener(new WindowAdapter(){@Override public void windowClosing(WindowEvent e){if(busy||running()){JOptionPane.showMessageDialog(TarLauncher.this,"Wait for the current operation or close Minecraft before closing the launcher.");return;}worker.shutdownNow();try{processLock.release();lockChannel.close();}catch(Exception ignored){}dispose();}});
         home();
+    }
+    private void startup(){
+        if(Boolean.parseBoolean(pref("autoUpdate","true")))checkUpdates(true);else restoreAccounts();
+    }
+    private void checkUpdates(boolean startup){
+        if(busy||running()){status("Close Minecraft and wait for current tasks before updating.");return;}
+        if(!LauncherUpdater.supported()){status("Automatic updates require the Windows packaged launcher with its standard data folder.");if(startup)restoreAccounts();return;}
+        busy=true;progress.setVisible(true);home();
+        activeTask=worker.submit(()->{
+            boolean restarting=false;
+            try {
+                Path installer=new LauncherUpdater().prepare(VERSION,data,this::status);
+                if(installer!=null){LauncherUpdater.install(installer);restarting=true;SwingUtilities.invokeLater(()->{
+                    try{processLock.release();lockChannel.close();}catch(Exception ignored){}
+                    dispose();worker.shutdownNow();System.exit(0);
+                });}else status("No newer stable launcher update. You can play.");
+            }catch(Exception e){status("Update unavailable: "+e.getMessage()+". Continuing with "+VERSION+".");}
+            finally{if(!restarting)SwingUtilities.invokeLater(()->{busy=false;progress.setVisible(false);home();if(startup)restoreAccounts();});}
+        });
+    }
+    private void restoreAccounts(){
         if(Files.exists(data.resolve("accounts.dpapi")))operation(()->{
             var stored=accountStore.read();SwingUtilities.invokeLater(()->{for(var a:stored.accounts())savedAccounts.put(a.uuid(),a);});
             var selected=stored.accounts().stream().filter(a->a.uuid().equals(stored.selected())).findFirst();
@@ -300,6 +321,10 @@ public final class TarLauncher extends JFrame {
         JCheckBox share=new JCheckBox("Share my identity for badges, cosmetics and emotes",PrivacyPreferences.defaults().sharingEnabled());share.setOpaque(false);
         share.addActionListener(e->{try{PrivacyPreferences.defaults().save(share.isSelected());status("Badge sharing "+(share.isSelected()?"enabled":"disabled")+". Changes apply to new requests; old presence expires within two minutes.");}catch(Exception failure){share.setSelected(PrivacyPreferences.defaults().sharingEnabled());status("Could not save privacy choice: "+failure.getMessage());}});
         privacy.add(share);privacy.add(button("Read privacy policy",()->browse("https://github.com/TarClient/tar-client/blob/main/PRIVACY.md")));list.add(privacy);list.add(Box.createVerticalStrut(16));
+        JPanel updates=card();updates.add(label("Launcher updates",22,LauncherTheme.TEXT));updates.add(wrap("Check at startup and automatically install newer stable releases. Preview releases are excluded. Your accounts, worlds and profiles stay in place.",3));
+        JCheckBox autoUpdate=new JCheckBox("Automatically update on startup",Boolean.parseBoolean(pref("autoUpdate","true")));
+        autoUpdate.addActionListener(e->{if(!canEdit()){autoUpdate.setSelected(Boolean.parseBoolean(pref("autoUpdate","true")));return;}String old=pref("autoUpdate","true");prefs.addProperty("autoUpdate",autoUpdate.isSelected());try{Net.writeJson(data.resolve("launcher.json"),prefs);status("Automatic updates "+(autoUpdate.isSelected()?"enabled":"disabled"));}catch(Exception failure){prefs.addProperty("autoUpdate",Boolean.parseBoolean(old));autoUpdate.setSelected(Boolean.parseBoolean(old));status("Could not save update preference");}});
+        updates.add(autoUpdate);updates.add(button("Check and install update now",()->checkUpdates(false)));list.add(updates);list.add(Box.createVerticalStrut(16));
         JCheckBox darkMode=new JCheckBox("Dark mode (restart launcher to apply)",Boolean.parseBoolean(pref("darkMode","true")));list.add(darkMode);list.add(Box.createVerticalStrut(12));
         JTextField accent=new JTextField(pref("accent",ThemeColors.DEFAULT_ACCENT),8),background=new JTextField(pref("menuBackground",ThemeColors.DEFAULT_BACKGROUND),8);
         list.add(themeColorRow("Launcher accent",accent));list.add(Box.createVerticalStrut(10));

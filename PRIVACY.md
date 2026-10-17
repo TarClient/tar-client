@@ -1,4 +1,4 @@
-# Privacy — Tar Client 1.1.0
+# Privacy — Tar Client 1.1.2
 
 Tar has no advertising, analytics SDK or automatic crash-report upload. Version 1.0 adds encrypted remembered accounts and a shared player-badge service.
 
@@ -34,6 +34,10 @@ The database keeps UUID/name directory entries, accepted friendships, blocks and
 With the existing installation player-sharing choice enabled, Minecraft publishes selected cosmetic IDs and active emote IDs/timestamps and requests the UUIDs of up to 99 nearby players plus yourself, about every five seconds. No positions, world names or server addresses are sent for these features. Appearance presence expires after 15 seconds without refresh. Turning sharing off stops new appearance requests and attempts cleanup; an in-flight request may finish first. Cosmetics remain saved for later use. Other Tar users requesting your UUID can see your active appearance. Equipping an item is an explicit server-side update, even if sharing is currently off. Opening Friends alone does not publish your appearance.
 
 No real-money purchases, Tar Coin balances, payment processing, bank details or identity-document collection are implemented. All cosmetics and emotes, including every cape, are free. The existing Minecraft account is used to prove account ownership.
+
+## Automatic launcher updates
+
+At startup, the packaged Windows launcher contacts the public GitHub releases API for `TarClient/tar-client`. Newer stable releases download from GitHub and its release-asset CDN and are checked against the SHA-256 digest published by GitHub. These requests include your network address and a Tar Client version user-agent, but no Minecraft account identifiers, tokens, friend messages or local files. No GitHub login is needed. Disable startup updates in **Settings > Launcher updates**; the manual update button still contacts GitHub when clicked. Downloaded update installers stay under the local TarClient data folder's `updates` directory. Previous app versions remain under Local AppData/Programs/Tar Client for recovery.
 
 ## Downloads and other network activity
 

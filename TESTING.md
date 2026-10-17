@@ -1,3 +1,9 @@
+# 1.1.2 automatic updater — 17 October 2026
+
+Ten updater tests cover numeric versions, downgrade/same-version rejection, draft/preview exclusion, exact repository/asset URL binding, missing digests and oversized assets, duplicate/incomplete metadata, successful isolated staging with account/preferences preservation, tampering, interrupted downloads and no-update startup. Local Java and C# compilation passed. Windows CI additionally checks waiting for the previous process, invalid PID rejection, the remembered installation, rejection of pointer traversal, preference for newer installed versions and incomplete-install fallback. Preview/render-only/smoke/install-only entrypoints do not perform startup updates.
+
+No production future release was fabricated or installed. Live automatic updating awaits a newer stable release. The updater does not clear Defender detections, sign executables or bypass Windows protection. Existing 1.1.0 malware-review concerns remain documented separately.
+
 # 1.1.1 cosmetic detail update — 17 October 2026
 
 The Minecraft 1.21.11 mod and shared sources compile locally with Java 21. `tools/verify-cosmetics.py` passes: every cape frame has opaque faces and mirrored back UVs; all four animated cape loops return to their starting artwork; each of the four hinged wing panels matches its original illustration and reverse face; bandanas have complete opaque textures. The total base-level decoded texture budget is 70 MiB if every style is loaded (excluding driver overhead). A static basic cape uses one frame instead of 16 duplicates.
